@@ -40,7 +40,7 @@ class User(
     @Column(name = "social_type", nullable = false)
     val socialType: SocialType
 
-){
+) : BaseTimeEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
