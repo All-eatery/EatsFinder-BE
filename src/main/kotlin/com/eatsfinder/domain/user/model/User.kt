@@ -38,7 +38,7 @@ class User(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "social_type", nullable = false)
-    val socialType: SocialType,
+    val provider: SocialType,
 
     val providerId: String
 
@@ -50,8 +50,24 @@ class User(
     companion object{
         fun ofKakao(id: Long, nickname: String, email: String): User {
             return User(
-                socialType = SocialType.KAKAO,
+                provider = SocialType.KAKAO,
                 providerId = id.toString(),
+                nickname = nickname,
+                email = email,
+                followCount = 0,
+                password = null.toString(),
+                profileImage = null.toString(),
+                phoneNumber = null.toString(),
+                name = null.toString(),
+                status = UserStatus.NORMAL,
+                role = UserRole.USER
+            )
+        }
+
+        fun ofGoogle(id: String, nickname: String, email: String): User {
+            return User(
+                provider = SocialType.GOOGLE,
+                providerId = id,
                 nickname = nickname,
                 email = email,
                 followCount = 0,
