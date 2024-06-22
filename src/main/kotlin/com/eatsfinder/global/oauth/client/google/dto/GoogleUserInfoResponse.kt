@@ -19,5 +19,4 @@ class GoogleUserInfoResponse(
     nickname = name,
     email = email,
     profileImage = picture
-
 )

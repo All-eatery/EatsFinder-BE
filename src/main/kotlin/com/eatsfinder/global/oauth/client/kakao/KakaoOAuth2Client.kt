@@ -1,6 +1,5 @@
 package com.eatsfinder.global.oauth.client.kakao
 
-import com.eatsfinder.domain.user.dto.OAuth2UserInfo
 import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.global.oauth.client.OAuth2Client
 import com.eatsfinder.global.oauth.client.kakao.dto.KakaoTokenResponse

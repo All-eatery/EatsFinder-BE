@@ -11,5 +11,5 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories
 class EatsFinderApplication
 
 fun main(args: Array<String>) {
-	runApplication<EatsFinderApplication>(*args)
+    runApplication<EatsFinderApplication>(*args)
 }
