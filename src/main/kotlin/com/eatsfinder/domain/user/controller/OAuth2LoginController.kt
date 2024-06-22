@@ -48,7 +48,7 @@ class OAuth2LoginController(
             .from("accessToken", accessToken)
             .httpOnly(true)
             .path("/")
-            .maxAge(3600)
+            .maxAge(604800)
             .build()
 
         val headers = HttpHeaders()
