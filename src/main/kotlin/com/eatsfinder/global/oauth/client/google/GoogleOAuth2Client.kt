@@ -25,7 +25,7 @@ class GoogleOAuth2Client(
     override fun generateLoginPageUrl(): String {
         return StringBuilder(authBaseUrl)
             .append("?response_type=").append("code")
-            .append("&client_id").append(clientId)
+            .append("&client_id=").append(clientId)
             .append("&redirect_uri=").append(redirectUrl)
             .append("&scope=")
             .append("https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email")
@@ -50,7 +50,7 @@ class GoogleOAuth2Client(
             ?: throw RuntimeException("유저 조회 실패")
     }
 
-    override fun retrieveUserInfo(accessToken: String): OAuth2UserInfo {
+    override fun retrieveUserInfo(accessToken: String): GoogleUserInfoResponse {
         return restClient.get()
             .uri("$apiBaseUrl/userinfo")
             .header("Authorization", "Bearer $accessToken")

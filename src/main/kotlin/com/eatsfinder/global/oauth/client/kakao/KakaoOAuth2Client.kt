@@ -46,7 +46,7 @@ class KakaoOAuth2Client(
             ?: throw RuntimeException("유저 조회 실패")
     }
 
-    override fun retrieveUserInfo(accessToken: String): OAuth2UserInfo {
+    override fun retrieveUserInfo(accessToken: String): KakaoUserInfoResponse {
         return restClient.get()
             .uri("$apiBaseUrl/v2/user/me")
             .header("Authorization", "Bearer $accessToken")
