@@ -52,10 +52,10 @@ class User(
                 nickname = nickname,
                 email = email,
                 followCount = 0,
-                password = null.toString(),
+                password = null.toString().uppercase(),
                 profileImage = profileImage,
-                phoneNumber = null.toString(),
-                name = null.toString(),
+                phoneNumber = null.toString().uppercase(),
+                name = null.toString().uppercase(),
                 status = UserStatus.NORMAL,
                 role = UserRole.USER
             )
@@ -67,10 +67,10 @@ class User(
                 nickname = nickname,
                 email = email,
                 followCount = 0,
-                password = null.toString(),
+                password = null.toString().uppercase(),
                 profileImage = profileImage,
-                phoneNumber = null.toString(),
-                name = null.toString(),
+                phoneNumber = null.toString().uppercase(),
+                name = null.toString().uppercase(),
                 status = UserStatus.NORMAL,
                 role = UserRole.USER
             )
