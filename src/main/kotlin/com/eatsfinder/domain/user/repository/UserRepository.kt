@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserRepository : JpaRepository<User, Long> {
 
-    fun existsByProviderAndProviderId(provider: SocialType, providerId: String): Boolean
-    fun findByProviderAndProviderId(provider: SocialType, providerId: String): User
+    fun existsByProviderAndEmail(provider: SocialType, email: String): Boolean
+    fun findByProviderAndEmail(provider: SocialType, email: String): User
 
 }
