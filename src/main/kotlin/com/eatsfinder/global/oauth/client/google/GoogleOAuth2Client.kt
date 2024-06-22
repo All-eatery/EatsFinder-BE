@@ -19,8 +19,8 @@ class GoogleOAuth2Client(
     @Value("\${oauth2.google.redirect_url}") val redirectUrl: String,
     @Value("\${oauth2.google.client_secret}") val clientSecret: String,
     @Value("\${oauth2.google.token_base_url}") val tokenBaseUrl: String,
-    @Value("\${oauth2.google.auth_server_base_url}") val authBaseUrl: String,
-    @Value("\${oauth2.google.resource_server_base_url}") val apiBaseUrl: String
+    @Value("\${oauth2.google.auth_base_url}") val authBaseUrl: String,
+    @Value("\${oauth2.google.api_base_url}") val apiBaseUrl: String
 ) : OAuth2Client {
     override fun generateLoginPageUrl(): String {
         return StringBuilder(authBaseUrl)
