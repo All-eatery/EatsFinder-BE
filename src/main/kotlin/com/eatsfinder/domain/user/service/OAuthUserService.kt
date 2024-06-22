@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service
 class OAuthUserService(
     private val userRepository: UserRepository
 ) {
-    fun enrollIfExist(oAuth2UserInfo: OAuth2UserInfo): User {
+    fun registerIfNotExist(oAuth2UserInfo: OAuth2UserInfo): User {
         return if (!userRepository.existsByProviderAndEmail(oAuth2UserInfo.provider, oAuth2UserInfo.email)) {
             val socialUser = when (oAuth2UserInfo.provider) {
                 SocialType.KAKAO -> User.ofKakao(oAuth2UserInfo.nickname, oAuth2UserInfo.email, oAuth2UserInfo.profileImage)
