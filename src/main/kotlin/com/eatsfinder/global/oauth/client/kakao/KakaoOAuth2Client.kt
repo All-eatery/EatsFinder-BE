@@ -17,11 +17,11 @@ class KakaoOAuth2Client(
     private val restClient: RestClient,
     @Value("\${oauth2.kakao.client_id}") val clientId: String,
     @Value("\${oauth2.kakao.redirect_url}") val redirectUrl: String,
-    @Value("\${oauth2.kakao.auth_server_base_url}") val authServerBaseUrl: String,
-    @Value("\${oauth2.kakao.resource_server_base_url}") val resourceServerBaseUrl: String
+    @Value("\${oauth2.kakao.auth_base_url}") val authBaseUrl: String,
+    @Value("\${oauth2.kakao.api_base_url}") val apiBaseUrl: String
 ) : OAuth2Client {
     override fun generateLoginPageUrl(): String {
-        return StringBuilder(authServerBaseUrl)
+        return StringBuilder(authBaseUrl)
             .append("/oauth/authorize")
             .append("?client_id=").append(clientId)
             .append("&redirect_uri=").append(redirectUrl)
@@ -37,7 +37,7 @@ class KakaoOAuth2Client(
             "redirect_uri" to redirectUrl
         )
         return restClient.post()
-            .uri("$authServerBaseUrl/oauth/token")
+            .uri("$authBaseUrl/oauth/token")
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
             .body(LinkedMultiValueMap<String, String>().apply { this.setAll(requestData) })
             .retrieve()
@@ -48,11 +48,11 @@ class KakaoOAuth2Client(
 
     override fun retrieveUserInfo(accessToken: String): OAuth2UserInfo {
         return restClient.get()
-            .uri("$resourceServerBaseUrl/v2/user/me")
+            .uri("$apiBaseUrl/v2/user/me")
             .header("Authorization", "Bearer $accessToken")
             .retrieve()
             .body<KakaoUserInfoResponse>()
-            ?: throw RuntimeException("유저 정보 조회 실패")
+            ?: throw RuntimeException("유저 조회 실패")
     }
 
     override fun supports(provider: SocialType): Boolean {

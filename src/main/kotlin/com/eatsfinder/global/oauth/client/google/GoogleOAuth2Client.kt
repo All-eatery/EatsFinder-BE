@@ -19,11 +19,11 @@ class GoogleOAuth2Client(
     @Value("\${oauth2.google.redirect_url}") val redirectUrl: String,
     @Value("\${oauth2.google.client_secret}") val clientSecret: String,
     @Value("\${oauth2.google.token_base_url}") val tokenBaseUrl: String,
-    @Value("\${oauth2.google.auth_server_base_url}") val authServerBaseUrl: String,
-    @Value("\${oauth2.google.resource_server_base_url}") val resourceServerBaseUrl: String
+    @Value("\${oauth2.google.auth_server_base_url}") val authBaseUrl: String,
+    @Value("\${oauth2.google.resource_server_base_url}") val apiBaseUrl: String
 ) : OAuth2Client {
     override fun generateLoginPageUrl(): String {
-        return StringBuilder(authServerBaseUrl)
+        return StringBuilder(authBaseUrl)
             .append("?response_type=").append("code")
             .append("&client_id").append(clientId)
             .append("&redirect_uri=").append(redirectUrl)
@@ -47,16 +47,16 @@ class GoogleOAuth2Client(
             .retrieve()
             .body<GoogleTokenResponse>()
             ?.accessToken
-            ?: throw RuntimeException("유저 정보 조회 실패")
+            ?: throw RuntimeException("유저 조회 실패")
     }
 
     override fun retrieveUserInfo(accessToken: String): OAuth2UserInfo {
         return restClient.get()
-            .uri("$resourceServerBaseUrl/userinfo")
+            .uri("$apiBaseUrl/userinfo")
             .header("Authorization", "Bearer $accessToken")
             .retrieve()
             .body<GoogleUserInfoResponse>()
-            ?: throw RuntimeException("유저 정보 조회 실패")
+            ?: throw RuntimeException("유저 조회 실패")
     }
 
     override fun supports(provider: SocialType): Boolean {
