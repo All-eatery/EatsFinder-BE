@@ -9,25 +9,24 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/comments")
 class CommentController(
     private val commentService: CommentService
 ) {
 
     @Operation(summary = "댓글 전체 조회")
-    @GetMapping("/{postId}")
+    @GetMapping("/posts/{postId}/comments")
     fun getCommentList(@PathVariable postId: Long): ResponseEntity<List<CommentResponse>> {
         return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentList(postId))
     }
 
     @Operation(summary = "댓글 작성")
-    @PostMapping
-    fun createComment(@RequestBody req: CommentRequest): ResponseEntity<String> {
-        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.createComment(req))
+    @PostMapping("/posts/{postId}")
+    fun createComment(@PathVariable postId: Long, @RequestBody req: CommentRequest): ResponseEntity<String> {
+        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.createComment(postId, req))
     }
 
     @Operation(summary = "댓글 삭제")
-    @DeleteMapping("/{commentId}")
+    @DeleteMapping("/comments/{commentId}")
     fun deleteComment(@PathVariable commentId: Long): ResponseEntity<Unit> {
         commentService.deleteComment(commentId)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()

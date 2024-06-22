@@ -7,7 +7,7 @@ interface CommentService {
 
     fun getCommentList(postId: Long): List<CommentResponse>
 
-    fun createComment(req: CommentRequest): String
+    fun createComment(postId: Long, req: CommentRequest): String
 
     fun deleteComment(commentId: Long)
 }
