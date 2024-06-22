@@ -4,8 +4,10 @@ import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLDelete
 
 @Entity
+@SQLDelete(sql = "UPDATE comments SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @Table(name = "comments")
 class Comment(
 
