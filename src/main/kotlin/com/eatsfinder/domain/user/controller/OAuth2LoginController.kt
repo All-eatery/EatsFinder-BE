@@ -1,4 +1,4 @@
-package com.eatsfinder.global.oauth.client.controller
+package com.eatsfinder.domain.user.controller
 
 import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.service.OAuth2LoginService
