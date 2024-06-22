@@ -38,10 +38,42 @@ class User(
 
     @Enumerated(EnumType.STRING)
     @Column(name = "social_type", nullable = false)
-    val socialType: SocialType
+    val provider: SocialType
 
 ) : BaseTimeEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
+
+    companion object{
+        fun ofKakao(nickname: String, email: String, profileImage: String): User {
+            return User(
+                provider = SocialType.KAKAO,
+                nickname = nickname,
+                email = email,
+                followCount = 0,
+                password = null.toString().uppercase(),
+                profileImage = profileImage,
+                phoneNumber = null.toString().uppercase(),
+                name = null.toString().uppercase(),
+                status = UserStatus.NORMAL,
+                role = UserRole.USER
+            )
+        }
+
+        fun ofGoogle(nickname: String, email: String, profileImage: String): User {
+            return User(
+                provider = SocialType.GOOGLE,
+                nickname = nickname,
+                email = email,
+                followCount = 0,
+                password = null.toString().uppercase(),
+                profileImage = profileImage,
+                phoneNumber = null.toString().uppercase(),
+                name = null.toString().uppercase(),
+                status = UserStatus.NORMAL,
+                role = UserRole.USER
+            )
+        }
+    }
 }

@@ -15,3 +15,16 @@ logging:
         orm:
           jdbc:
             bind: trace
+oauth2:
+  kakao:
+    client_id: ${OAUTH2_KAKAO_CLIENT_ID}
+    redirect_url: ${REDIRECT_URI}
+    auth_base_url: ${AUTH_BASE_URL}
+    api_base_url: ${API_BASE_URL}
+  google:
+    client_id: ${OAUTH2_GOOGLE_CLIENT_ID}
+    redirect_url: ${GOOGLE_REDIRECT_URI}
+    client_secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
+    token_base_url: ${GOOGLE_TOKEN_BASE_URL}
+    auth_base_url: ${GOOGLE_AUTH_BASE_URL}
+    api_base_url: ${GOOGLE_API_BASE_URL}
