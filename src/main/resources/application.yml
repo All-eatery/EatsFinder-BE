@@ -7,6 +7,10 @@ spring:
         use_sql_comments: true
         hbm2ddl:
           auto: update
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PW}
 logging:
   level:
     org:
@@ -28,3 +32,8 @@ oauth2:
     token_base_url: ${GOOGLE_TOKEN_BASE_URL}
     auth_base_url: ${GOOGLE_AUTH_BASE_URL}
     api_base_url: ${GOOGLE_API_BASE_URL}
+auth:
+  jwt:
+    issuer: ${JWT_ISSUER}
+    secret: ${JWT_SECRET}
+    accessTokenExpirationHour: ${JWT_EXPIRATION_HOUR}
