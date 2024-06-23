@@ -22,7 +22,7 @@ class CommentController(
     }
 
     @Operation(summary = "댓글 작성")
-    @PostMapping("/posts/{postId}")
+    @PostMapping("/posts/{postId}/comments")
     fun createComment(
         @PathVariable postId: Long, @RequestBody req: CommentRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal
     ): ResponseEntity<String> {
