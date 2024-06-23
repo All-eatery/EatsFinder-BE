@@ -14,6 +14,6 @@ class OAuth2LoginService(
     fun login(provider: SocialType, authorizationCode: String): String {
         return oAuth2ClientService.getUserInfo(provider, authorizationCode)
             .let { oAuthUserService.registerIfNotExist(it) }
-            .let { jwtPlugin.generateAccessToken(it.id!!.toString(), it.email, it.role.toString()) }
+            .let { jwtPlugin.generateAccessToken(it.id!!.toString(), it.role.toString()) }
     }
 }

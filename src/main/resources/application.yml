@@ -34,6 +34,5 @@ oauth2:
     api_base_url: ${GOOGLE_API_BASE_URL}
 auth:
   jwt:
-    issuer: ${JWT_ISSUER}
     secret: ${JWT_SECRET}
-    accessTokenExpirationHour: ${JWT_EXPIRATION_HOUR}
+    accessTokenExpirationTime: ${JWT_EXPIRATION_TIME}
