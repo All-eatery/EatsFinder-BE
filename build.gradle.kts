@@ -55,6 +55,8 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	testImplementation("org.springframework.security:spring-security-test")
 
+	//dotenv
+	implementation("io.github.cdimascio:dotenv-kotlin:6.2.2")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
