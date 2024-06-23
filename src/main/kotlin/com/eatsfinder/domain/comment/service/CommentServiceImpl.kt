@@ -34,7 +34,8 @@ class CommentServiceImpl(
     }
 
     override fun deleteComment(commentId: Long, userId: Long) {
-        val comment = commentRepository.findByIdOrNull(commentId) ?: TODO() // 예외처리는 추후 추가 할 예정, 삭제 로직 확실해 지면 할 예정
+        // 예외처리는 추후 추가 할 예정, 삭제 로직 확실해 지면 할 예정
+        val comment = commentRepository.findByIdOrNull(commentId) ?: TODO()
         commentRepository.delete(comment)
     }
 }
