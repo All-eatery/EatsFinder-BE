@@ -8,9 +8,9 @@ spring:
         hbm2ddl:
           auto: update
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USER}
-    password: ${DB_PW}
+    url: ${ENV_DB_URL}
+    username: ${ENV_DB_USER}
+    password: ${ENV_DB_PW}
 logging:
   level:
     org:
@@ -21,18 +21,18 @@ logging:
             bind: trace
 oauth2:
   kakao:
-    client_id: ${OAUTH2_KAKAO_CLIENT_ID}
-    redirect_url: ${REDIRECT_URI}
-    auth_base_url: ${AUTH_BASE_URL}
-    api_base_url: ${API_BASE_URL}
+    client_id: ${ENV_KAKAO_CLIENT_ID}
+    redirect_url: ${ENV_REDIRECT_URI}
+    auth_base_url: ${ENV_AUTH_BASE_URL}
+    api_base_url: ${ENV_API_BASE_URL}
   google:
-    client_id: ${OAUTH2_GOOGLE_CLIENT_ID}
-    redirect_url: ${GOOGLE_REDIRECT_URI}
-    client_secret: ${OAUTH2_GOOGLE_CLIENT_SECRET}
-    token_base_url: ${GOOGLE_TOKEN_BASE_URL}
-    auth_base_url: ${GOOGLE_AUTH_BASE_URL}
-    api_base_url: ${GOOGLE_API_BASE_URL}
+    client_id: ${ENV_GOOGLE_CLIENT_ID}
+    redirect_url: ${ENV_GOOGLE_REDIRECT_URI}
+    client_secret: ${ENV_GOOGLE_CLIENT_SECRET}
+    token_base_url: ${ENV_GOOGLE_TOKEN_BASE_URL}
+    auth_base_url: ${ENV_GOOGLE_AUTH_BASE_URL}
+    api_base_url: ${ENV_GOOGLE_API_BASE_URL}
 auth:
   jwt:
-    secret: ${JWT_SECRET}
-    accessTokenExpirationTime: ${JWT_EXPIRATION_TIME}
+    secret: ${ENV_JWT_SECRET}
+    accessTokenExpirationTime: ${ENV_JWT_EXPIRATION_TIME}
