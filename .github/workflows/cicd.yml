@@ -1,0 +1,126 @@
+name: CI/CD
+
+on:
+  pull_request:
+    types: [closed]
+    branches:
+      - main
+      - dev
+
+permissions:
+  pull-requests: read
+  checks: write
+  actions: write
+
+jobs:
+  PR_Merge_label:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    outputs:
+      build_nestjs: ${{ steps.PR-label-nestjs.outputs.passed }}
+    steps:
+      - name: 레포 체크아웃
+        uses: actions/checkout@main
+
+      - name: PR 라벨 네스트
+        id: PR-label-nestjs
+        uses: danielchabr/pr-labels-checker@master
+        with:
+          hasSome: nestjs
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          allowFailure: true
+
+  nestjs-build:
+    runs-on: ubuntu-latest
+    needs: PR_Merge_label
+    if: needs.PR_Merge_label.outputs.build_nestjs == 'true'
+    steps:
+      - name: 레포 체크아웃
+        uses: actions/checkout@main
+
+      - name: Docker Buildx 설정
+        uses: docker/setup-buildx-action@master
+
+      - name: Docker Hub 로그인
+        uses: docker/login-action@master
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
+
+      - name: 빌드 및 푸시
+        uses: docker/build-push-action@master
+        with:
+          context: .
+          file: ./Dockerfile.nestjs
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_BE }}:nestjs
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  nestjs-deploy:
+    runs-on: ubuntu-latest
+    needs: nestjs-build
+    steps:
+      - name: 레포 체크아웃
+        uses: actions/checkout@main
+
+      - name: .env 생성
+        env:
+          SECRETS_JSON: ${{ toJson(secrets) }}
+        run: |
+          echo "$SECRETS_JSON" | jq -r 'to_entries | map(select(.key | startswith("ENV"))) | map("\(.key)=\(.value|tostring)") | .[]' > .env
+
+      - name: .env 전송
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          source: .env
+          target: ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_USERNAME }}
+          overwrite: true
+
+      - name: 서버 접속
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_USERNAME }}
+
+            # Docker Hub 로그인
+            echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+
+            # 이미지 풀링
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_BE }}:nestjs
+
+            # 새로운 이미지를 Green/Blue 중 하나로 태그
+            if docker ps | grep app-nestjs-blue; then
+              NEW_DEPLOYMENT="green"
+              OLD_DEPLOYMENT="blue"
+            else
+              NEW_DEPLOYMENT="blue"
+              OLD_DEPLOYMENT="green"
+            fi
+
+            docker-compose up -d app-nestjs-$NEW_DEPLOYMENT
+
+            # 새 컨테이너가 시작될 시간을 기다림
+            sleep 10
+
+            # Nginx 설정 변경
+            if [ "$NEW_DEPLOYMENT" == "green" ]; then
+              sed -i "s/proxy_pass http:\/\/app-nestjs-$OLD_DEPLOYMENT:3000;/proxy_pass http:\/\/app-nestjs-$NEW_DEPLOYMENT:3000;/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/nest-test.conf
+            else
+              sed -i "s/proxy_pass http:\/\/app-nestjs-$OLD_DEPLOYMENT:3000;/proxy_pass http:\/\/app-nestjs-$NEW_DEPLOYMENT:3000;/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/nest-test.conf
+            fi
+
+            # Nginx 재시작
+            docker-compose -f ${{ secrets.SERVER_PATH }}/docker-compose-multi.yml up -d --force-recreate --no-deps nginx
+
+            # 이전 버전의 컨테이너 중지 및 제거
+            docker-compose stop app-nestjs-$OLD_DEPLOYMENT
+            docker-compose rm -f app-nestjs-$OLD_DEPLOYMENT
