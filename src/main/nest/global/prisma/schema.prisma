@@ -7,137 +7,154 @@ datasource db {
   url      = env("ENV_DATABASE_URL")
 }
 
-model categories {
+model Categories {
   id             BigInt  @id @default(autoincrement())
   classification String? @db.VarChar(6)
-  posts          posts[]
+  posts          Posts[]
+
+  @@map("categories")
 }
 
-model comments {
-  id         BigInt    @id @default(autoincrement())
-  created_at DateTime  @db.Timestamp(6)
-  deleted_at DateTime? @db.Timestamp(6)
-  updated_at DateTime  @db.Timestamp(6)
-  content    String?   @db.Text
-  post_id    BigInt
-  user_id    BigInt
-  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8omq0tc18jd43bu5tjh6jvraq")
-  posts      posts     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKh4c7lvsc298whoyd4w9ta25cr")
+model Comments {
+  id        BigInt    @id @default(autoincrement())
+  createdAt DateTime  @map("created_at") @db.Timestamp(6)
+  deletedAt DateTime? @map("deleted_at") @db.Timestamp(6)
+  updatedAt DateTime  @map("updated_at") @db.Timestamp(6)
+  content   String?   @db.Text
+  postId    BigInt    @map("post_id")
+  userId    BigInt    @map("user_id")
+  users     Users     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8omq0tc18jd43bu5tjh6jvraq")
+  posts     Posts     @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKh4c7lvsc298whoyd4w9ta25cr")
 
-  @@index([user_id], map: "FK8omq0tc18jd43bu5tjh6jvraq")
-  @@index([post_id], map: "FKh4c7lvsc298whoyd4w9ta25cr")
+  @@index([userId], map: "FK8omq0tc18jd43bu5tjh6jvraq")
+  @@index([postId], map: "FKh4c7lvsc298whoyd4w9ta25cr")
+  @@map("comments")
 }
 
-model email_verifications {
-  id                BigInt    @id @default(autoincrement())
-  verification_code String?   @db.VarChar(10)
-  created_at        DateTime  @db.Timestamp(6)
-  expires_at        DateTime? @db.Timestamp(6)
-  is_verification   Boolean?  @db.Bit(1)
-  email             String?   @db.VarChar(30)
+model EmailVerifications {
+  id               BigInt    @id @default(autoincrement())
+  verificationCode String?   @map("verification_code") @db.VarChar(10)
+  createdAt        DateTime  @map("created_at") @db.Timestamp(6)
+  expiresAt        DateTime? @map("expires_at") @db.Timestamp(6)
+  isVerification   Boolean?  @map("is_verification") @db.Bit(1)
+  email            String?   @db.VarChar(30)
+
+  @@map("email_verifications")
 }
 
-model follows {
-  id                                     BigInt   @id @default(autoincrement())
-  created_at                             DateTime @db.DateTime(6)
-  followed_user_id                       BigInt
-  following_user_id                      BigInt
-  users_follows_followed_user_idTousers  users    @relation("follows_followed_user_idTousers", fields: [followed_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKfg3bo4whthco31ewoiaxpjhvi")
-  users_follows_following_user_idTousers users    @relation("follows_following_user_idTousers", fields: [following_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKk1b1yn6h0224kelm91qetqxen")
+model Follows {
+  id                                 BigInt   @id @default(autoincrement())
+  createdAt                          DateTime @map("created_at") @db.DateTime(6)
+  followedUserId                     BigInt   @map("followed_user_id")
+  followingUserId                    BigInt   @map("following_user_id")
+  usersFollowsFollowedUserIdTousers  Users    @relation("follows_followed_user_idTousers", fields: [followedUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKfg3bo4whthco31ewoiaxpjhvi")
+  usersFollowsFollowingUserIdTousers Users    @relation("follows_following_user_idTousers", fields: [followingUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKk1b1yn6h0224kelm91qetqxen")
 
-  @@index([followed_user_id], map: "FKfg3bo4whthco31ewoiaxpjhvi")
-  @@index([following_user_id], map: "FKk1b1yn6h0224kelm91qetqxen")
+  @@index([followedUserId], map: "FKfg3bo4whthco31ewoiaxpjhvi")
+  @@index([followingUserId], map: "FKk1b1yn6h0224kelm91qetqxen")
+  @@map("follows")
 }
 
-model likes_by_posts {
-  id      BigInt @id @default(autoincrement())
-  post_id BigInt
-  user_id BigInt
-  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK81m3sbgvf0vhy7lgufppa4o5")
-  posts   posts  @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKlcd6fjflxlit9llbxrmha8bfw")
+model LikesByPosts {
+  id     BigInt @id @default(autoincrement())
+  postId BigInt @map("post_id")
+  userId BigInt @map("user_id")
+  users  Users  @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK81m3sbgvf0vhy7lgufppa4o5")
+  posts  Posts  @relation(fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKlcd6fjflxlit9llbxrmha8bfw")
 
-  @@index([user_id], map: "FK81m3sbgvf0vhy7lgufppa4o5")
-  @@index([post_id], map: "FKlcd6fjflxlit9llbxrmha8bfw")
+  @@index([userId], map: "FK81m3sbgvf0vhy7lgufppa4o5")
+  @@index([postId], map: "FKlcd6fjflxlit9llbxrmha8bfw")
+  @@map("likes_by_posts")
 }
 
-model posts {
-  id                                         BigInt           @id @default(autoincrement())
-  created_at                                 DateTime         @db.Timestamp(6)
-  deleted_at                                 DateTime?        @db.Timestamp(6)
-  updated_at                                 DateTime         @db.Timestamp(6)
-  address                                    String           @db.Text
-  content                                    String?          @db.Text
-  image_url                                  String           @db.Text
-  is_owner                                   Boolean
-  like_count                                 Int?
-  name                                       String?          @db.VarChar(100)
-  shop_tag                                   String?          @db.Text
-  category_id                                BigInt?
-  rating_id                                  BigInt
-  user_id                                    BigInt
-  comments                                   comments[]
-  likes_by_posts                             likes_by_posts[]
-  users                                      users            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK5lidm6cqbc7u4xhqpxm898qme")
-  categories                                 categories?      @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKijnwr3brs8vaosl80jg9rp7uc")
-  star_ratings_posts_rating_idTostar_ratings star_ratings     @relation("posts_rating_idTostar_ratings", fields: [rating_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKonikjcopg9sp7kb852mjrxioj")
-  star_ratings_star_ratings_post_idToposts   star_ratings[]   @relation("star_ratings_post_idToposts")
+model Posts {
+  id                                    BigInt         @id @default(autoincrement())
+  createdAt                             DateTime       @map("created_at") @db.Timestamp(6)
+  deletedAt                             DateTime?      @map("deleted_at") @db.Timestamp(6)
+  updatedAt                             DateTime       @map("updated_at") @db.Timestamp(6)
+  address                               String         @db.Text
+  content                               String?        @db.Text
+  imageUrl                              String         @map("image_url") @db.Text
+  isOwner                               Boolean        @map("is_owner")
+  likeCount                             Int?           @map("like_count")
+  name                                  String?        @db.VarChar(100)
+  shopTag                               String?        @map("shop_tag") @db.Text
+  categoryId                            BigInt?        @map("category_id")
+  ratingId                              BigInt         @map("rating_id")
+  userId                                BigInt         @map("user_id")
+  comments                              Comments[]
+  likesByPosts                          LikesByPosts[]
+  users                                 Users          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK5lidm6cqbc7u4xhqpxm898qme")
+  categories                            Categories?    @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKijnwr3brs8vaosl80jg9rp7uc")
+  starRatingsPostsRatingIdTostarRatings StarRatings    @relation("posts_rating_idTostar_ratings", fields: [ratingId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKonikjcopg9sp7kb852mjrxioj")
+  starRatingsStarRatingsPostIdToposts   StarRatings[]  @relation("star_ratings_post_idToposts")
 
-  @@index([user_id], map: "FK5lidm6cqbc7u4xhqpxm898qme")
-  @@index([category_id], map: "FKijnwr3brs8vaosl80jg9rp7uc")
-  @@index([rating_id], map: "FKonikjcopg9sp7kb852mjrxioj")
+  @@index([userId], map: "FK5lidm6cqbc7u4xhqpxm898qme")
+  @@index([categoryId], map: "FKijnwr3brs8vaosl80jg9rp7uc")
+  @@index([ratingId], map: "FKonikjcopg9sp7kb852mjrxioj")
+  @@map("posts")
 }
 
-model star_ratings {
-  id                                  BigInt  @id @default(autoincrement())
-  star                                Float   @db.Float
-  post_id                             BigInt
-  user_id                             BigInt
-  posts_posts_rating_idTostar_ratings posts[] @relation("posts_rating_idTostar_ratings")
-  users                               users   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKk080p6agcoa1rnn3ot3gno74f")
-  posts_star_ratings_post_idToposts   posts   @relation("star_ratings_post_idToposts", fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKo6usan40orj7ig5w3t8udpqkx")
+model StarRatings {
+  id                              BigInt  @id @default(autoincrement())
+  star                            Float   @db.Float
+  postId                          BigInt  @map("post_id")
+  userId                          BigInt  @map("user_id")
+  postsPostsRatingIdTostarRatings Posts[] @relation("posts_rating_idTostar_ratings")
+  users                           Users   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKk080p6agcoa1rnn3ot3gno74f")
+  postsStarRatingsPostIdToposts   Posts   @relation("star_ratings_post_idToposts", fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKo6usan40orj7ig5w3t8udpqkx")
 
-  @@index([user_id], map: "FKk080p6agcoa1rnn3ot3gno74f")
-  @@index([post_id], map: "FKo6usan40orj7ig5w3t8udpqkx")
+  @@index([userId], map: "FKk080p6agcoa1rnn3ot3gno74f")
+  @@index([postId], map: "FKo6usan40orj7ig5w3t8udpqkx")
+  @@map("star_ratings")
 }
 
-model users {
-  id                                       BigInt            @id @default(autoincrement())
-  created_at                               DateTime          @db.Timestamp(6)
-  deleted_at                               DateTime?         @db.Timestamp(6)
-  updated_at                               DateTime          @db.Timestamp(6)
-  email                                    String            @db.VarChar(30)
-  follow_count                             Int?
-  name                                     String            @db.VarChar(10)
-  nickname                                 String            @db.VarChar(10)
-  password                                 String            @db.Text
-  phone_number                             String            @db.VarChar(11)
-  profile_image                            String?           @db.Text
-  social_type                              users_social_type
-  role                                     users_role
-  status                                   users_status
-  comments                                 comments[]
-  follows_follows_followed_user_idTousers  follows[]         @relation("follows_followed_user_idTousers")
-  follows_follows_following_user_idTousers follows[]         @relation("follows_following_user_idTousers")
-  likes_by_posts                           likes_by_posts[]
-  posts                                    posts[]
-  star_ratings                             star_ratings[]
+model Users {
+  id                                   BigInt          @id @default(autoincrement())
+  createdAt                            DateTime        @map("created_at") @db.Timestamp(6)
+  deletedAt                            DateTime?       @map("deleted_at") @db.Timestamp(6)
+  updatedAt                            DateTime        @map("updated_at") @db.Timestamp(6)
+  email                                String          @db.VarChar(30)
+  followCount                          Int?            @map("follow_count")
+  name                                 String          @db.VarChar(10)
+  nickname                             String          @db.VarChar(10)
+  password                             String          @db.Text
+  phoneNumber                          String          @map("phone_number") @db.VarChar(11)
+  profileImage                         String?         @map("profile_image") @db.Text
+  socialType                           UsersSocialType @map("social_type")
+  role                                 UsersRole
+  status                               UsersStatus
+  comments                             Comments[]
+  followsFollowsFollowedUserIdTousers  Follows[]       @relation("follows_followed_user_idTousers")
+  followsFollowsFollowingUserIdTousers Follows[]       @relation("follows_following_user_idTousers")
+  likesByPosts                         LikesByPosts[]
+  posts                                Posts[]
+  starRatings                          StarRatings[]
+
+  @@map("users")
 }
 
-enum users_social_type {
+enum UsersSocialType {
   GOOGLE
   KAKAO
   LOCAL
   NAVER
+
+  @@map("users_social_type")
 }
 
-enum users_role {
+enum UsersRole {
   ADMIN
   OWNER
   USER
+
+  @@map("users_role")
 }
 
-enum users_status {
+enum UsersStatus {
   AWAIT
   BAN
   NORMAL
+
+  @@map("users_status")
 }
