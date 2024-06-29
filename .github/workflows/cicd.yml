@@ -98,7 +98,7 @@ jobs:
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_BE }}:nestjs
 
             # 새로운 이미지를 Green/Blue 중 하나로 태그
-            if docker ps | grep app-nestjs-blue; then
+            if docker ps | grep eatsfinder-nestjs-blue; then
               NEW_DEPLOYMENT="green"
               OLD_DEPLOYMENT="blue"
             else
@@ -106,21 +106,21 @@ jobs:
               OLD_DEPLOYMENT="green"
             fi
 
-            docker-compose up -d app-nestjs-$NEW_DEPLOYMENT
+            docker-compose up -d eatsfinder-nestjs-$NEW_DEPLOYMENT
 
             # 새 컨테이너가 시작될 시간을 기다림
             sleep 10
 
             # Nginx 설정 변경
             if [ "$NEW_DEPLOYMENT" == "green" ]; then
-              sed -i "s/proxy_pass http:\/\/app-nestjs-$OLD_DEPLOYMENT:3000;/proxy_pass http:\/\/app-nestjs-$NEW_DEPLOYMENT:3000;/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/nest-test.conf
+              sed -i "s/proxy_pass http:\/\/eatsfinder-nestjs-$OLD_DEPLOYMENT:3000;/proxy_pass http:\/\/eatsfinder-nestjs-$NEW_DEPLOYMENT:3000;/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/nest-test.conf
             else
-              sed -i "s/proxy_pass http:\/\/app-nestjs-$OLD_DEPLOYMENT:3000;/proxy_pass http:\/\/app-nestjs-$NEW_DEPLOYMENT:3000;/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/nest-test.conf
+              sed -i "s/proxy_pass http:\/\/eatsfinder-nestjs-$OLD_DEPLOYMENT:3000;/proxy_pass http:\/\/eatsfinder-nestjs-$NEW_DEPLOYMENT:3000;/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/nest-test.conf
             fi
 
             # Nginx 재시작
             docker-compose -f ${{ secrets.SERVER_PATH }}/docker-compose-multi.yml up -d --force-recreate --no-deps nginx
 
             # 이전 버전의 컨테이너 중지 및 제거
-            docker-compose stop app-nestjs-$OLD_DEPLOYMENT
-            docker-compose rm -f app-nestjs-$OLD_DEPLOYMENT
+            docker-compose stop eatsfinder-nestjs-$OLD_DEPLOYMENT
+            docker-compose rm -f eatsfinder-nestjs-$OLD_DEPLOYMENT
