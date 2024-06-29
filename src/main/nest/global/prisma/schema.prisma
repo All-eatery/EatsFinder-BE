@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("ENV_DATABASE_URL")
+}
+
+model categories {
+  id             BigInt  @id @default(autoincrement())
+  classification String? @db.VarChar(6)
+  posts          posts[]
+}
+
+model comments {
+  id         BigInt    @id @default(autoincrement())
+  created_at DateTime  @db.Timestamp(6)
+  deleted_at DateTime? @db.Timestamp(6)
+  updated_at DateTime  @db.Timestamp(6)
+  content    String?   @db.Text
+  post_id    BigInt
+  user_id    BigInt
+  users      users     @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8omq0tc18jd43bu5tjh6jvraq")
+  posts      posts     @relation(fields: [post_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKh4c7lvsc298whoyd4w9ta25cr")
+
+  @@index([user_id], map: "FK8omq0tc18jd43bu5tjh6jvraq")
+  @@index([post_id], map: "FKh4c7lvsc298whoyd4w9ta25cr")
+}
+
+model email_verifications {
+  id                BigInt    @id @default(autoincrement())
+  verification_code String?   @db.VarChar(10)
+  created_at        DateTime  @db.Timestamp(6)
+  expires_at        DateTime? @db.Timestamp(6)
+  is_verification   Boolean?  @db.Bit(1)
+  email             String?   @db.VarChar(30)
+}
+
+model follows {
+  id                                     BigInt   @id @default(autoincrement())
+  created_at                             DateTime @db.DateTime(6)
+  followed_user_id                       BigInt
+  following_user_id                      BigInt
+  users_follows_followed_user_idTousers  users    @relation("follows_followed_user_idTousers", fields: [followed_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKfg3bo4whthco31ewoiaxpjhvi")
+  users_follows_following_user_idTousers users    @relation("follows_following_user_idTousers", fields: [following_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKk1b1yn6h0224kelm91qetqxen")
+
+  @@index([followed_user_id], map: "FKfg3bo4whthco31ewoiaxpjhvi")
+  @@index([following_user_id], map: "FKk1b1yn6h0224kelm91qetqxen")
+}
+
+model likes_by_posts {
+  id      BigInt @id @default(autoincrement())
+  post_id BigInt
+  user_id BigInt
+  users   users  @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK81m3sbgvf0vhy7lgufppa4o5")
+  posts   posts  @relation(fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKlcd6fjflxlit9llbxrmha8bfw")
+
+  @@index([user_id], map: "FK81m3sbgvf0vhy7lgufppa4o5")
+  @@index([post_id], map: "FKlcd6fjflxlit9llbxrmha8bfw")
+}
+
+model posts {
+  id                                         BigInt           @id @default(autoincrement())
+  created_at                                 DateTime         @db.Timestamp(6)
+  deleted_at                                 DateTime?        @db.Timestamp(6)
+  updated_at                                 DateTime         @db.Timestamp(6)
+  address                                    String           @db.Text
+  content                                    String?          @db.Text
+  image_url                                  String           @db.Text
+  is_owner                                   Boolean
+  like_count                                 Int?
+  name                                       String?          @db.VarChar(100)
+  shop_tag                                   String?          @db.Text
+  category_id                                BigInt?
+  rating_id                                  BigInt
+  user_id                                    BigInt
+  comments                                   comments[]
+  likes_by_posts                             likes_by_posts[]
+  users                                      users            @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK5lidm6cqbc7u4xhqpxm898qme")
+  categories                                 categories?      @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKijnwr3brs8vaosl80jg9rp7uc")
+  star_ratings_posts_rating_idTostar_ratings star_ratings     @relation("posts_rating_idTostar_ratings", fields: [rating_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKonikjcopg9sp7kb852mjrxioj")
+  star_ratings_star_ratings_post_idToposts   star_ratings[]   @relation("star_ratings_post_idToposts")
+
+  @@index([user_id], map: "FK5lidm6cqbc7u4xhqpxm898qme")
+  @@index([category_id], map: "FKijnwr3brs8vaosl80jg9rp7uc")
+  @@index([rating_id], map: "FKonikjcopg9sp7kb852mjrxioj")
+}
+
+model star_ratings {
+  id                                  BigInt  @id @default(autoincrement())
+  star                                Float   @db.Float
+  post_id                             BigInt
+  user_id                             BigInt
+  posts_posts_rating_idTostar_ratings posts[] @relation("posts_rating_idTostar_ratings")
+  users                               users   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKk080p6agcoa1rnn3ot3gno74f")
+  posts_star_ratings_post_idToposts   posts   @relation("star_ratings_post_idToposts", fields: [post_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKo6usan40orj7ig5w3t8udpqkx")
+
+  @@index([user_id], map: "FKk080p6agcoa1rnn3ot3gno74f")
+  @@index([post_id], map: "FKo6usan40orj7ig5w3t8udpqkx")
+}
+
+model users {
+  id                                       BigInt            @id @default(autoincrement())
+  created_at                               DateTime          @db.Timestamp(6)
+  deleted_at                               DateTime?         @db.Timestamp(6)
+  updated_at                               DateTime          @db.Timestamp(6)
+  email                                    String            @db.VarChar(30)
+  follow_count                             Int?
+  name                                     String            @db.VarChar(10)
+  nickname                                 String            @db.VarChar(10)
+  password                                 String            @db.Text
+  phone_number                             String            @db.VarChar(11)
+  profile_image                            String?           @db.Text
+  social_type                              users_social_type
+  role                                     users_role
+  status                                   users_status
+  comments                                 comments[]
+  follows_follows_followed_user_idTousers  follows[]         @relation("follows_followed_user_idTousers")
+  follows_follows_following_user_idTousers follows[]         @relation("follows_following_user_idTousers")
+  likes_by_posts                           likes_by_posts[]
+  posts                                    posts[]
+  star_ratings                             star_ratings[]
+}
+
+enum users_social_type {
+  GOOGLE
+  KAKAO
+  LOCAL
+  NAVER
+}
+
+enum users_role {
+  ADMIN
+  OWNER
+  USER
+}
+
+enum users_status {
+  AWAIT
+  BAN
+  NORMAL
+}
