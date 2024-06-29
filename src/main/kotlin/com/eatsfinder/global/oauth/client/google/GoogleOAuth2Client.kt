@@ -1,6 +1,5 @@
 package com.eatsfinder.global.oauth.client.google
 
-import com.eatsfinder.domain.user.dto.OAuth2UserInfo
 import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.global.oauth.client.OAuth2Client
 import com.eatsfinder.global.oauth.client.google.dto.GoogleTokenResponse
@@ -17,13 +16,10 @@ class GoogleOAuth2Client(
     private val restClient: RestClient,
     @Value("\${oauth2.google.client_id}") val clientId: String,
     @Value("\${oauth2.google.redirect_url}") val redirectUrl: String,
-    @Value("\${oauth2.google.client_secret}") val clientSecret: String,
-    @Value("\${oauth2.google.token_base_url}") val tokenBaseUrl: String,
-    @Value("\${oauth2.google.auth_base_url}") val authBaseUrl: String,
-    @Value("\${oauth2.google.api_base_url}") val apiBaseUrl: String
+    @Value("\${oauth2.google.client_secret}") val clientSecret: String
 ) : OAuth2Client {
     override fun generateLoginPageUrl(): String {
-        return StringBuilder(authBaseUrl)
+        return StringBuilder(GOOGLE_AUTH_BASE_URL)
             .append("?response_type=").append("code")
             .append("&client_id=").append(clientId)
             .append("&redirect_uri=").append(redirectUrl)
@@ -41,7 +37,7 @@ class GoogleOAuth2Client(
             "redirect_uri" to redirectUrl
         )
         return restClient.post()
-            .uri("$tokenBaseUrl/token")
+            .uri("$GOOGLE_TOKEN_BASE_URL/token")
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
             .body(LinkedMultiValueMap<String, String>().apply { this.setAll(requestData) })
             .retrieve()
@@ -52,7 +48,7 @@ class GoogleOAuth2Client(
 
     override fun retrieveUserInfo(accessToken: String): GoogleUserInfoResponse {
         return restClient.get()
-            .uri("$apiBaseUrl/userinfo")
+            .uri("$GOOGLE_API_BASE_URL/userinfo")
             .header("Authorization", "Bearer $accessToken")
             .retrieve()
             .body<GoogleUserInfoResponse>()
@@ -61,5 +57,11 @@ class GoogleOAuth2Client(
 
     override fun supports(provider: SocialType): Boolean {
         return provider == SocialType.GOOGLE
+    }
+
+    companion object {
+        private const val GOOGLE_AUTH_BASE_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+        private const val GOOGLE_API_BASE_URL = "https://www.googleapis.com/oauth2/v2"
+        private const val GOOGLE_TOKEN_BASE_URL = "https://oauth2.googleapis.com"
     }
 }
