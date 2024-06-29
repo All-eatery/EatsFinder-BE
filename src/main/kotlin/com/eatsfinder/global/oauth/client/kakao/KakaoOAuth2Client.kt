@@ -15,12 +15,10 @@ import org.springframework.web.client.body
 class KakaoOAuth2Client(
     private val restClient: RestClient,
     @Value("\${oauth2.kakao.client_id}") val clientId: String,
-    @Value("\${oauth2.kakao.redirect_url}") val redirectUrl: String,
-    @Value("\${oauth2.kakao.auth_base_url}") val authBaseUrl: String,
-    @Value("\${oauth2.kakao.api_base_url}") val apiBaseUrl: String
+    @Value("\${oauth2.kakao.redirect_url}") val redirectUrl: String
 ) : OAuth2Client {
     override fun generateLoginPageUrl(): String {
-        return StringBuilder(authBaseUrl)
+        return StringBuilder(KAKAO_AUTH_BASE_URL)
             .append("/oauth/authorize")
             .append("?client_id=").append(clientId)
             .append("&redirect_uri=").append(redirectUrl)
@@ -36,7 +34,7 @@ class KakaoOAuth2Client(
             "redirect_uri" to redirectUrl
         )
         return restClient.post()
-            .uri("$authBaseUrl/oauth/token")
+            .uri("$KAKAO_AUTH_BASE_URL/oauth/token")
             .contentType(MediaType.APPLICATION_FORM_URLENCODED)
             .body(LinkedMultiValueMap<String, String>().apply { this.setAll(requestData) })
             .retrieve()
@@ -47,7 +45,7 @@ class KakaoOAuth2Client(
 
     override fun retrieveUserInfo(accessToken: String): KakaoUserInfoResponse {
         return restClient.get()
-            .uri("$apiBaseUrl/v2/user/me")
+            .uri("$KAKAO_API_BASE_URL/v2/user/me")
             .header("Authorization", "Bearer $accessToken")
             .retrieve()
             .body<KakaoUserInfoResponse>()
@@ -56,5 +54,10 @@ class KakaoOAuth2Client(
 
     override fun supports(provider: SocialType): Boolean {
         return provider == SocialType.KAKAO
+    }
+
+    companion object {
+        private const val KAKAO_AUTH_BASE_URL = "https://kauth.kakao.com"
+        private const val KAKAO_API_BASE_URL = "https://kapi.kakao.com"
     }
 }
