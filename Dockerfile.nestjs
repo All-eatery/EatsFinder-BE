@@ -2,6 +2,7 @@ FROM node:20-alpine
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
+RUN npm run prisma:generate
 COPY src/main/nest ./src/main/nest
 COPY nest-cli.json ./
 COPY tsconfig.build.json ./
