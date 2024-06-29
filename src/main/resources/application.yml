@@ -22,9 +22,9 @@ logging:
 oauth2:
   kakao:
     client_id: ${ENV_KAKAO_CLIENT_ID}
-    redirect_url: ${ENV_REDIRECT_URI}
-    auth_base_url: ${ENV_AUTH_BASE_URL}
-    api_base_url: ${ENV_API_BASE_URL}
+    redirect_url: ${ENV_KAKAO_REDIRECT_URI}
+    auth_base_url: ${ENV_KAKAO_AUTH_BASE_URL}
+    api_base_url: ${ENV_KAKAO_API_BASE_URL}
   google:
     client_id: ${ENV_GOOGLE_CLIENT_ID}
     redirect_url: ${ENV_GOOGLE_REDIRECT_URI}
