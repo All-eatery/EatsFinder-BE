@@ -1,26 +1,27 @@
 import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from '../dto/create-auth.dto';
-import { UpdateAuthDto } from '../dto/update-auth.dto';
+import { PrismaService } from '../../../global/prisma/prisma.service';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
-  }
+  constructor(private readonly prismaService: PrismaService) {}
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async createUser(dto: CreateUserDto) {
+    const currentTime = new Date();
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
-
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    return await this.prismaService.users.create({
+      data: {
+        email: dto.email,
+        name: dto.name,
+        nickname: dto.nickname,
+        password: dto.password,
+        phoneNumber: dto.phoneNumber,
+        socialType: 'LOCAL',
+        role: 'USER',
+        status: 'NORMAL',
+        createdAt: currentTime,
+        updatedAt: currentTime,
+      },
+    });
   }
 }
