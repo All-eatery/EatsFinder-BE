@@ -13,7 +13,7 @@ export class AuthService {
 
   async createUser(dto: CreateUserDto) {
     const emailCheck = await this.prismaService.emailVerifications.findFirst({
-      where: { email: dto.email, isVerification: { not: true } },
+      where: { email: dto.email, isVerification: { not: false } },
     });
     if (emailCheck === null) {
       throw new ForbiddenException('이메일 인증이 완료되지 않았습니다.');
