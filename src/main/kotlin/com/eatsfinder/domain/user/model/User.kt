@@ -2,6 +2,7 @@ package com.eatsfinder.domain.user.model
 
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "users")
@@ -25,7 +26,8 @@ class User(
     @Column(name = "phone_number", nullable = false, length = 11)
     val phoneNumber: String,
 
-    @Column(name = "follow_count")
+    @ColumnDefault("0")
+    @Column(name = "follow_count", nullable = false)
     val followCount: Int = 0,
 
     @Enumerated(EnumType.STRING)
@@ -52,10 +54,10 @@ class User(
                 nickname = nickname,
                 email = email,
                 followCount = 0,
-                password = null.toString().uppercase(),
+                password = "",
                 profileImage = profileImage,
-                phoneNumber = null.toString().uppercase(),
-                name = null.toString().uppercase(),
+                phoneNumber = "",
+                name = "",
                 status = UserStatus.NORMAL,
                 role = UserRole.USER
             )
@@ -67,10 +69,10 @@ class User(
                 nickname = nickname,
                 email = email,
                 followCount = 0,
-                password = null.toString().uppercase(),
+                password = "",
                 profileImage = profileImage,
-                phoneNumber = null.toString().uppercase(),
-                name = null.toString().uppercase(),
+                phoneNumber = "",
+                name = "",
                 status = UserStatus.NORMAL,
                 role = UserRole.USER
             )
