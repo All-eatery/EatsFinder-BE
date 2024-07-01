@@ -9,10 +9,10 @@ import java.time.LocalDateTime
 class Email(
 
     @Column(name = "email", length = 30, nullable = false)
-    val mail: String,
+    val email: String,
 
     @Column(name = "verification_code", length = 10, nullable = false)
-    val code: String,
+    var code: String,
 
     @Column(name = "is_verification")
     val isVerification: Boolean
@@ -26,6 +26,6 @@ class Email(
     @Column(columnDefinition = "TIMESTAMP(6)", name = "created_at", nullable = false, updatable = false)
     var createdAt: LocalDateTime = LocalDateTime.now()
 
-    @Column(columnDefinition = "TIMESTAMP(6)", name = "expires_at", nullable = true)
-    var deletedAt: LocalDateTime? = null
+    @Column(columnDefinition = "TIMESTAMP(6)", name = "expires_at", nullable = false)
+    var expiresAt: LocalDateTime? = createdAt.plusMinutes(5)
 }
