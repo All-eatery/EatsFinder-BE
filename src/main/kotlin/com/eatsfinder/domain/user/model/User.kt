@@ -23,7 +23,7 @@ class User(
     @Column(name = "profile_image", columnDefinition = "TEXT")
     val profileImage: String,
 
-    @Column(name = "phone_number", nullable = false, length = 11)
+    @Column(name = "phone_number", nullable = false, length = 15)
     val phoneNumber: String,
 
     @ColumnDefault("0")
@@ -56,7 +56,7 @@ class User(
                 followCount = 0,
                 password = "",
                 profileImage = profileImage,
-                phoneNumber = "",
+                phoneNumber = "".replace(" ", "").replace("-", ""),
                 name = "",
                 status = UserStatus.NORMAL,
                 role = UserRole.USER
@@ -71,7 +71,7 @@ class User(
                 followCount = 0,
                 password = "",
                 profileImage = profileImage,
-                phoneNumber = "",
+                phoneNumber = "".replace(" ", "").replace("-", ""),
                 name = "",
                 status = UserStatus.NORMAL,
                 role = UserRole.USER
