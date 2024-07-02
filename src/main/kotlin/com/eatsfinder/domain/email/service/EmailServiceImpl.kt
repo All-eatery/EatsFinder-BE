@@ -19,7 +19,7 @@ class EmailServiceImpl(
         val authCode = generator.executeGenerate()
 
 
-        var emailAuthCode = emailRepository.findByEmail(req.email)
+        val emailAuthCode = emailRepository.findByEmail(req.email)
 
         if (emailAuthCode == null) {
             emailRepository.save(
