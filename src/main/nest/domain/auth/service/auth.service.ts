@@ -3,6 +3,7 @@ import { PrismaService } from '../../../global/prisma/prisma.service';
 import { CreateUserDto } from '../dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { UsersSocialType } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -11,17 +12,26 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async createUser(dto: CreateUserDto) {
-    const emailCheck = await this.prismaService.emailVerifications.findFirst({
-      where: { email: dto.email, isVerification: { not: false } },
-    });
-    if (emailCheck === null) {
-      throw new ForbiddenException('이메일 인증이 완료되지 않았습니다.');
-    }
-
+  async createUser(dto: CreateUserDto, socialType: UsersSocialType) {
     const nicknameCheck = await this.prismaService.users.findFirst({ where: { nickname: dto.nickname } });
-    if (nicknameCheck) {
-      throw new ConflictException('이미 사용중인 닉네임입니다.');
+    switch (socialType) {
+      case 'LOCAL':
+        // LOCAL 일때
+        const localUserData = await this.prismaService.users.findFirst({ where: { email: dto.email, socialType } });
+        if (localUserData) {
+          throw new ConflictException('이미 사용중인 이메일입니다.');
+        }
+        if (nicknameCheck) {
+          throw new ConflictException('이미 사용중인 닉네임입니다.');
+        }
+
+        const emailCheck = await this.prismaService.emailVerifications.findFirst({
+          where: { email: dto.email, isVerification: { not: false } },
+        });
+        if (emailCheck === null) {
+          throw new ForbiddenException('이메일 인증이 완료되지 않았습니다.');
+        }
+        break;
     }
 
     const currentTime = new Date();
@@ -34,7 +44,8 @@ export class AuthService {
         nickname: dto.nickname,
         password: hashPassword,
         phoneNumber: dto.phoneNumber,
-        socialType: 'LOCAL',
+        profileImage: dto.profileImage,
+        socialType,
         role: 'USER',
         status: 'NORMAL',
         createdAt: currentTime,
@@ -43,13 +54,13 @@ export class AuthService {
     });
   }
 
-  async validateUser(email: string, password: string) {
-    const user = await this.prismaService.users.findFirst({ where: { email, socialType: 'LOCAL' } });
+  async validateUser(email: string, password: string, socialType: UsersSocialType) {
+    const user = await this.prismaService.users.findFirst({ where: { email, socialType: socialType } });
     if (user && (await bcrypt.compare(password, user.password))) {
       const { password, ...result } = user;
       return result;
     }
-    throw new UnauthorizedException('잘못된 접근입니다.');
+    return user;
   }
 
   async login(user: any) {

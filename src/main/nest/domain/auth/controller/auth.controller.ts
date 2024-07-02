@@ -1,9 +1,10 @@
-import { Controller, Body, Post, UseGuards, Req } from '@nestjs/common';
+import { Controller, UseGuards, Body, Req, Get, Post } from '@nestjs/common';
 import { ApiTags, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { UsersSocialType } from '@prisma/client';
 import { AuthService } from '../service/auth.service';
-import { LocalAuthGuard } from '../guard/local-auth.guard';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { LoginUserDto } from '../dto/login-user.dto';
+import { LocalAuthGuard } from '../guard/local-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -15,7 +16,8 @@ export class AuthController {
   @ApiBody({ type: CreateUserDto })
   @ApiResponse({ status: 201, description: '회원 가입 성공' })
   async createUser(@Body() dto: CreateUserDto) {
-    return await this.authService.createUser(dto);
+    const socialType: UsersSocialType = 'LOCAL';
+    return await this.authService.createUser(dto, socialType);
   }
 
   @Post('login')
