@@ -6,6 +6,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { LocalStrategy } from './strategy/local.strategy';
 import { JwtStrategy } from './strategy/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { NaverStrategy } from './strategy/naver.strategy';
+import { NaverAuthGuard } from './guard/naver-auth.guard';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy, JwtStrategy, NaverStrategy, NaverAuthGuard],
   controllers: [AuthController],
 })
 export class AuthModule {}

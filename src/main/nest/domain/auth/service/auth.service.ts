@@ -32,6 +32,12 @@ export class AuthService {
           throw new ForbiddenException('이메일 인증이 완료되지 않았습니다.');
         }
         break;
+      case 'NAVER':
+        // NAVER 일때
+        if (nicknameCheck || nicknameCheck?.nickname === dto.nickname) {
+          dto.nickname = dto.nickname + `-${socialType}`;
+        }
+        break;
     }
 
     const currentTime = new Date();
