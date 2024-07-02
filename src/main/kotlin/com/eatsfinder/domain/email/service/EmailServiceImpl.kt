@@ -6,6 +6,7 @@ import com.eatsfinder.domain.email.repository.EmailRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 
 @Service
@@ -21,17 +22,22 @@ class EmailServiceImpl(
         val authCode = generator.executeGenerate()
 
 
-        val emailAuthCode = emailRepository.findByEmail(req.email).run {
-            emailRepository.save(
-                Email(
-                    email = req.email,
-                    code = "",
-                    isVerification = true
-                )
+        val emailAuthCode = emailRepository.findByEmail(req.email).orElseGet {
+            Email(
+                email = req.email,
+                code = "",
+                isVerification = true
             )
+
         }
-        emailAuthCode.code = authCode
-        emailUtils.sendEmail(req.email, authCode)
+        if (emailAuthCode.expiresAt.isBefore(LocalDateTime.now())) {
+            emailAuthCode.code = authCode
+            emailAuthCode.createdAt = LocalDateTime.now()
+            emailAuthCode.expiresAt = LocalDateTime.now().plusMinutes(5)
+            emailRepository.save(emailAuthCode)
+            emailUtils.sendEmail(req.email, authCode)
+        } else throw TODO()
+            // 필요한 Exception("인증번호가 만료되지 않았습니다!")
 
     }
 
@@ -45,5 +51,6 @@ class EmailServiceImpl(
             throw TODO()
         }
     }
+
 }
 
