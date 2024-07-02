@@ -23,9 +23,9 @@ class Email(
     val id: Long? = null
 
     @CreatedDate
-    @Column(columnDefinition = "TIMESTAMP(6)", name = "created_at", nullable = false, updatable = false)
+    @Column(columnDefinition = "TIMESTAMP(6)", name = "created_at", nullable = false)
     var createdAt: LocalDateTime = LocalDateTime.now()
 
     @Column(columnDefinition = "TIMESTAMP(6)", name = "expires_at", nullable = false)
-    var expiresAt: LocalDateTime? = createdAt.plusMinutes(5)
+    var expiresAt: LocalDateTime = createdAt.plusMinutes(5)
 }
