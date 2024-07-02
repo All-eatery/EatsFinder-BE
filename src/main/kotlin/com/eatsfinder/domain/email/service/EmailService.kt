@@ -5,5 +5,5 @@ import com.eatsfinder.domain.email.dto.EmailRequest
 interface EmailService {
 
     fun sendCodeToEmail(req: EmailRequest)
-    fun checkVerifyCode(email: String, code: String): String
+    fun checkVerifyCode(code: String): String
 }

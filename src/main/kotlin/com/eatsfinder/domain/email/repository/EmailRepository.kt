@@ -6,4 +6,6 @@ import java.util.*
 
 interface EmailRepository : JpaRepository<Email, Long> {
     fun findByEmail(email: String): Email?
+
+    fun findByCode(code: String): Email?
 }

@@ -23,8 +23,8 @@ class EmailController(
 
     @Operation(summary = "인증번호 확인하기")
     @GetMapping("/email/verifyCode")
-    fun checkVerifyCode(@RequestParam @Valid email: String, @RequestParam code: String): ResponseEntity<String> {
-        mailService.checkVerifyCode(email, code)
-        return ResponseEntity.status(HttpStatus.OK).body(mailService.checkVerifyCode(email, code))
+    fun checkVerifyCode(@RequestParam code: String): ResponseEntity<String> {
+        mailService.checkVerifyCode(code)
+        return ResponseEntity.status(HttpStatus.OK).body(mailService.checkVerifyCode(code))
     }
 }

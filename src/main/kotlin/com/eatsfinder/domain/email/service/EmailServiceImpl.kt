@@ -41,12 +41,17 @@ class EmailServiceImpl(
             emailAuthCode.expiresAt = LocalDateTime.now().plusMinutes(5)
             emailRepository.save(emailAuthCode)
             emailUtils.sendEmail(req.email, authCode)
-        } else throw IllegalStateException("인증번호가 만료되지 않았습니다!")
+        } else throw IllegalStateException("인증번호가 만료되지 않았습니다")
 
     }
 
-    override fun checkVerifyCode(email: String, code: String): String {
-        TODO("Not yet implemented")
+    override fun checkVerifyCode(code: String): String {
+        val checkCode = emailRepository.findByCode(code)
+        return when {
+            checkCode == null || checkCode.code != code -> "다시 한번 코드를 입력해주세요"
+            checkCode.expiresAt.isBefore(LocalDateTime.now()) -> "인증 시간이 만료된 인증번호입니다"
+            else -> "입력하신 코드는 맞는 코드입니다"
+        }
     }
 
     private fun checkDuplicatedEmail(email: String) {
