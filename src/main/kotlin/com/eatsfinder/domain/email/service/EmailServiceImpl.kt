@@ -22,22 +22,26 @@ class EmailServiceImpl(
         val authCode = generator.executeGenerate()
 
 
-        val emailAuthCode = emailRepository.findByEmail(req.email).orElseGet {
-            Email(
-                email = req.email,
-                code = "",
-                isVerification = true
-            )
+        var emailAuthCode = emailRepository.findByEmail(req.email)
 
+        if (emailAuthCode == null) {
+            emailRepository.save(
+                Email(
+                    email = req.email,
+                    code = authCode,
+                    isVerification = true
+                )
+            )
+            return
         }
+
         if (emailAuthCode.expiresAt.isBefore(LocalDateTime.now())) {
             emailAuthCode.code = authCode
             emailAuthCode.createdAt = LocalDateTime.now()
             emailAuthCode.expiresAt = LocalDateTime.now().plusMinutes(5)
             emailRepository.save(emailAuthCode)
             emailUtils.sendEmail(req.email, authCode)
-        } else throw TODO()
-            // 필요한 Exception("인증번호가 만료되지 않았습니다!")
+        } else throw IllegalStateException("인증번호가 만료되지 않았습니다!")
 
     }
 

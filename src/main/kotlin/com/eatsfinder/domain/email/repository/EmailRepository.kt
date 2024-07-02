@@ -5,5 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
 interface EmailRepository : JpaRepository<Email, Long> {
-    fun findByEmail(email: String): Optional<Email>
+    fun findByEmail(email: String): Email?
 }
