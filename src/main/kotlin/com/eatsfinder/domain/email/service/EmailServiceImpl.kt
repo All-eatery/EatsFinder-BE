@@ -13,6 +13,7 @@ class EmailServiceImpl(
     private val emailRepository: EmailRepository,
     private val emailUtils: EmailUtils
 ) : EmailService {
+
     @Transactional
     override fun sendCodeToEmail(req: EmailRequest) {
         val generator = EmailAuthCodeGenerator()
@@ -33,10 +34,13 @@ class EmailServiceImpl(
         }
 
         if (emailAuthCode.expiresAt.isBefore(LocalDateTime.now())) {
-            emailAuthCode.code = authCode
-            emailAuthCode.createdAt = LocalDateTime.now()
-            emailAuthCode.expiresAt = LocalDateTime.now().plusMinutes(5)
-            emailRepository.save(emailAuthCode)
+            emailRepository.save(
+                emailAuthCode.apply {
+                    code = authCode
+                    isVerification = false
+                    createdAt = LocalDateTime.now()
+                    expiresAt = LocalDateTime.now().plusMinutes(5)
+                })
             emailUtils.sendEmail(req.email, authCode)
         } else throw IllegalStateException("인증번호가 만료되지 않았습니다")
 
@@ -45,9 +49,13 @@ class EmailServiceImpl(
     override fun checkVerifyCode(email: String, code: String): String {
         val checkCode = emailRepository.findByCode(code)
         return when {
-            checkCode == null || !(checkCode.code == code && checkCode.email == email)-> "다시 한번 코드를 입력해주세요"
+            checkCode == null || !(checkCode.code == code && checkCode.email == email) -> "다시 한번 코드를 입력해주세요"
             checkCode.expiresAt.isBefore(LocalDateTime.now()) -> "인증 시간이 만료된 인증번호입니다"
-            else -> "입력하신 코드는 맞는 코드입니다"
+            else -> {
+                checkCode.isVerification = true
+                emailRepository.save(checkCode)
+                "입력하신 코드는 맞는 코드입니다"
+            }
         }
     }
 }

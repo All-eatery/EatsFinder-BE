@@ -15,7 +15,7 @@ class Email(
     var code: String,
 
     @Column(name = "is_verification")
-    val isVerification: Boolean
+    var isVerification: Boolean
 
 ) {
     @Id
