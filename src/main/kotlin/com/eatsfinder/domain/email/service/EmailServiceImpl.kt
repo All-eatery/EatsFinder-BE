@@ -26,7 +26,7 @@ class EmailServiceImpl(
                 Email(
                     email = req.email,
                     code = authCode,
-                    isVerification = true
+                    isVerification = false
                 )
             )
             return
