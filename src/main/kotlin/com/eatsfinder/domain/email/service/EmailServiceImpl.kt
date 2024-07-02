@@ -3,7 +3,6 @@ package com.eatsfinder.domain.email.service
 import com.eatsfinder.domain.email.dto.EmailRequest
 import com.eatsfinder.domain.email.model.Email
 import com.eatsfinder.domain.email.repository.EmailRepository
-import com.eatsfinder.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -11,13 +10,11 @@ import java.time.LocalDateTime
 
 @Service
 class EmailServiceImpl(
-    private val userRepository: UserRepository,
     private val emailRepository: EmailRepository,
     private val emailUtils: EmailUtils
 ) : EmailService {
     @Transactional
     override fun sendCodeToEmail(req: EmailRequest) {
-        this.checkDuplicatedEmail(req.email)
         val generator = EmailAuthCodeGenerator()
         val authCode = generator.executeGenerate()
 
@@ -53,13 +50,5 @@ class EmailServiceImpl(
             else -> "입력하신 코드는 맞는 코드입니다"
         }
     }
-
-    private fun checkDuplicatedEmail(email: String) {
-        val user = userRepository.findByEmail(email)
-        if (user.equals(email)) {
-            throw TODO()
-        }
-    }
-
 }
 
