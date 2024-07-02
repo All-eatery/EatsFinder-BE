@@ -10,7 +10,9 @@
     "start": "nest start",
     "start:prod": "node dist/main",
     "dev": "nest start --watch",
-    "prisma:generate": "npx prisma generate --schema=./src/main/nest/global/prisma/schema.prisma"
+    "prisma:generate": "npx prisma generate --schema=./src/main/nest/global/prisma/schema.prisma",
+    "prisma:pull": "npx prisma db pull --schema=./src/main/nest/global/prisma/schema.prisma",
+    "prisma:format": "npx prisma-case-format --file=./src/main/nest/global/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^10.0.0",
