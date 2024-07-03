@@ -8,21 +8,21 @@ datasource db {
 }
 
 model Categories {
-  id             BigInt  @id @default(autoincrement())
   classification String? @db.VarChar(6)
+  id             BigInt  @id @default(autoincrement())
   posts          Posts[]
 
   @@map("categories")
 }
 
 model Comments {
-  id        BigInt    @id @default(autoincrement())
   createdAt DateTime  @map("created_at") @db.Timestamp(6)
   deletedAt DateTime? @map("deleted_at") @db.Timestamp(6)
-  updatedAt DateTime  @map("updated_at") @db.Timestamp(6)
-  content   String?   @db.Text
+  id        BigInt    @id @default(autoincrement())
   postId    BigInt    @map("post_id")
+  updatedAt DateTime  @map("updated_at") @db.Timestamp(6)
   userId    BigInt    @map("user_id")
+  content   String?   @db.Text
   users     Users     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8omq0tc18jd43bu5tjh6jvraq")
   posts     Posts     @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKh4c7lvsc298whoyd4w9ta25cr")
 
@@ -32,21 +32,21 @@ model Comments {
 }
 
 model EmailVerifications {
-  id               BigInt    @id @default(autoincrement())
-  verificationCode String?   @map("verification_code") @db.VarChar(10)
-  createdAt        DateTime  @map("created_at") @db.Timestamp(6)
-  expiresAt        DateTime? @map("expires_at") @db.Timestamp(6)
-  isVerification   Boolean?  @map("is_verification") @db.Bit(1)
-  email            String?   @db.VarChar(30)
+  isVerification   Boolean? @map("is_verification") @db.Bit(1)
+  createdAt        DateTime @map("created_at") @db.Timestamp(6)
+  expiresAt        DateTime @map("expires_at") @db.Timestamp(6)
+  id               BigInt   @id @default(autoincrement())
+  verificationCode String   @map("verification_code") @db.VarChar(10)
+  email            String   @db.VarChar(30)
 
   @@map("email_verifications")
 }
 
 model Follows {
-  id                                 BigInt   @id @default(autoincrement())
   createdAt                          DateTime @map("created_at") @db.DateTime(6)
   followedUserId                     BigInt   @map("followed_user_id")
   followingUserId                    BigInt   @map("following_user_id")
+  id                                 BigInt   @id @default(autoincrement())
   usersFollowsFollowedUserIdTousers  Users    @relation("follows_followed_user_idTousers", fields: [followedUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKfg3bo4whthco31ewoiaxpjhvi")
   usersFollowsFollowingUserIdTousers Users    @relation("follows_following_user_idTousers", fields: [followingUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKk1b1yn6h0224kelm91qetqxen")
 
@@ -68,20 +68,20 @@ model LikesByPosts {
 }
 
 model Posts {
-  id                                    BigInt         @id @default(autoincrement())
+  isOwner                               Boolean        @map("is_owner")
+  likeCount                             Int?           @map("like_count")
+  categoryId                            BigInt?        @map("category_id")
   createdAt                             DateTime       @map("created_at") @db.Timestamp(6)
   deletedAt                             DateTime?      @map("deleted_at") @db.Timestamp(6)
+  id                                    BigInt         @id @default(autoincrement())
+  ratingId                              BigInt         @map("rating_id")
   updatedAt                             DateTime       @map("updated_at") @db.Timestamp(6)
+  userId                                BigInt         @map("user_id")
+  name                                  String?        @db.VarChar(100)
   address                               String         @db.Text
   content                               String?        @db.Text
   imageUrl                              String         @map("image_url") @db.Text
-  isOwner                               Boolean        @map("is_owner")
-  likeCount                             Int?           @map("like_count")
-  name                                  String?        @db.VarChar(100)
   shopTag                               String?        @map("shop_tag") @db.Text
-  categoryId                            BigInt?        @map("category_id")
-  ratingId                              BigInt         @map("rating_id")
-  userId                                BigInt         @map("user_id")
   comments                              Comments[]
   likesByPosts                          LikesByPosts[]
   users                                 Users          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK5lidm6cqbc7u4xhqpxm898qme")
@@ -96,8 +96,8 @@ model Posts {
 }
 
 model StarRatings {
-  id                              BigInt  @id @default(autoincrement())
   star                            Float   @db.Float
+  id                              BigInt  @id @default(autoincrement())
   postId                          BigInt  @map("post_id")
   userId                          BigInt  @map("user_id")
   postsPostsRatingIdTostarRatings Posts[] @relation("posts_rating_idTostar_ratings")
@@ -110,19 +110,19 @@ model StarRatings {
 }
 
 model Users {
-  id                                   BigInt          @id @default(autoincrement())
+  followCount                          Int             @default(0) @map("follow_count")
   createdAt                            DateTime        @map("created_at") @db.Timestamp(6)
   deletedAt                            DateTime?       @map("deleted_at") @db.Timestamp(6)
+  id                                   BigInt          @id @default(autoincrement())
   updatedAt                            DateTime        @map("updated_at") @db.Timestamp(6)
-  email                                String          @db.VarChar(30)
-  followCount                          Int?            @map("follow_count")
   name                                 String          @db.VarChar(10)
   nickname                             String          @db.VarChar(10)
+  phoneNumber                          String          @map("phone_number") @db.VarChar(15)
+  email                                String          @db.VarChar(30)
   password                             String          @db.Text
-  phoneNumber                          String          @map("phone_number") @db.VarChar(11)
   profileImage                         String?         @map("profile_image") @db.Text
-  socialType                           UsersSocialType @map("social_type")
   role                                 UsersRole
+  socialType                           UsersSocialType @map("social_type")
   status                               UsersStatus
   comments                             Comments[]
   followsFollowsFollowedUserIdTousers  Follows[]       @relation("follows_followed_user_idTousers")
