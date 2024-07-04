@@ -72,6 +72,25 @@ kotlin {
 	}
 }
 
+tasks.withType<JavaCompile> {
+	sourceSets {
+		main {
+			java.srcDirs("src/main/kotlin")
+			resources {
+				srcDirs("src/main/resources")
+				exclude("**/.eslintrc.js", "**/.gitignore", "**/.prettierrc", "**/Dockerfile.nest", "**/nest-cli.json", "**/package-lock.json", "**/package.json", "**/tsconfig.build.json", "**/tsconfig.json")
+			}
+		}
+		test {
+			java.srcDirs("src/test/kotlin")
+		}
+	}
+}
+
+tasks.named<Jar>("jar") {
+	enabled = false
+}
+
 tasks.withType<Test> {
 	useJUnitPlatform()
 }
