@@ -142,18 +142,6 @@ jobs:
       - name: 레포 체크아웃
         uses: actions/checkout@main
 
-      - name: JDK 21 설정
-        uses: actions/setup-java@main
-        with:
-          java-version: '21'
-          distribution: 'temurin'
-
-      - name: gradlew 실행 권한 부여
-        run: chmod +x gradlew
-
-      - name: Gradle 빌드
-        run: ./gradlew clean build
-
       - name: Docker Buildx 설정
         uses: docker/setup-buildx-action@master
 
@@ -205,7 +193,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_REPO_BE }}
+            cd ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_USERNAME }}
             
             # Docker Hub 로그인
             echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
