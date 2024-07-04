@@ -1,20 +1,20 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class MailService {
-  constructor(
-    private readonly mailerService: MailerService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly mailerService: MailerService) {}
 
-  async sendMail(to: string, subject: string, text: string) {
+  async sendPassword(email: string, subject: string, username: string, newPassword: string) {
     await this.mailerService.sendMail({
-      to,
-      from: this.configService.get<string>('ENV_EMAIL_NAME'),
+      to: email,
       subject,
-      text,
+      template: './password-reset',
+      context: {
+        username,
+        newPassword,
+        currentDate: new Date().toLocaleString('ko-KR'),
+      },
     });
   }
 }
