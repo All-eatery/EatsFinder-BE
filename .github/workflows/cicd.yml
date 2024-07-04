@@ -113,9 +113,9 @@ jobs:
 
             # Nginx 설정 변경
             if [ "$NEW_DEPLOYMENT" == "green" ]; then
-              sed -i "s/proxy_pass http:\/\/eatsfinder-nestjs-$OLD_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/proxy_pass http:\/\/eatsfinder-nestjs-$NEW_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/ef-n.conf
+              sed -i "s/proxy_pass http:\/\/eatsfinder-nestjs-$OLD_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/proxy_pass http:\/\/eatsfinder-nestjs-$NEW_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/eatsfinder.conf
             else
-              sed -i "s/proxy_pass http:\/\/eatsfinder-nestjs-$OLD_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/proxy_pass http:\/\/eatsfinder-nestjs-$NEW_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/ef-n.conf
+              sed -i "s/proxy_pass http:\/\/eatsfinder-nestjs-$OLD_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/proxy_pass http:\/\/eatsfinder-nestjs-$NEW_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/eatsfinder.conf
             fi
 
             # Nginx 재시작
