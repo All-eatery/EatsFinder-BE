@@ -4,10 +4,11 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { PrismaModule } from '../global/prisma/prisma.module';
 import { AuthModule } from '../domain/auth/auth.module';
+import { UserModule } from '../domain/user/user.module';
 import { MailModule } from '../global/mail/mail.module';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, MailModule, AuthModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), PrismaModule, MailModule, AuthModule, UserModule],
   controllers: [AppController],
   providers: [AppService],
 })
