@@ -194,7 +194,7 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           source: .env
-          target: ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_REPO }}
+          target: ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_REPO_BE }}
           overwrite: true
 
       - name: 서버 접속
@@ -205,13 +205,13 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            cd ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_REPO }}
+            cd ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_REPO_BE }}
             
             # Docker Hub 로그인
             echo ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }} | docker login -u ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
             
             # 이미지 풀링
-            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:kotlin
+            docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_BE }}:kotlin
             
             # 새로운 이미지를 Green/Blue 중 하나로 태그
             if docker ps | grep eatsfinder-kotlin-blue; then
