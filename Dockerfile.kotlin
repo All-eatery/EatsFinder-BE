@@ -3,6 +3,7 @@ WORKDIR /app
 COPY gradlew build.gradle.kts settings.gradle.kts ./
 COPY gradle gradle
 COPY src src
+RUN chmod +x gradlew
 RUN ./gradlew clean build
 
 FROM openjdk:21-jdk-slim
