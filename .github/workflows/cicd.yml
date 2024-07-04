@@ -169,7 +169,7 @@ jobs:
           context: .
           file: ./Dockerfile.kotlin
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO }}:kotlin
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_BE }}:kotlin
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
