@@ -12,6 +12,7 @@ export class UserController {
   @ApiOperation({ summary: '비밀번호 찾기' })
   @ApiBody({ type: FindPasswordDto })
   async findPassword(@Body() findPasswordDto: FindPasswordDto) {
-    return this.userService.findPassword(findPasswordDto);
+    await this.userService.findPassword(findPasswordDto);
+    return { message: '입력하신 이메일로 임시 비밀번호를 보냈습니다.', email: findPasswordDto.email };
   }
 }
