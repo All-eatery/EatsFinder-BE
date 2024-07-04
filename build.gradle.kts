@@ -86,11 +86,14 @@ tasks.withType<JavaCompile> {
 		}
 	}
 }
+tasks.withType<ProcessResources> {
+	duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
 
 tasks.named<Jar>("jar") {
 	enabled = false
 }
 
-tasks.withType<Test> {
-	useJUnitPlatform()
-}
+//tasks.withType<Test> {
+//	useJUnitPlatform()
+//}
