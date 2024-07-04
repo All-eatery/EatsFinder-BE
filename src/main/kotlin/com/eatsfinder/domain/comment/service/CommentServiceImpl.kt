@@ -7,6 +7,7 @@ import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.comment.repository.CommentRepository
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.repository.UserRepository
+import com.eatsfinder.global.exception.ModelNotFoundException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 
@@ -21,8 +22,8 @@ class CommentServiceImpl(
     }
 
     override fun createComment(postId: Long, req: CommentRequest, userId: Long): String {
-        val user = userRepository.findByIdOrNull(userId) ?: TODO()
-        val post = postRepository.findByIdOrNull(postId) ?: TODO()
+        val user = userRepository.findByIdOrNull(userId) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
+        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("post", "이 게시물 아이디: (${postId})는 존재하지 않습니다.")
         commentRepository.save(
             Comment(
                 content = req.content,
