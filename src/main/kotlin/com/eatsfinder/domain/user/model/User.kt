@@ -17,7 +17,7 @@ class User(
     @Column(name = "name", nullable = false, length = 10)
     val name: String,
 
-    @Column(name = "nickname", nullable = false, length = 10)//유니크
+    @Column(name = "nickname", nullable = false, length = 10, unique = true)
     val nickname: String,
 
     @Column(name = "profile_image", columnDefinition = "TEXT")
