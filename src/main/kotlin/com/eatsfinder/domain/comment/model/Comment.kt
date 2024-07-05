@@ -15,11 +15,11 @@ class Comment(
     val content: String,
 
     @ManyToOne
-    @JoinColumn(name = "users_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     val userId: User,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "posts_id", nullable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     val postId: Post
 
 

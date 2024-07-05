@@ -1,6 +1,5 @@
 package com.eatsfinder.domain.post.model
 
-import com.eatsfinder.domain.category.model.Category
 import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.place.model.Place
 import com.eatsfinder.domain.starRating.model.StarRating
@@ -33,19 +32,19 @@ class Post(
     val isOwner: Boolean,
 
     @ManyToOne
-    @JoinColumn(name = "users_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = false)
     val userId: User,
 
     @ManyToOne
-    @JoinColumn(name = "places_id")
+    @JoinColumn(name = "place_id")
     val placeId: Place,
 
     @ManyToOne
-    @JoinColumn(name = "ratings_id", nullable = false)
+    @JoinColumn(name = "rating_id", nullable = false)
     val ratingId: StarRating,
 
     @ManyToOne
-    @JoinColumn(name = "keywords_id", nullable = false)
+    @JoinColumn(name = "keyword_id", nullable = false)
     val keywordId: PostKeyword,
 
     @OneToMany(mappedBy = "postId", cascade = [CascadeType.ALL], orphanRemoval = true)

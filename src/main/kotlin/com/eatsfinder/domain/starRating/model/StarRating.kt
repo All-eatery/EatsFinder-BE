@@ -1,7 +1,6 @@
 package com.eatsfinder.domain.starRating.model
 
 import com.eatsfinder.domain.post.model.Post
-import com.eatsfinder.domain.user.model.User
 import jakarta.persistence.*
 import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
@@ -14,7 +13,7 @@ class StarRating(
     val star: Float,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "posts_id", nullable = false)
+    @JoinColumn(name = "post_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     val postId: Post
 
