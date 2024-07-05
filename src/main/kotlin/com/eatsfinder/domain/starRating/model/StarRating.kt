@@ -14,12 +14,7 @@ class StarRating(
     val star: Float,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.NO_ACTION)
-    val userId: User,
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "posts_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     val postId: Post
 
