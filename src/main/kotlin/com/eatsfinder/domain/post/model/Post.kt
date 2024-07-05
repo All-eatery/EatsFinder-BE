@@ -2,30 +2,30 @@ package com.eatsfinder.domain.post.model
 
 import com.eatsfinder.domain.category.model.Category
 import com.eatsfinder.domain.comment.model.Comment
+import com.eatsfinder.domain.place.model.Place
 import com.eatsfinder.domain.starRating.model.StarRating
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "posts")
 class Post(
 
-    @Column(name = "name", length = 100)
-    val name: String,
+    @Column(name = "thumbnail_url", nullable = false, columnDefinition = "TEXT")
+    val thumbnailUrl: String,
 
-    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "image_url", nullable = true, columnDefinition = "TEXT")
     val imageUrl: String,
-
-    @Column(name = "address", nullable = false, columnDefinition = "TEXT")
-    val address: String,
 
     @Column(name = "content", columnDefinition = "TEXT")
     val content: String,
 
-    @Column(name = "shop_tag", columnDefinition = "TEXT")
-    val shopTag: String,
+    @Column(name = "menu_tag", columnDefinition = "TEXT")
+    val menuTag: String,
 
+    @ColumnDefault("0")
     @Column(name = "like_count")
     val likeCount: Int = 0,
 
@@ -33,16 +33,20 @@ class Post(
     val isOwner: Boolean,
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "users_id", nullable = false)
     val userId: User,
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
-    val categoryId: Category,
+    @JoinColumn(name = "places_id")
+    val placeId: Place,
 
     @ManyToOne
-    @JoinColumn(name = "rating_id", nullable = false)
+    @JoinColumn(name = "ratings_id", nullable = false)
     val ratingId: StarRating,
+
+    @ManyToOne
+    @JoinColumn(name = "post_keywords_id", nullable = false)
+    val keywordId: StarRating,
 
     @OneToMany(mappedBy = "postId", cascade = [CascadeType.ALL], orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()
