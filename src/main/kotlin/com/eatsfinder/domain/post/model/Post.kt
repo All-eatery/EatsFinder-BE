@@ -26,7 +26,7 @@ class Post(
     val menuTag: String,
 
     @ColumnDefault("0")
-    @Column(name = "like_count")
+    @Column(name = "like_count", nullable = false)
     val likeCount: Int = 0,
 
     @Column(name = "is_owner", nullable = false, columnDefinition = "TINYINT(1)")
@@ -45,7 +45,7 @@ class Post(
     val ratingId: StarRating,
 
     @ManyToOne
-    @JoinColumn(name = "post_keywords_id", nullable = false)
+    @JoinColumn(name = "keywords_id", nullable = false)
     val keywordId: PostKeyword,
 
     @OneToMany(mappedBy = "postId", cascade = [CascadeType.ALL], orphanRemoval = true)
