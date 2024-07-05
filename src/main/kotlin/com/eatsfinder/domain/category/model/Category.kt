@@ -6,8 +6,14 @@ import jakarta.persistence.*
 @Table(name = "categories")
 class Category(
 
-    @Column(name = "classification", length = 6)
-    val classification: String
+    @Column(name = "name", length = 6)
+    val name: String,
+
+    @Column(name = "group", length = 6)
+    val group: String,
+
+    @Column(name = "code", length = 6)
+    val code: String
 
 ) {
     @Id
