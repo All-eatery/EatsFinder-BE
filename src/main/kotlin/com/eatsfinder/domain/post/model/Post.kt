@@ -46,7 +46,7 @@ class Post(
 
     @ManyToOne
     @JoinColumn(name = "post_keywords_id", nullable = false)
-    val keywordId: StarRating,
+    val keywordId: PostKeyword,
 
     @OneToMany(mappedBy = "postId", cascade = [CascadeType.ALL], orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()

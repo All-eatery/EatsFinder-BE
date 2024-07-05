@@ -11,7 +11,7 @@ import org.hibernate.annotations.SQLDelete
 @Table(name = "comments")
 class Comment(
 
-    @Column(name = "content", columnDefinition = "TEXT")
+    @Column(name = "content", columnDefinition = "TEXT", nullable = false)
     val content: String,
 
     @ManyToOne

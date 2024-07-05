@@ -27,7 +27,7 @@ class Place(
     var y: Float,
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
+    @JoinColumn(name = "category_id", nullable = false)
     val categoryId: Category
 
 ) : BaseTimeEntity() {
