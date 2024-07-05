@@ -17,18 +17,22 @@ class User(
     @Column(name = "name", nullable = false, length = 10)
     val name: String,
 
-    @Column(name = "nickname", nullable = false, length = 10)
+    @Column(name = "nickname", nullable = false, length = 10, unique = true)
     val nickname: String,
 
     @Column(name = "profile_image", columnDefinition = "TEXT")
     val profileImage: String,
 
-    @Column(name = "phone_number", nullable = false, length = 15)
+    @Column(name = "phone_number", nullable = true, length = 15)
     val phoneNumber: String,
 
     @ColumnDefault("0")
-    @Column(name = "follow_count", nullable = false)
-    val followCount: Int = 0,
+    @Column(name = "follower_count", nullable = false)
+    val followerCount: Int = 0,
+
+    @ColumnDefault("0")
+    @Column(name = "following_count", nullable = false)
+    val followingCount: Int = 0,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
@@ -53,7 +57,8 @@ class User(
                 provider = SocialType.KAKAO,
                 nickname = nickname,
                 email = email,
-                followCount = 0,
+                followerCount = 0,
+                followingCount = 0,
                 password = "",
                 profileImage = profileImage,
                 phoneNumber = "".replace(" ", "").replace("-", ""),
@@ -68,7 +73,8 @@ class User(
                 provider = SocialType.GOOGLE,
                 nickname = nickname,
                 email = email,
-                followCount = 0,
+                followerCount = 0,
+                followingCount = 0,
                 password = "",
                 profileImage = profileImage,
                 phoneNumber = "".replace(" ", "").replace("-", ""),

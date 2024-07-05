@@ -1,32 +1,31 @@
 package com.eatsfinder.domain.post.model
 
-import com.eatsfinder.domain.category.model.Category
 import com.eatsfinder.domain.comment.model.Comment
+import com.eatsfinder.domain.place.model.Place
 import com.eatsfinder.domain.starRating.model.StarRating
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "posts")
 class Post(
 
-    @Column(name = "name", length = 100)
-    val name: String,
+    @Column(name = "thumbnail_url", nullable = false, columnDefinition = "TEXT")
+    val thumbnailUrl: String,
 
-    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "image_url", nullable = true, columnDefinition = "TEXT")
     val imageUrl: String,
-
-    @Column(name = "address", nullable = false, columnDefinition = "TEXT")
-    val address: String,
 
     @Column(name = "content", columnDefinition = "TEXT")
     val content: String,
 
-    @Column(name = "shop_tag", columnDefinition = "TEXT")
-    val shopTag: String,
+    @Column(name = "menu_tag", columnDefinition = "TEXT")
+    val menuTag: String,
 
-    @Column(name = "like_count")
+    @ColumnDefault("0")
+    @Column(name = "like_count", nullable = false)
     val likeCount: Int = 0,
 
     @Column(name = "is_owner", nullable = false, columnDefinition = "TINYINT(1)")
@@ -37,12 +36,16 @@ class Post(
     val userId: User,
 
     @ManyToOne
-    @JoinColumn(name = "category_id")
-    val categoryId: Category,
+    @JoinColumn(name = "place_id")
+    val placeId: Place,
 
     @ManyToOne
     @JoinColumn(name = "rating_id", nullable = false)
     val ratingId: StarRating,
+
+    @ManyToOne
+    @JoinColumn(name = "keyword_id", nullable = false)
+    val keywordId: PostKeyword,
 
     @OneToMany(mappedBy = "postId", cascade = [CascadeType.ALL], orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()

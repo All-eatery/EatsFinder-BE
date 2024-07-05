@@ -29,21 +29,19 @@ class EmailServiceImpl(
             emailRepository.save(
                 Email(
                     email = req.email,
-                    code = authCode,
-                    isVerification = false
+                    code = authCode
                 )
             )
             emailUtils.sendEmail(req.email, authCode)
             return
         }
 
-        if (emailAuthCode.expiresAt.isBefore(LocalDateTime.now())) {
+        if (emailAuthCode.expiredAt.isBefore(LocalDateTime.now())) {
             emailRepository.save(
                 emailAuthCode.apply {
                     code = authCode
-                    isVerification = false
                     createdAt = LocalDateTime.now()
-                    expiresAt = LocalDateTime.now().plusMinutes(5)
+                    expiredAt = LocalDateTime.now().plusMinutes(5)
                 })
             emailUtils.sendEmail(req.email, authCode)
             return
@@ -56,9 +54,9 @@ class EmailServiceImpl(
         val checkCode = emailRepository.findByCode(code)
         when {
             checkCode == null || !(checkCode.code == code && checkCode.email == email) -> throw OneTimeMoreWriteException("다시 한번 코드를 입력해주세요")
-            checkCode.expiresAt.isBefore(LocalDateTime.now()) -> throw ExpiredCodeException("인증 시간이 만료된 인증번호입니다")
+            checkCode.expiredAt.isBefore(LocalDateTime.now()) -> throw ExpiredCodeException("인증 시간이 만료된 인증번호입니다")
             else -> {
-                checkCode.isVerification = true
+                checkCode.complete = true
                 emailRepository.save(checkCode)
             }
         }

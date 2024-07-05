@@ -11,21 +11,22 @@ class Email(
     @Column(name = "email", length = 30, nullable = false)
     val email: String,
 
-    @Column(name = "verification_code", length = 10, nullable = false)
-    var code: String,
+    @Column(name = "code", length = 10, nullable = false)
+    var code: String
 
-    @Column(name = "is_verification")
-    var isVerification: Boolean
 
 ) {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
+    @Column(name = "complete", nullable = false, columnDefinition = "TINYINT(1)")
+    var complete: Boolean = false
+
     @CreatedDate
     @Column(columnDefinition = "TIMESTAMP(6)", name = "created_at", nullable = false)
     var createdAt: LocalDateTime = LocalDateTime.now()
 
-    @Column(columnDefinition = "TIMESTAMP(6)", name = "expires_at", nullable = false)
-    var expiresAt: LocalDateTime = createdAt.plusMinutes(5)
+    @Column(columnDefinition = "TIMESTAMP(6)", name = "expired_at", nullable = false)
+    var expiredAt: LocalDateTime = createdAt.plusMinutes(5)
 }
