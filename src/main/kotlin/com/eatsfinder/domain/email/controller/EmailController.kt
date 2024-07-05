@@ -4,6 +4,7 @@ import com.eatsfinder.domain.email.dto.EmailRequest
 import com.eatsfinder.domain.email.service.EmailService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import io.swagger.v3.oas.annotations.Operation
+import jakarta.validation.Valid
 import org.springframework.web.bind.annotation.*
 
 
@@ -15,7 +16,7 @@ class EmailController(
 
     @Operation(summary = "인증번호 보내기")
     @PostMapping("/email")
-    fun sendCodeToEmail(@RequestBody req: EmailRequest): BaseResponse<Unit> {
+    fun sendCodeToEmail(@RequestBody @Valid req: EmailRequest): BaseResponse<Unit> {
         mailService.sendCodeToEmail(req)
         return BaseResponse(message = "인증번호가 발송되었습니다!")
     }
