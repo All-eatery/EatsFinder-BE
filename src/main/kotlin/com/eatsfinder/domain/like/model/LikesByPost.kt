@@ -11,12 +11,12 @@ import org.hibernate.annotations.OnDeleteAction
 class LikesByPost(
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "users_id", nullable = false)
     @OnDelete(action = OnDeleteAction.NO_ACTION)
     val userId: User,
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id", nullable = false)
+    @JoinColumn(name = "posts_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
     val postId: Post
 
