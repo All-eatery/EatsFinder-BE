@@ -5,14 +5,14 @@ import com.eatsfinder.domain.category.model.Category
 
 data class CategoryResponse(
     val id: Long,
-    val group: String,
+    val type: String,
     val code: String
 ) {
     companion object {
         fun from(category: Category): CategoryResponse {
             return CategoryResponse(
                 id = category.id!!,
-                group = category.group,
+                type = category.type,
                 code = category.code
             )
         }

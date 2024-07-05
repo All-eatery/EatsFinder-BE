@@ -6,11 +6,11 @@ import jakarta.persistence.*
 @Table(name = "categories")
 class Category(
 
-    @Column(name = "name", length = 6)
+    @Column(name = "name", length = 6, nullable = false)
     val name: String,
 
-    @Column(name = "group", length = 6)
-    val group: String,
+    @Column(name = "type", length = 6)
+    val type: String,
 
     @Column(name = "code", length = 6)
     val code: String
