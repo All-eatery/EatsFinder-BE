@@ -20,10 +20,10 @@ class Place(
     @Column(name = "telephone", length = 15)
     var telephone: String,
 
-    @Column(name = "x", columnDefinition = "FLOAT")
+    @Column(name = "x", columnDefinition = "FLOAT", nullable = false)
     var x: Float,
 
-    @Column(name = "y", columnDefinition = "FLOAT")
+    @Column(name = "y", columnDefinition = "FLOAT", nullable = false)
     var y: Float,
 
     @ManyToOne

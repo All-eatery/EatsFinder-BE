@@ -8,9 +8,11 @@ datasource db {
 }
 
 model Categories {
-  classification String? @db.VarChar(6)
-  id             BigInt  @id @default(autoincrement())
-  posts          Posts[]
+  code   String?  @db.VarChar(6)
+  name   String   @db.VarChar(6)
+  type   String?  @db.VarChar(6)
+  id     BigInt   @id @default(autoincrement())
+  places places[]
 
   @@map("categories")
 }
@@ -22,7 +24,7 @@ model Comments {
   postId    BigInt    @map("post_id")
   updatedAt DateTime  @map("updated_at") @db.Timestamp(6)
   userId    BigInt    @map("user_id")
-  content   String?   @db.Text
+  content   String    @db.Text
   users     Users     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8omq0tc18jd43bu5tjh6jvraq")
   posts     Posts     @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKh4c7lvsc298whoyd4w9ta25cr")
 
@@ -32,12 +34,12 @@ model Comments {
 }
 
 model EmailVerifications {
-  isVerification   Boolean? @map("is_verification") @db.Bit(1)
-  createdAt        DateTime @map("created_at") @db.Timestamp(6)
-  expiresAt        DateTime @map("expires_at") @db.Timestamp(6)
-  id               BigInt   @id @default(autoincrement())
-  verificationCode String   @map("verification_code") @db.VarChar(10)
-  email            String   @db.VarChar(30)
+  complete   Boolean
+  createdAt  DateTime @map("created_at") @db.Timestamp(6)
+  expired_at DateTime @db.Timestamp(6)
+  id         BigInt   @id @default(autoincrement())
+  code       String   @db.VarChar(10)
+  email      String   @db.VarChar(30)
 
   @@map("email_verifications")
 }
@@ -69,29 +71,31 @@ model LikesByPosts {
 
 model Posts {
   isOwner                               Boolean        @map("is_owner")
-  likeCount                             Int?           @map("like_count")
-  categoryId                            BigInt?        @map("category_id")
+  likeCount                             Int            @default(0) @map("like_count")
   createdAt                             DateTime       @map("created_at") @db.Timestamp(6)
   deletedAt                             DateTime?      @map("deleted_at") @db.Timestamp(6)
   id                                    BigInt         @id @default(autoincrement())
+  keyword_id                            BigInt?
+  place_id                              BigInt
   ratingId                              BigInt         @map("rating_id")
   updatedAt                             DateTime       @map("updated_at") @db.Timestamp(6)
   userId                                BigInt         @map("user_id")
-  name                                  String?        @db.VarChar(100)
-  address                               String         @db.Text
   content                               String?        @db.Text
-  imageUrl                              String         @map("image_url") @db.Text
-  shopTag                               String?        @map("shop_tag") @db.Text
+  imageUrl                              String?        @map("image_url") @db.Text
+  menu_tag                              String?        @db.Text
+  thumbnail_url                         String         @db.Text
   comments                              Comments[]
   likesByPosts                          LikesByPosts[]
   users                                 Users          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK5lidm6cqbc7u4xhqpxm898qme")
-  categories                            Categories?    @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKijnwr3brs8vaosl80jg9rp7uc")
+  post_keywords                         post_keywords? @relation(fields: [keyword_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKalrk2f4mefrfx07rjwcheb1jw")
   starRatingsPostsRatingIdTostarRatings StarRatings    @relation("posts_rating_idTostar_ratings", fields: [ratingId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKonikjcopg9sp7kb852mjrxioj")
+  places                                places         @relation(fields: [place_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKt38bd81etfla6c1ilk3s0wm45")
   starRatingsStarRatingsPostIdToposts   StarRatings[]  @relation("star_ratings_post_idToposts")
 
   @@index([userId], map: "FK5lidm6cqbc7u4xhqpxm898qme")
-  @@index([categoryId], map: "FKijnwr3brs8vaosl80jg9rp7uc")
   @@index([ratingId], map: "FKonikjcopg9sp7kb852mjrxioj")
+  @@index([keyword_id], map: "FKalrk2f4mefrfx07rjwcheb1jw")
+  @@index([place_id], map: "FKt38bd81etfla6c1ilk3s0wm45")
   @@map("posts")
 }
 
@@ -99,25 +103,23 @@ model StarRatings {
   star                            Float   @db.Float
   id                              BigInt  @id @default(autoincrement())
   postId                          BigInt  @map("post_id")
-  userId                          BigInt  @map("user_id")
   postsPostsRatingIdTostarRatings Posts[] @relation("posts_rating_idTostar_ratings")
-  users                           Users   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKk080p6agcoa1rnn3ot3gno74f")
   postsStarRatingsPostIdToposts   Posts   @relation("star_ratings_post_idToposts", fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKo6usan40orj7ig5w3t8udpqkx")
 
-  @@index([userId], map: "FKk080p6agcoa1rnn3ot3gno74f")
   @@index([postId], map: "FKo6usan40orj7ig5w3t8udpqkx")
   @@map("star_ratings")
 }
 
 model Users {
-  followCount                          Int             @default(0) @map("follow_count")
+  follower_count                       Int             @default(0)
+  following_count                      Int             @default(0)
   createdAt                            DateTime        @map("created_at") @db.Timestamp(6)
   deletedAt                            DateTime?       @map("deleted_at") @db.Timestamp(6)
   id                                   BigInt          @id @default(autoincrement())
   updatedAt                            DateTime        @map("updated_at") @db.Timestamp(6)
   name                                 String          @db.VarChar(10)
-  nickname                             String          @db.VarChar(10)
-  phoneNumber                          String          @map("phone_number") @db.VarChar(15)
+  nickname                             String          @unique(map: "UK2ty1xmrrgtn89xt7kyxx6ta7h") @db.VarChar(10)
+  phoneNumber                          String?         @map("phone_number") @db.VarChar(15)
   email                                String          @db.VarChar(30)
   password                             String          @db.Text
   profileImage                         String?         @map("profile_image") @db.Text
@@ -129,9 +131,33 @@ model Users {
   followsFollowsFollowingUserIdTousers Follows[]       @relation("follows_following_user_idTousers")
   likesByPosts                         LikesByPosts[]
   posts                                Posts[]
-  starRatings                          StarRatings[]
 
   @@map("users")
+}
+
+model places {
+  x            Float      @db.Float
+  y            Float      @db.Float
+  category_id  BigInt
+  created_at   DateTime   @db.Timestamp(6)
+  deleted_at   DateTime?  @db.Timestamp(6)
+  id           BigInt     @id @default(autoincrement())
+  updated_at   DateTime   @db.Timestamp(6)
+  telephone    String?    @db.VarChar(15)
+  name         String     @db.VarChar(100)
+  address      String     @db.Text
+  road_address String?    @db.Text
+  categories   Categories @relation(fields: [category_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKca17w9kt9f18v0lr91ssmivx5")
+  posts        Posts[]
+
+  @@index([category_id], map: "FKca17w9kt9f18v0lr91ssmivx5")
+}
+
+model post_keywords {
+  id       BigInt  @id @default(autoincrement())
+  category String  @db.VarChar(10)
+  reaction String  @db.VarChar(15)
+  posts    Posts[]
 }
 
 enum UsersSocialType {
