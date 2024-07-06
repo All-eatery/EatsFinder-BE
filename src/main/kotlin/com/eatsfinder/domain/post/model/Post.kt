@@ -36,7 +36,7 @@ class Post(
     val userId: User,
 
     @ManyToOne
-    @JoinColumn(name = "place_id")
+    @JoinColumn(name = "place_id", nullable = false)
     val placeId: Place,
 
     @ManyToOne
@@ -44,7 +44,7 @@ class Post(
     val ratingId: StarRating,
 
     @ManyToOne
-    @JoinColumn(name = "keyword_id", nullable = false)
+    @JoinColumn(name = "keyword_id")
     val keywordId: PostKeyword,
 
     @OneToMany(mappedBy = "postId", cascade = [CascadeType.ALL], orphanRemoval = true)
