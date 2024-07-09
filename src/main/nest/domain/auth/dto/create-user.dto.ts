@@ -15,7 +15,4 @@ export class CreateUserDto {
 
   @ApiProperty()
   nickname: string;
-
-  @ApiProperty()
-  profileImage?: string;
 }

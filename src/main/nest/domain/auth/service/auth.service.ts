@@ -26,7 +26,7 @@ export class AuthService {
         }
 
         const emailCheck = await this.prismaService.emailVerifications.findFirst({
-          where: { email: dto.email, isVerification: { not: false } },
+          where: { email: dto.email, complete: { not: false } },
         });
         if (emailCheck === null) {
           throw new ForbiddenException('이메일 인증이 완료되지 않았습니다.');
@@ -50,7 +50,6 @@ export class AuthService {
         nickname: dto.nickname,
         password: hashPassword,
         phoneNumber: dto.phoneNumber,
-        profileImage: dto.profileImage,
         socialType,
         role: 'USER',
         status: 'NORMAL',
