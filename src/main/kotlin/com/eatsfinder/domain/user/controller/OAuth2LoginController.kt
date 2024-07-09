@@ -21,7 +21,7 @@ import java.net.URI
 @RestController
 @RequestMapping("/auth")
 class OAuth2LoginController(
-    @Value("\${login.url}") private val loginRedirectUrl: String,
+    @Value("\${frontend.domain}") private val loginRedirectUrl: String,
     private val oAuth2LoginService: OAuth2LoginService,
     private val oAuth2Client: OAuth2ClientService
 ) {

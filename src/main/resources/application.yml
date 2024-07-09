@@ -49,5 +49,5 @@ mail:
         auth-code-expiration-millis: 1800000
 kApi:
   url: ${ENV_KAPI_URL}
-login:
-  url: ${ENV_FE_LOGIN_REDIRECT_URL}
+frontend:
+  domain: ${ENV_FE_LOGIN_REDIRECT_URL}

@@ -18,7 +18,7 @@ class WebConfig(
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
             .allowedOrigins(
-                "http://localhost:8080", "http://localhost:8090", kApiUrl,
+                "http://localhost:8080", "http://localhost:8090", "http://localhost:3000", kApiUrl,
             )
             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS")
             .allowedHeaders("*")
