@@ -50,7 +50,6 @@ export class AuthService {
         nickname: dto.nickname,
         password: hashPassword,
         phoneNumber: dto.phoneNumber,
-        profileImage: dto.profileImage,
         socialType,
         role: 'USER',
         status: 'NORMAL',
