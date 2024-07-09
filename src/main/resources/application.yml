@@ -50,4 +50,4 @@ mail:
 kApi:
   url: ${ENV_KAPI_URL}
 login:
-  redirect_url: ${ENV_FE_LOGIN_REDIRECT_URL}
+  url: ${ENV_FE_LOGIN_REDIRECT_URL}
