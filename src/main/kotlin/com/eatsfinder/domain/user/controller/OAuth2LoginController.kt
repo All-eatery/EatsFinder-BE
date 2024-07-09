@@ -5,6 +5,7 @@ import com.eatsfinder.domain.user.service.OAuth2LoginService
 import com.eatsfinder.global.oauth.client.OAuth2ClientService
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseCookie
@@ -20,10 +21,11 @@ import java.net.URI
 @RestController
 @RequestMapping("/auth")
 class OAuth2LoginController(
+    @Value("\${kApi.url}") private val kApiUrl: String,
     private val oAuth2LoginService: OAuth2LoginService,
     private val oAuth2Client: OAuth2ClientService
 ) {
-    private val localHost = "http://localhost:8080/login"
+    private val localHost = "$kApiUrl/login"
 
     @Operation(summary = "소셜 로그인 (로그인 페이지로 Redirect 하기)")
     @PreAuthorize("isAnonymous()")
