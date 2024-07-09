@@ -4,7 +4,7 @@ import { UserService } from '../service/user.service';
 import { FindPasswordDto } from '../dto/find-password.dto';
 
 @ApiTags('User')
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
