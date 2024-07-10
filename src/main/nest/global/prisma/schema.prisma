@@ -86,7 +86,7 @@ model Posts {
   deletedAt                             DateTime?      @map("deleted_at") @db.Timestamp(6)
   comments                              Comments[]
   likesByPosts                          postLikes[]
-  starRatingsStarRatingsPostIdToposts   StarRatings[]  @relation("star_ratings_post_idToposts")
+  // starRatingsStarRatingsPostIdToposts   StarRatings[]  @relation("star_ratings_post_idToposts")
   starRatingsPostsRatingIdTostarRatings StarRatings    @relation("posts_rating_idTostar_ratings", fields: [ratingId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKonikjcopg9sp7kb852mjrxioj")
   users                                 Users          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK5lidm6cqbc7u4xhqpxm898qme")
   postKeywords                          PostKeywords?  @relation(fields: [keywordId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKalrk2f4mefrfx07rjwcheb1jw")
@@ -102,11 +102,11 @@ model Posts {
 model StarRatings {
   id                              BigInt  @id @default(autoincrement())
   star                            Float   @db.Float
-  postId                          BigInt  @map("post_id")
+  // postId                          BigInt  @map("post_id")
   postsPostsRatingIdTostarRatings Posts[] @relation("posts_rating_idTostar_ratings")
-  postsStarRatingsPostIdToposts   Posts   @relation("star_ratings_post_idToposts", fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKo6usan40orj7ig5w3t8udpqkx")
+  // postsStarRatingsPostIdToposts   Posts   @relation("star_ratings_post_idToposts", fields: [postId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKo6usan40orj7ig5w3t8udpqkx")
 
-  @@index([postId], map: "FKo6usan40orj7ig5w3t8udpqkx")
+  // @@index([postId], map: "FKo6usan40orj7ig5w3t8udpqkx")
   @@map("star_ratings")
 }
 
