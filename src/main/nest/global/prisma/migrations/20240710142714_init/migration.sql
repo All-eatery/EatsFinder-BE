@@ -125,8 +125,8 @@ CREATE TABLE `places` (
     `y` FLOAT NOT NULL,
     `category_id` BIGINT NOT NULL,
     `created_at` TIMESTAMP(6) NOT NULL,
-    `deleted_at` TIMESTAMP(6) NULL,
     `updated_at` TIMESTAMP(6) NOT NULL,
+    `deleted_at` TIMESTAMP(6) NULL,
 
     INDEX `FKca17w9kt9f18v0lr91ssmivx5`(`category_id`),
     PRIMARY KEY (`id`)

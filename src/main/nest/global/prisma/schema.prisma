@@ -22,8 +22,8 @@ model Comments {
   content   String    @db.Text
   postId    BigInt    @map("post_id")
   userId    BigInt    @map("user_id")
-  createdAt DateTime  @map("created_at") @db.Timestamp(6)
-  updatedAt DateTime  @map("updated_at") @db.Timestamp(6)
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt DateTime? @map("deleted_at") @db.Timestamp(6)
   users     Users     @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8omq0tc18jd43bu5tjh6jvraq")
   posts     Posts     @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKh4c7lvsc298whoyd4w9ta25cr")
@@ -38,7 +38,7 @@ model EmailVerifications {
   email     String   @db.VarChar(30)
   code      String   @db.VarChar(10)
   complete  Boolean
-  createdAt DateTime @map("created_at") @db.Timestamp(6)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
   expiredAt DateTime @map("expired_at") @db.Timestamp(6)
 
   @@map("email_verifications")
@@ -48,7 +48,7 @@ model Follows {
   id                                 BigInt   @id @default(autoincrement())
   followedUserId                     BigInt   @map("followed_user_id")
   followingUserId                    BigInt   @map("following_user_id")
-  createdAt                          DateTime @map("created_at") @db.DateTime(6)
+  createdAt                          DateTime @default(now()) @map("created_at") @db.DateTime(6)
   usersFollowsFollowedUserIdTousers  Users    @relation("follows_followed_user_idTousers", fields: [followedUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKfg3bo4whthco31ewoiaxpjhvi")
   usersFollowsFollowingUserIdTousers Users    @relation("follows_following_user_idTousers", fields: [followingUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKk1b1yn6h0224kelm91qetqxen")
 
@@ -81,8 +81,8 @@ model Posts {
   placeId                               BigInt         @map("place_id")
   keywordId                             BigInt?        @map("keyword_id")
   ratingId                              BigInt         @map("rating_id")
-  createdAt                             DateTime       @map("created_at") @db.Timestamp(6)
-  updatedAt                             DateTime       @map("updated_at") @db.Timestamp(6)
+  createdAt                             DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                             DateTime       @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt                             DateTime?      @map("deleted_at") @db.Timestamp(6)
   comments                              Comments[]
   likesByPosts                          postLikes[]
@@ -123,8 +123,8 @@ model Users {
   role                                 UsersRole
   socialType                           UsersSocialType @map("social_type")
   status                               UsersStatus
-  createdAt                            DateTime        @map("created_at") @db.Timestamp(6)
-  updatedAt                            DateTime        @map("updated_at") @db.Timestamp(6)
+  createdAt                            DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                            DateTime        @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt                            DateTime?       @map("deleted_at") @db.Timestamp(6)
   comments                             Comments[]
   followsFollowsFollowedUserIdTousers  Follows[]       @relation("follows_followed_user_idTousers")
@@ -144,9 +144,9 @@ model Places {
   x           Float        @db.Float
   y           Float        @db.Float
   categoryId  BigInt       @map("category_id")
-  createdAt   DateTime     @map("created_at") @db.Timestamp(6)
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt   DateTime?    @map("deleted_at") @db.Timestamp(6)
-  updatedAt   DateTime     @map("updated_at") @db.Timestamp(6)
   posts       Posts[]
   placeMenus  PlaceMenus[]
   categories  Categories   @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKca17w9kt9f18v0lr91ssmivx5")
