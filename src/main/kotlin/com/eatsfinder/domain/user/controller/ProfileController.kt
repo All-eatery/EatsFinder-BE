@@ -1,5 +1,6 @@
 package com.eatsfinder.domain.user.controller
 
+import com.eatsfinder.domain.user.dto.profile.ChangePasswordRequest
 import com.eatsfinder.domain.user.dto.profile.MyProfileResponse
 import com.eatsfinder.domain.user.dto.profile.ProfileViewedByOthersResponse
 import com.eatsfinder.domain.user.dto.profile.UpdateProfileRequest
@@ -7,17 +8,12 @@ import com.eatsfinder.domain.user.service.ProfileService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
-import io.swagger.v3.oas.annotations.parameters.RequestBody
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PatchMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.web.bind.annotation.*
 
 @RestController
 class ProfileController(
@@ -38,11 +34,19 @@ class ProfileController(
     }
 
     @Operation(summary = "본인 프로필 수정하기")
-    @PatchMapping("/my-profile")
+    @PatchMapping("/my-profile", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun updateProfile(@RequestBody req: UpdateProfileRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.updateProfile(req, myProfileId)
         return BaseResponse(message = "프로필이 수정되었습니다.")
+    }
+
+    @Operation(summary = "비밀번호 재설정")
+    @PutMapping("/my-profile/re-password")
+    fun changePassword(@RequestBody @Valid req: ChangePasswordRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
+        val myProfileId = userPrincipal.id
+        profileService.changePassword(req, myProfileId)
+        return BaseResponse(message = "비밀번호가 수정되었습니다.")
     }
 
     @Operation(summary = "탈퇴하기")
