@@ -27,9 +27,9 @@ class EmailUtils(
                     "	</h1>\n"																																																+
                     "	<p style=\"font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px; color: black;\">"																							+
                     "		안녕하세요.<br />"																																													+
-                    "		EatsFinder에 가입해 주셔서 진심으로 감사드립니다.<br />"																																						+
-                    "		아래 <b style=\"color: #f89b00\">'인증 번호'</b> 을 입력하여 회원가입을 완료해 주세요.<br />"																													+
-                    "		참고로 본 보안 코드는 <b style=\"color: #f89b00\">5분 후</b>에 만료됩니다!</br>\t\t감사합니다</br>\t"																																															+
+                    "		EatsFinder입니다!<br />"																																						+
+                    "		아래 <b style=\"color: #f89b00\">'인증 번호'</b> 을 입력하여 마저 작성해 주세요.<br />"																													+
+                    "		참고로, 본 보안 코드는 <b style=\"color: #f89b00\">5분 후</b>에 만료됩니다!</br>\t\t감사합니다</br>\t"																																															+
                     "	</p>"																																																	+
                     "		<p"																																																	+
                     "			style=\"display: inline-block; width: 210px; height: 45px; margin: 30px 5px 40px; background: #f89b00; line-height: 45px; vertical-align: middle; font-size: 16px; color: #FFF; text-decoration: none; text-align: center;\">"							+
