@@ -9,10 +9,11 @@ data class MyProfileResponse(
     val phoneNumber: String,
     val profileImage: String?,
     val followingCount: Int,
-    val followerCount: Int
+    val followerCount: Int,
+    val postCount: Int = 0
 ) {
     companion object {
-        fun from(profile: User): MyProfileResponse {
+        fun from(profile: User, postCount: Int): MyProfileResponse {
             return MyProfileResponse(
                 id = profile.id!!,
                 nickname = profile.nickname,
@@ -20,7 +21,8 @@ data class MyProfileResponse(
                 phoneNumber = profile.phoneNumber,
                 profileImage = profile.profileImage,
                 followingCount = profile.followingCount,
-                followerCount = profile.followerCount
+                followerCount = profile.followerCount,
+                postCount = postCount
             )
         }
     }

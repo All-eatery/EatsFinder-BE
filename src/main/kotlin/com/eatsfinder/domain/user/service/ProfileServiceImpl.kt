@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.user.service
 
 import com.eatsfinder.domain.email.repository.EmailRepository
+import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.dto.profile.ChangePasswordRequest
 import com.eatsfinder.domain.user.dto.profile.MyProfileResponse
 import com.eatsfinder.domain.user.dto.profile.ProfileViewedByOthersResponse
@@ -22,6 +23,7 @@ class ProfileServiceImpl(
     private val userRepository: UserRepository,
     private val emailRepository: EmailRepository,
     private val passwordEncoder: PasswordEncoder,
+    private val postRepository: PostRepository
 ) : ProfileService {
 
     override fun getMyProfile(myProfileId: Long): MyProfileResponse {
@@ -29,11 +31,13 @@ class ProfileServiceImpl(
             "user",
             "이 프로필(id: ${myProfileId})은 존재하지 않습니다."
         )
+        val postCount = postRepository.findByUserId(profile)?.size ?: 0
+
         if (profile.id != myProfileId){
             throw NotMyProfileException("본인 프로필이 아닙니다.")
         }
 
-        return MyProfileResponse.from(profile)
+        return MyProfileResponse.from(profile, postCount)
     }
 
     override fun profileViewedByOthers(profileId: Long, myProfileId: Long): ProfileViewedByOthersResponse {
@@ -41,12 +45,13 @@ class ProfileServiceImpl(
             "user",
             "이 프로필(id: ${profileId})은 존재하지 않습니다."
         )
+        val postCount = postRepository.findByUserId(profile)?.size ?: 0
 
         if (profile.id == myProfileId){
             throw MyProfileException("본인 프로필이므로 조회할 수 없습니다.")
         }
 
-        return ProfileViewedByOthersResponse.from(profile)
+        return ProfileViewedByOthersResponse.from(profile, postCount)
     }
 
     // 이미지 수정(원래 있던거 삭제 -> 추가), 이미지 없을 경우 -> 추가
