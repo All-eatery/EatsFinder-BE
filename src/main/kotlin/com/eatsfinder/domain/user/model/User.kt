@@ -3,8 +3,10 @@ package com.eatsfinder.domain.user.model
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
+import org.hibernate.annotations.SQLDelete
 
 @Entity
+@SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @Table(name = "users")
 class User(
 
@@ -18,13 +20,13 @@ class User(
     val name: String,
 
     @Column(name = "nickname", nullable = false, length = 10, unique = true)
-    val nickname: String,
+    var nickname: String,
 
     @Column(name = "profile_image", columnDefinition = "TEXT")
-    val profileImage: String,
+    var profileImage: String,
 
     @Column(name = "phone_number", nullable = true, length = 15)
-    val phoneNumber: String,
+    var phoneNumber: String,
 
     @ColumnDefault("0")
     @Column(name = "follower_count", nullable = false)
