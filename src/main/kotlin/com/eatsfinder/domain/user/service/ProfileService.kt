@@ -6,11 +6,11 @@ import com.eatsfinder.domain.user.dto.profile.UpdateProfileRequest
 
 interface ProfileService {
 
-    fun getMyProfile(profileId: Long): MyProfileResponse
+    fun getMyProfile(myProfileId: Long): MyProfileResponse
 
-    fun profileViewedByOthers(profileId: Long): ProfileViewedByOthersResponse
+    fun profileViewedByOthers(profileId: Long, myProfileId: Long): ProfileViewedByOthersResponse
 
-    fun updateProfile(req: UpdateProfileRequest, profileId: Long)
+    fun updateProfile(req: UpdateProfileRequest, myProfileId: Long)
 
-    fun deleteProfile(profileId: Long, email: String, code: String)
+    fun deleteProfile(myProfileId: Long, email: String, code: String)
 }

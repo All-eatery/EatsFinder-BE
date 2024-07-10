@@ -24,28 +24,32 @@ class ProfileController(
     private val profileService: ProfileService
 ) {
     @Operation(summary = "본인 프로필 조회하기")
-    @GetMapping("/my-profile/{profileId}")
-    fun getMyProfile(@PathVariable profileId: Long): ResponseEntity<MyProfileResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyProfile(profileId))
+    @GetMapping("/my-profile")
+    fun getMyProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<MyProfileResponse> {
+        val myProfileId = userPrincipal.id
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyProfile(myProfileId))
     }
 
     @Operation(summary = "다른 유저 프로필 조회하기")
     @GetMapping("/profile/{profileId}")
-    fun profileViewedByOthers(@PathVariable profileId: Long): ResponseEntity<ProfileViewedByOthersResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.profileViewedByOthers(profileId))
+    fun profileViewedByOthers(@AuthenticationPrincipal userPrincipal: UserPrincipal, @PathVariable profileId: Long): ResponseEntity<ProfileViewedByOthersResponse> {
+        val myProfileId = userPrincipal.id
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.profileViewedByOthers(profileId, myProfileId))
     }
 
     @Operation(summary = "본인 프로필 수정하기")
-    @PatchMapping("/my-profile/{profileId}")
-    fun updateProfile(@RequestBody req: UpdateProfileRequest, @PathVariable profileId: Long): BaseResponse<Unit> {
-        profileService.updateProfile(req, profileId)
+    @PatchMapping("/my-profile")
+    fun updateProfile(@RequestBody req: UpdateProfileRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
+        val myProfileId = userPrincipal.id
+        profileService.updateProfile(req, myProfileId)
         return BaseResponse(message = "프로필이 수정되었습니다.")
     }
 
     @Operation(summary = "탈퇴하기")
-    @DeleteMapping("/my-profile/{profileId}")
-    fun deleteProfile(@PathVariable profileId: Long, @RequestParam email: String, @RequestParam code: String): ResponseEntity<Unit> {
-        profileService.deleteProfile(profileId, email, code)
+    @DeleteMapping("/my-profile")
+    fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam email: String, @RequestParam code: String): ResponseEntity<Unit> {
+        val myProfileId = userPrincipal.id
+        profileService.deleteProfile(myProfileId, email, code)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }
