@@ -65,7 +65,7 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     }
-    return user;
+    return;
   }
 
   async login(user: any) {
