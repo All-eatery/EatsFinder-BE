@@ -1,6 +1,6 @@
 package com.eatsfinder.global.oauth.client
 
-import com.eatsfinder.domain.user.dto.OAuth2UserInfo
+import com.eatsfinder.domain.user.dto.oauth.OAuth2UserInfo
 import com.eatsfinder.domain.user.model.SocialType
 
 interface OAuth2Client {

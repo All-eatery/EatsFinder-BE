@@ -1,6 +1,6 @@
 package com.eatsfinder.domain.user.service
 
-import com.eatsfinder.domain.user.dto.OAuth2UserInfo
+import com.eatsfinder.domain.user.dto.oauth.OAuth2UserInfo
 import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.domain.user.repository.UserRepository

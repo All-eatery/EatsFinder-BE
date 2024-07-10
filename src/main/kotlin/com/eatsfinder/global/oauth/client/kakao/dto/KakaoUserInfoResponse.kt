@@ -1,6 +1,6 @@
 package com.eatsfinder.global.oauth.client.kakao.dto
 
-import com.eatsfinder.domain.user.dto.OAuth2UserInfo
+import com.eatsfinder.domain.user.dto.oauth.OAuth2UserInfo
 import com.eatsfinder.domain.user.model.SocialType
 import com.fasterxml.jackson.databind.PropertyNamingStrategies
 import com.fasterxml.jackson.databind.annotation.JsonNaming
