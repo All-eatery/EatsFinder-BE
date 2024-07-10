@@ -51,13 +51,13 @@ class ProfileServiceImpl(
             "이 프로필은(id: ${profileId})은 존재하지 않습니다."
         )
 
-//        if (profile.provider != SocialType.LOCAL) {
-//            throw ImmutableUserException("프로필 수정할 수 없는 소셜 유저입니다.")
-//        }
-
-        if (profile.id != profileId){
-            throw NotMyProfileException("본인 프로필이 아닙니다.")
+        if (profile.provider != SocialType.LOCAL) {
+            throw ImmutableUserException("프로필 수정할 수 없는 소셜 유저입니다.")
         }
+
+//        if (profile.id != profileId){
+//            throw NotMyProfileException("본인 프로필이 아닙니다.")
+//        }
 
         profile.nickname = req.nickname ?: profile.nickname
         profile.phoneNumber = req.phoneNumber ?: profile.phoneNumber
