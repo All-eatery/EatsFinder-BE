@@ -35,8 +35,7 @@ class CommentServiceImpl(
     }
 
     override fun deleteComment(commentId: Long, userId: Long) {
-        // 예외처리는 추후 추가 할 예정, 삭제 로직 확실해 지면 할 예정
-        val comment = commentRepository.findByIdOrNull(commentId) ?: TODO()
+        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("comment", "이 댓글(${commentId})은 존재하지 않습니다.")
         commentRepository.delete(comment)
     }
 }
