@@ -5,6 +5,7 @@ import com.eatsfinder.global.exception.dto.ErrorResponse
 import com.eatsfinder.global.exception.email.ExpiredCodeException
 import com.eatsfinder.global.exception.email.NotGenerateCodeException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
+import com.eatsfinder.global.exception.profile.ImmutableUserException
 import com.eatsfinder.global.exception.status.StatusCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,9 +15,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 @RestControllerAdvice
 class GlobalExceptionHandler {
     @ExceptionHandler(ModelNotFoundException::class)
-    fun handleModelNotFoundException(e: ModelNotFoundException): ResponseEntity<ErrorResponse> {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponse(message = e.message))
+    protected fun modelNotFoundException(ex: ModelNotFoundException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
 
     @ExceptionHandler(NotGenerateCodeException::class)
@@ -36,4 +37,12 @@ class GlobalExceptionHandler {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
+
+    @ExceptionHandler(ImmutableUserException::class)
+    protected fun immutableUserException(ex: ImmutableUserException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
+
 }
