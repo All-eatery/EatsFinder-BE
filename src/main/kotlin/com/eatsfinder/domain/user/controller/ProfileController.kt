@@ -42,7 +42,7 @@ class ProfileController(
     }
 
     @Operation(summary = "비밀번호 재설정")
-    @PutMapping("/my-profile/re-password")
+    @PutMapping("/my-profile/new-password")
     fun changePassword(@RequestBody @Valid req: ChangePasswordRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.changePassword(req, myProfileId)
