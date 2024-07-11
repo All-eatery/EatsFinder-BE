@@ -46,4 +46,35 @@ class EmailUtils(
 
         javaMailSender.send(message)
     }
+
+    fun guideEmail(email: String) {
+        val message = javaMailSender.createMimeMessage()
+        val helper = MimeMessageHelper(message, true)
+        try {
+            helper.setTo(email)
+            message.setRecipients(MimeMessage.RecipientType.TO, email)
+            helper.setSubject("[EatsFinder] 회원 탈퇴 안내 메일입니다")
+            var body = ""
+            body += (" <div" 																																																	+
+                    "	style=\"font-family: 'Apple SD Gothic Neo', 'sans-serif' !important; width: 500px; height: 360px; border-top: 4px solid #f89b00; border-bottom: 4px solid #f89b00; margin: 100px auto; padding: 30px 0; box-sizing: border-box; color: black;\"> "		+
+                    "	<h1 style=\"margin: 0; padding: 0 5px; font-size: 28px; font-weight: 400; color: black;\">"																															+
+                    "		<span style=\"font-size: 15px; margin: 0 0 10px 3px; color: black;\">EatsFinder</span><br />"																													+
+                    "		<span style=\"color: #f89b00\">회원탈퇴</span> 안내입니다.<br />"																																				+
+                    "	</h1>\n"																																																+
+                    "	<p style=\"font-size: 16px; line-height: 26px; margin-top: 50px; padding: 0 5px; color: black;\">"																							+
+                    "		안녕하세요.<br />"																																													+
+                    "		EatsFinder입니다!<br />"																																						+
+                    "		우선적으로 <b style=\"color: #f89b00\">'탈퇴 처리'</b> 되었음을 알려드립니다. <br />"																													+
+                    "		참고로, 기간 내에 재가입 가능하며 <b style=\"color: #f89b00\">7일 후</b> 완전히 탈퇴 처리됩니다.</br>\t\t감사합니다</br>\t"																																															+
+                    "	</p>"																																																	+
+                    " </div>"
+                    )
+            message.setText(body, "UTF-8", "html")
+
+        } catch (e: MessagingException) {
+            e.printStackTrace()
+        }
+
+        javaMailSender.send(message)
+    }
 }

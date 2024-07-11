@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.user.service
 
 import com.eatsfinder.domain.email.repository.EmailRepository
+import com.eatsfinder.domain.email.service.EmailUtils
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.dto.profile.ChangePasswordRequest
 import com.eatsfinder.domain.user.dto.profile.MyProfileResponse
@@ -23,7 +24,8 @@ class ProfileServiceImpl(
     private val userRepository: UserRepository,
     private val emailRepository: EmailRepository,
     private val passwordEncoder: PasswordEncoder,
-    private val postRepository: PostRepository
+    private val postRepository: PostRepository,
+    private val emailUtils: EmailUtils
 ) : ProfileService {
 
     override fun getMyProfile(myProfileId: Long): MyProfileResponse {
@@ -98,9 +100,9 @@ class ProfileServiceImpl(
             checkCode == null -> throw OneTimeMoreWriteException("인증확인이 되지 않았습니다.")
             checkCode.expiredAt.isBefore(LocalDateTime.now()) -> throw OneTimeMoreWriteException("인증번호가 만료되었습니다.")
             !(checkCode.code == code && profile.email == checkCode.email && profile.email == email) -> throw OneTimeMoreWriteException("다시 한번 입력해주세요")
-
         }
         userRepository.delete(profile)
+        emailUtils.guideEmail(email)
     }
 
 }
