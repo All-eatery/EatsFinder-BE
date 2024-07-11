@@ -35,7 +35,7 @@ class ProfileController(
 
     @Operation(summary = "본인 프로필 수정하기")
     @PatchMapping("/my-profile", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    fun updateProfile(@RequestBody req: UpdateProfileRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
+    fun updateProfile(@ModelAttribute req: UpdateProfileRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.updateProfile(req, myProfileId)
         return BaseResponse(message = "프로필이 수정되었습니다.")
