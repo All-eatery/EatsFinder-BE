@@ -5,7 +5,7 @@ import com.amazonaws.services.s3.model.CannedAccessControlList
 import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
-import com.eatsfinder.domain.user.repository.UserRepository
+import com.eatsfinder.global.exception.profile.NotUploadImageException
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
@@ -15,7 +15,6 @@ import java.util.*
 @Service
 class AwsS3Service(
     private val amazonS3Client: AmazonS3Client,
-    private val userRepository: UserRepository,
     @Value("\${cloud.aws.s3.url}") private val url: String
 ) {
     @Value("\${cloud.aws.s3.bucket}")
@@ -37,7 +36,7 @@ class AwsS3Service(
                 )
             }
         } catch (e: IOException) {
-            throw IllegalArgumentException("이미지 업로드에 실패했습니다.")
+            throw NotUploadImageException("이미지 업로드에 실패했습니다.")
         }
 
         return "$url/$fileName"
@@ -45,7 +44,7 @@ class AwsS3Service(
 
     fun deleteImage(fileName: String?) {
         if (fileName.isNullOrEmpty()) {
-            throw IllegalArgumentException("파일 이름이 잘못되었습니다.")
+            throw NotUploadImageException("파일 이름이 잘못되었습니다.")
         }
         val replacedFile = fileName.replace("$url/", "")
         amazonS3Client.deleteObject(DeleteObjectRequest(bucket, replacedFile))
