@@ -17,6 +17,7 @@ import com.eatsfinder.global.exception.profile.WrongPasswordException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class ProfileServiceImpl(
@@ -101,13 +102,12 @@ class ProfileServiceImpl(
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
 
-        if (profile.id != myProfileId){
-            throw NotMyProfileException("본인 프로필이 아닙니다.")
-        }
+        val checkCode = emailRepository.findByCodeAndComplete(code, true)
+        when {
+            checkCode == null -> throw OneTimeMoreWriteException("인증확인이 되지 않았습니다.")
+            checkCode.expiredAt.isBefore(LocalDateTime.now()) -> throw OneTimeMoreWriteException("인증번호가 만료되었습니다.")
+            !(checkCode.code == code && profile.email == checkCode.email && profile.email == email) -> throw OneTimeMoreWriteException("다시 한번 입력해주세요")
 
-        val checkCode = emailRepository.findByCodeAndComplete("", true)
-        if (checkCode == null || !(checkCode.code == code && profile.email == checkCode.email && profile.email == email)){
-            throw OneTimeMoreWriteException("다시 한번 입력해주세요")
         }
         userRepository.delete(profile)
     }
