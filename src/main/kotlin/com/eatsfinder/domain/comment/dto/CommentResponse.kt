@@ -15,7 +15,7 @@ data class CommentResponse(
             return CommentResponse(
                 id = comment.id!!,
                 nickname = comment.userId.nickname,
-                profileImage = comment.userId.profileImage,
+                profileImage = comment.userId.profileImage!!,
                 content = comment.content,
                 createdAt = comment.createdAt
             )

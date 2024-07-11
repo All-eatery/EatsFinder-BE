@@ -23,7 +23,7 @@ class User(
     var nickname: String,
 
     @Column(name = "profile_image", columnDefinition = "TEXT")
-    var profileImage: String,
+    var profileImage: String?,
 
     @Column(name = "phone_number", nullable = true, length = 15)
     var phoneNumber: String,
