@@ -70,17 +70,32 @@ class ProfileServiceImpl(
             throw ImmutableUserException("프로필 수정할 수 없는 소셜 유저입니다.")
         }
 
-        val newProfileImage = req.profileImage ?: return
+        req.profileImage?.let {
+            profile.profileImage?.let { image ->
+                awsService.deleteImage(image)
+            }
 
-        profile.profileImage?.let { image ->
-            awsService.deleteImage(image)
+            val uploadUrl = awsService.uploadImage(req.profileImage)
+            profile.profileImage = uploadUrl
         }
 
-        val uploadUrl = awsService.uploadImage(newProfileImage)
-        profile.profileImage = uploadUrl
+
         profile.nickname = req.nickname ?: profile.nickname
         profile.phoneNumber = req.phoneNumber ?: profile.phoneNumber
         userRepository.save(profile)
+    }
+
+    override fun deleteProfileImage(profileImage: MultipartFile?, myProfileId: Long) {
+        val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
+        )
+        profile.profileImage?.let { image ->
+            awsService.deleteImage(image)
+        }
+        profile.profileImage = null
+        userRepository.save(profile)
+
     }
 
     @Transactional

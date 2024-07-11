@@ -4,6 +4,7 @@ import com.eatsfinder.domain.user.dto.profile.ChangePasswordRequest
 import com.eatsfinder.domain.user.dto.profile.MyProfileResponse
 import com.eatsfinder.domain.user.dto.profile.ProfileViewedByOthersResponse
 import com.eatsfinder.domain.user.dto.profile.UpdateProfileRequest
+import org.springframework.web.multipart.MultipartFile
 
 interface ProfileService {
 
@@ -12,6 +13,8 @@ interface ProfileService {
     fun profileViewedByOthers(profileId: Long): ProfileViewedByOthersResponse
 
     fun updateProfile(req: UpdateProfileRequest, myProfileId: Long)
+
+    fun deleteProfileImage(profileImage: MultipartFile?, myProfileId: Long)
 
     fun changePassword(req: ChangePasswordRequest, myProfileId: Long)
 
