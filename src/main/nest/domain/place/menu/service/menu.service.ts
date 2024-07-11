@@ -20,4 +20,20 @@ export class MenuService {
       },
     });
   }
+
+  async findMenu(placeId: number) {
+    const findManyMenu = await this.prismaService.placeMenus.findMany({ where: { placeId } });
+
+    for (let i = findManyMenu.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [findManyMenu[i], findManyMenu[j]] = [findManyMenu[j], findManyMenu[i]];
+    }
+
+    return findManyMenu
+      .map((menu) => ({
+        id: Number(menu.id),
+        menu: menu.menu,
+      }))
+      .slice(0, 10);
+  }
 }
