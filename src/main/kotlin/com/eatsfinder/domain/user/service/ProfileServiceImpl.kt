@@ -14,6 +14,8 @@ import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
 import com.eatsfinder.global.exception.profile.ImmutableUserException
 import com.eatsfinder.global.exception.profile.MyProfileException
 import com.eatsfinder.global.exception.profile.WrongPasswordException
+import com.eatsfinder.global.security.jwt.UserPrincipal
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -38,14 +40,16 @@ class ProfileServiceImpl(
         return MyProfileResponse.from(profile, postCount)
     }
 
-    override fun profileViewedByOthers(profileId: Long, myProfileId: Long): ProfileViewedByOthersResponse {
+    override fun profileViewedByOthers(profileId: Long): ProfileViewedByOthersResponse {
         val profile = userRepository.findByIdAndDeletedAt(profileId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필(id: ${profileId})은 존재하지 않습니다."
         )
         val postCount = postRepository.findByUserId(profile)?.size ?: 0
 
-        if (profile.id == myProfileId){
+        val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
+
+        if (userPrincipal != null && profile.id == userPrincipal.id) {
             throw MyProfileException("본인 프로필이므로 조회할 수 없습니다.")
         }
 

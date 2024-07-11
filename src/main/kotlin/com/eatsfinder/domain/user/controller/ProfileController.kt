@@ -12,6 +12,7 @@ import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
@@ -28,9 +29,8 @@ class ProfileController(
 
     @Operation(summary = "다른 유저 프로필 조회하기")
     @GetMapping("/profile/{profileId}")
-    fun profileViewedByOthers(@AuthenticationPrincipal userPrincipal: UserPrincipal, @PathVariable profileId: Long): ResponseEntity<ProfileViewedByOthersResponse> {
-        val myProfileId = userPrincipal.id
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.profileViewedByOthers(profileId, myProfileId))
+    fun profileViewedByOthers(@PathVariable profileId: Long): ResponseEntity<ProfileViewedByOthersResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.profileViewedByOthers(profileId))
     }
 
     @Operation(summary = "본인 프로필 수정하기")
