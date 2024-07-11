@@ -12,7 +12,6 @@ import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
 import com.eatsfinder.global.exception.profile.ImmutableUserException
 import com.eatsfinder.global.exception.profile.MyProfileException
-import com.eatsfinder.global.exception.profile.NotMyProfileException
 import com.eatsfinder.global.exception.profile.WrongPasswordException
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -33,10 +32,6 @@ class ProfileServiceImpl(
             "이 프로필(id: ${myProfileId})은 존재하지 않습니다."
         )
         val postCount = postRepository.findByUserId(profile)?.size ?: 0
-
-        if (profile.id != myProfileId){
-            throw NotMyProfileException("본인 프로필이 아닙니다.")
-        }
 
         return MyProfileResponse.from(profile, postCount)
     }
@@ -65,10 +60,6 @@ class ProfileServiceImpl(
 
         if (profile.provider != SocialType.LOCAL) {
             throw ImmutableUserException("프로필 수정할 수 없는 소셜 유저입니다.")
-        }
-
-        if (profile.id != myProfileId){
-            throw NotMyProfileException("본인 프로필이 아닙니다.")
         }
 
         profile.nickname = req.nickname ?: profile.nickname
