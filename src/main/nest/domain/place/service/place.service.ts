@@ -41,4 +41,37 @@ export class PlaceService {
       },
     });
   }
+
+  async findPlace(name: string) {
+    const findManyPlace = await this.prismaService.places.findMany({
+      where: {
+        name: {
+          contains: name,
+        },
+      },
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        posts: {
+          select: {
+            thumbnailUrl: true,
+            likeCount: true,
+          },
+          orderBy: {
+            likeCount: 'desc',
+          },
+        },
+      },
+      orderBy: {
+        id: 'desc',
+      },
+    });
+    return findManyPlace.map((place) => ({
+      id: Number(place.id),
+      name: place.name,
+      address: place.address,
+      thumbnailUrl: place.posts.length > 0 ? place.posts[0].thumbnailUrl : null,
+    }));
+  }
 }
