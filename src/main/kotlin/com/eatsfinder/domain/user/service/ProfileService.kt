@@ -9,7 +9,7 @@ interface ProfileService {
 
     fun getMyProfile(myProfileId: Long): MyProfileResponse
 
-    fun profileViewedByOthers(profileId: Long, myProfileId: Long): ProfileViewedByOthersResponse
+    fun profileViewedByOthers(profileId: Long): ProfileViewedByOthersResponse
 
     fun updateProfile(req: UpdateProfileRequest, myProfileId: Long)
 

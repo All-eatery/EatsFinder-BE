@@ -9,6 +9,7 @@ import com.eatsfinder.domain.user.dto.profile.ProfileViewedByOthersResponse
 import com.eatsfinder.domain.user.dto.profile.UpdateProfileRequest
 import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.repository.UserRepository
+import com.eatsfinder.global.aws.AwsS3Service
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
 import com.eatsfinder.global.exception.profile.ImmutableUserException
@@ -19,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 
 @Service
@@ -27,7 +29,8 @@ class ProfileServiceImpl(
     private val emailRepository: EmailRepository,
     private val passwordEncoder: PasswordEncoder,
     private val postRepository: PostRepository,
-    private val emailUtils: EmailUtils
+    private val emailUtils: EmailUtils,
+    private val awsService: AwsS3Service
 ) : ProfileService {
 
     override fun getMyProfile(myProfileId: Long): MyProfileResponse {
@@ -56,7 +59,6 @@ class ProfileServiceImpl(
         return ProfileViewedByOthersResponse.from(profile, postCount)
     }
 
-    // 이미지 수정(원래 있던거 삭제 -> 추가), 이미지 없을 경우 -> 추가
     @Transactional
     override fun updateProfile(req: UpdateProfileRequest, myProfileId: Long) {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
@@ -68,9 +70,16 @@ class ProfileServiceImpl(
             throw ImmutableUserException("프로필 수정할 수 없는 소셜 유저입니다.")
         }
 
+        val newProfileImage = req.profileImage ?: return
+
+        profile.profileImage?.let { image ->
+            awsService.deleteImage(image)
+        }
+
+        val uploadUrl = awsService.uploadImage(newProfileImage)
+        profile.profileImage = uploadUrl
         profile.nickname = req.nickname ?: profile.nickname
         profile.phoneNumber = req.phoneNumber ?: profile.phoneNumber
-        profile.profileImage = req.profileImage ?: profile.profileImage
         userRepository.save(profile)
     }
 
@@ -83,7 +92,11 @@ class ProfileServiceImpl(
 
         when {
             profile.provider != SocialType.LOCAL -> throw ImmutableUserException("비밀번호를 변경할 수 없는 소셜 유저입니다.")
-            passwordEncoder.matches(req.newPassword, profile.password) -> throw WrongPasswordException("기존에 있던 비밀번호와 같습니다.")
+            passwordEncoder.matches(
+                req.newPassword,
+                profile.password
+            ) -> throw WrongPasswordException("기존에 있던 비밀번호와 같습니다.")
+
             req.newPassword != req.passwordConfirm -> throw WrongPasswordException("새로운 비밀번호와 확인 비밀번호가 맞지 않습니다. 다시 입력해주세요.")
             else -> {
                 profile.password = passwordEncoder.encode(req.newPassword)
@@ -103,7 +116,9 @@ class ProfileServiceImpl(
         when {
             checkCode == null -> throw OneTimeMoreWriteException("인증확인이 되지 않았습니다.")
             checkCode.expiredAt.isBefore(LocalDateTime.now()) -> throw OneTimeMoreWriteException("인증번호가 만료되었습니다.")
-            !(checkCode.code == code && profile.email == checkCode.email && profile.email == email) -> throw OneTimeMoreWriteException("다시 한번 입력해주세요")
+            !(checkCode.code == code && profile.email == checkCode.email && profile.email == email) -> throw OneTimeMoreWriteException(
+                "다시 한번 입력해주세요"
+            )
         }
         userRepository.delete(profile)
         emailUtils.guideEmail(email)
