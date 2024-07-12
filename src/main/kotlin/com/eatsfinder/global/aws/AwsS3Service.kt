@@ -1,7 +1,6 @@
 package com.eatsfinder.global.aws
 
 import com.amazonaws.services.s3.AmazonS3Client
-import com.amazonaws.services.s3.model.CannedAccessControlList
 import com.amazonaws.services.s3.model.DeleteObjectRequest
 import com.amazonaws.services.s3.model.ObjectMetadata
 import com.amazonaws.services.s3.model.PutObjectRequest
@@ -48,5 +47,10 @@ class AwsS3Service(
         }
         val replacedFile = fileName.replace("$url/", "")
         amazonS3Client.deleteObject(DeleteObjectRequest(bucket, replacedFile))
+    }
+
+    fun compareImages(file: MultipartFile, image: String): Boolean {
+        val uploadImage = uploadImage(file)
+        return uploadImage == image
     }
 }

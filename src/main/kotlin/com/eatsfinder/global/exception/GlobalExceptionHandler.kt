@@ -2,12 +2,10 @@ package com.eatsfinder.global.exception
 
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.exception.email.ExpiredCodeException
+import com.eatsfinder.global.exception.email.NotCheckCompleteException
 import com.eatsfinder.global.exception.email.NotGenerateCodeException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
-import com.eatsfinder.global.exception.profile.ImmutableUserException
-import com.eatsfinder.global.exception.profile.MyProfileException
-import com.eatsfinder.global.exception.profile.NotUploadImageException
-import com.eatsfinder.global.exception.profile.WrongPasswordException
+import com.eatsfinder.global.exception.profile.*
 import com.eatsfinder.global.exception.status.StatusCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -61,6 +59,18 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(NotUploadImageException::class)
     protected fun notUploadImageException(ex: NotUploadImageException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(NotCheckCompleteException::class)
+    protected fun notCheckCompleteException(ex: NotCheckCompleteException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(NotMismatchProfileImageException::class)
+    protected fun notMismatchProfileImageException(ex: NotMismatchProfileImageException): ResponseEntity<BaseResponse<Map<String, String>>> {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }

@@ -11,9 +11,12 @@ import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.aws.AwsS3Service
 import com.eatsfinder.global.exception.ModelNotFoundException
+import com.eatsfinder.global.exception.email.ExpiredCodeException
+import com.eatsfinder.global.exception.email.NotCheckCompleteException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
 import com.eatsfinder.global.exception.profile.ImmutableUserException
 import com.eatsfinder.global.exception.profile.MyProfileException
+import com.eatsfinder.global.exception.profile.NotMismatchProfileImageException
 import com.eatsfinder.global.exception.profile.WrongPasswordException
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import org.springframework.security.core.context.SecurityContextHolder
@@ -87,6 +90,17 @@ class ProfileServiceImpl(
             "user",
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
+
+        if (profile.provider != SocialType.LOCAL) {
+            throw ImmutableUserException("프로필 이미지를 삭제할 수 없는 소셜 유저입니다.")
+        }
+
+        profileImage?.let { image ->
+            if (profile.profileImage != null && !awsService.compareImages(profileImage, image.toString())) {
+                throw NotMismatchProfileImageException("이 프로필 이미지는 기존에 업로된 이미지와 일치하지 않습니다.")
+            }
+        }
+
         profile.profileImage?.let { image ->
             awsService.deleteImage(image)
         }
@@ -122,12 +136,12 @@ class ProfileServiceImpl(
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
 
-        val checkCode = emailRepository.findByCodeAndComplete(code, true)
+        val checkCode = emailRepository.findByCode(code)
         when {
-            checkCode == null -> throw OneTimeMoreWriteException("인증확인이 되지 않았습니다.")
-            checkCode.expiredAt.isBefore(LocalDateTime.now()) -> throw OneTimeMoreWriteException("인증번호가 만료되었습니다.")
-            !(checkCode.code == code && profile.email == checkCode.email && profile.email == email) -> throw OneTimeMoreWriteException(
-                "다시 한번 입력해주세요"
+            checkCode == null || !(checkCode.code == code && profile.email == checkCode.email && profile.email == email) -> throw OneTimeMoreWriteException("다시 한번 입력해주세요")
+            checkCode.expiredAt.isBefore(LocalDateTime.now()) -> throw ExpiredCodeException("인증번호가 만료되었습니다.")
+            !checkCode.complete-> throw NotCheckCompleteException(
+                "인증확인이 되지 않았습니다."
             )
             else -> {
                 userRepository.delete(profile)
