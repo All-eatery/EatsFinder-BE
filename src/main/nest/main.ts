@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app/app.module';
 import { PrismaService } from './global/prisma/prisma.service';
 import { setupSwagger } from './global/swagger/swagger.config';
@@ -16,6 +17,7 @@ async function bootstrap() {
   });
 
   app.useGlobalInterceptors(new BigIntInterceptor());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   const prismaService = app.get(PrismaService);
   await prismaService.enableShutdownHooks(app);
