@@ -14,16 +14,15 @@ import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.email.ExpiredCodeException
 import com.eatsfinder.global.exception.email.NotCheckCompleteException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
+import com.eatsfinder.global.exception.profile.AlreadyDefaultProfileImageException
 import com.eatsfinder.global.exception.profile.ImmutableUserException
 import com.eatsfinder.global.exception.profile.MyProfileException
-import com.eatsfinder.global.exception.profile.NotMismatchProfileImageException
 import com.eatsfinder.global.exception.profile.WrongPasswordException
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import org.springframework.web.multipart.MultipartFile
 import java.time.LocalDateTime
 
 @Service
@@ -85,7 +84,7 @@ class ProfileServiceImpl(
         userRepository.save(profile)
     }
 
-    override fun deleteProfileImage(profileImage: MultipartFile?, myProfileId: Long) {
+    override fun defaultProfileImage(myProfileId: Long) {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
@@ -95,17 +94,15 @@ class ProfileServiceImpl(
             throw ImmutableUserException("프로필 이미지를 삭제할 수 없는 소셜 유저입니다.")
         }
 
-        profileImage?.let { image ->
-            if (profile.profileImage != null && !awsService.compareImages(profileImage, image.toString())) {
-                throw NotMismatchProfileImageException("이 프로필 이미지는 기존에 업로된 이미지와 일치하지 않습니다.")
-            }
+        if (profile.profileImage == null){
+            throw AlreadyDefaultProfileImageException("이미 기본 프로필인 상태입니다.")
         }
-
         profile.profileImage?.let { image ->
             awsService.deleteImage(image)
+            profile.profileImage = null
+            userRepository.save(profile)
         }
-        profile.profileImage = null
-        userRepository.save(profile)
+
     }
 
     @Transactional

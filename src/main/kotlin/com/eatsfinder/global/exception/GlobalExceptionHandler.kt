@@ -69,8 +69,8 @@ class GlobalExceptionHandler {
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
 
-    @ExceptionHandler(NotMismatchProfileImageException::class)
-    protected fun notMismatchProfileImageException(ex: NotMismatchProfileImageException): ResponseEntity<BaseResponse<Map<String, String>>> {
+    @ExceptionHandler(AlreadyDefaultProfileImageException::class)
+    protected fun alreadyDefaultProfileImageException(ex: AlreadyDefaultProfileImageException): ResponseEntity<BaseResponse<Map<String, String>>> {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }

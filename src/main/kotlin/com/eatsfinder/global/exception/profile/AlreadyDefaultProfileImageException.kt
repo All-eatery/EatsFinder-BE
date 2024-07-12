@@ -1,6 +1,6 @@
 package com.eatsfinder.global.exception.profile
 
-class NotMismatchProfileImageException(
+class AlreadyDefaultProfileImageException(
     val fieldName: String,
-    message: String = "NotMismatchProfileImage"
+    message: String = "AlreadyDefaultProfileImage"
 ) : RuntimeException(message)

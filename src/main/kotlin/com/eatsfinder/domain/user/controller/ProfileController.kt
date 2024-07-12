@@ -14,7 +14,6 @@ import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 
 @RestController
 class ProfileController(
@@ -42,10 +41,10 @@ class ProfileController(
     }
 
     @Operation(summary = "프로필 이미지 삭제하기 : 기본 프로필로 전환")
-    @DeleteMapping("/my-profile/image", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
-    fun deleteProfileImage(@RequestPart profileImage: MultipartFile?, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
+    @PutMapping("/my-profile/default-image")
+    fun defaultProfileImage(@AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
-        profileService.deleteProfileImage(profileImage, myProfileId)
+        profileService.defaultProfileImage(myProfileId)
         return BaseResponse(message = "프로필이 삭제되었습니다.")
     }
 
