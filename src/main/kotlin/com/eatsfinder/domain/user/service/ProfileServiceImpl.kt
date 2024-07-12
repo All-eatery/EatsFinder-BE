@@ -84,6 +84,7 @@ class ProfileServiceImpl(
         userRepository.save(profile)
     }
 
+    @Transactional
     override fun defaultProfileImage(myProfileId: Long) {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
             "user",
