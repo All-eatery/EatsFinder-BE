@@ -7,3 +7,4 @@ export * from './response/find-menu-response.dto';
 // Request
 export * from './request/create-place-request.dto';
 export * from './request/create-menu-request.dto';
+export * from './request/create-post-request.dto';
