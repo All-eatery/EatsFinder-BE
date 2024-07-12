@@ -15,12 +15,12 @@ import org.springframework.web.bind.annotation.*
 class CommentLikeController(
     private val commentLikeService: CommentLikeService
 ) {
-//    @Operation(summary = "좋아요한 댓글 조회하기")
-//    @GetMapping("/comment-likes")
-//    fun getPostLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<CommentLikeResponse>> {
-//        val userId = userPrincipal.id
-//        return ResponseEntity.status(HttpStatus.OK).body(commentLikeService.getCommentLikes(userId))
-//    }
+    @Operation(summary = "좋아요한 댓글 조회하기")
+    @GetMapping("/comment-likes")
+    fun getPostLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<CommentLikeResponse>> {
+        val userId = userPrincipal.id
+        return ResponseEntity.status(HttpStatus.OK).body(commentLikeService.getCommentLikes(userId))
+    }
     @Operation(summary = "댓글 좋아요 하기")
     @PostMapping("/comment-likes")
     fun createCommentLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam postId: Long): BaseResponse<CommentLikeResponse> {

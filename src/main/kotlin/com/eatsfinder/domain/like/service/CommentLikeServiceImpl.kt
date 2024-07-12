@@ -2,6 +2,7 @@ package com.eatsfinder.domain.like.service
 
 import com.eatsfinder.domain.comment.repository.CommentRepository
 import com.eatsfinder.domain.like.dto.CommentLikeResponse
+import com.eatsfinder.domain.like.dto.PostLikeResponse
 import com.eatsfinder.domain.like.model.CommentLikes
 import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.user.repository.UserRepository
@@ -58,6 +59,7 @@ class CommentLikeServiceImpl(
     }
 
     override fun getCommentLikes(userId: Long): List<CommentLikeResponse> {
-        TODO("Not yet implemented")
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
+        return commentLikeRepository.findByUserId(user).map { CommentLikeResponse.from(it) }
     }
 }

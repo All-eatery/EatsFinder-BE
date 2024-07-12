@@ -11,14 +11,14 @@ data class CommentLikeResponse(
     val commentLikesCount: Int
 ) {
     companion object {
-        fun from(like: CommentLikes, commentLikesCount: Int): CommentLikeResponse {
+        fun from(like: CommentLikes): CommentLikeResponse {
             return CommentLikeResponse(
                 id = like.id!!,
                 postPlaceName = like.commentId.postId.placeId.name,
                 postedUser = like.commentId.postId.userId.nickname,
                 commentedUser = like.commentId.userId.nickname,
                 commentContent = like.commentId.content,
-                commentLikesCount = commentLikesCount
+                commentLikesCount = like.commentId.likeCount
             )
         }
     }
