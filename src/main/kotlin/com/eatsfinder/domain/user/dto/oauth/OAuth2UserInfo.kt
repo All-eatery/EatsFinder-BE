@@ -1,4 +1,4 @@
-package com.eatsfinder.domain.user.dto
+package com.eatsfinder.domain.user.dto.oauth
 
 import com.eatsfinder.domain.user.model.SocialType
 

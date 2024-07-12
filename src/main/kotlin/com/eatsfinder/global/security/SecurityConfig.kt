@@ -28,7 +28,9 @@ class SecurityConfig(
                     "/v3/api-docs/**",
                     "/auth/login/**",
                     "/auth/callback/**",
-                    "/auth/email/**"
+                    "/auth/email/**",
+                    "/profile/**",
+                    "/my-profile/**"
                 ).permitAll().anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
