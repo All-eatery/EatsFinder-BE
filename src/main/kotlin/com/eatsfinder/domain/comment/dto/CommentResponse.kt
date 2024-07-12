@@ -8,6 +8,7 @@ data class CommentResponse(
     val nickname: String,
     val profileImage: String,
     val content: String,
+    val likeCount: Int,
     val createdAt: LocalDateTime
 ) {
     companion object {
@@ -17,6 +18,7 @@ data class CommentResponse(
                 nickname = comment.userId.nickname,
                 profileImage = comment.userId.profileImage!!,
                 content = comment.content,
+                likeCount = comment.likeCount,
                 createdAt = comment.createdAt
             )
         }
