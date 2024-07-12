@@ -1,7 +1,6 @@
 package com.eatsfinder.domain.like.controller
 
 import com.eatsfinder.domain.like.dto.CommentLikeResponse
-import com.eatsfinder.domain.like.dto.PostLikeResponse
 import com.eatsfinder.domain.like.service.CommentLikeService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal

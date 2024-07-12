@@ -2,7 +2,6 @@ package com.eatsfinder.domain.like.service
 
 import com.eatsfinder.domain.comment.repository.CommentRepository
 import com.eatsfinder.domain.like.dto.CommentLikeResponse
-import com.eatsfinder.domain.like.dto.PostLikeResponse
 import com.eatsfinder.domain.like.model.CommentLikes
 import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.user.repository.UserRepository
