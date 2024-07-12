@@ -1,0 +1,63 @@
+package com.eatsfinder.domain.like.service
+
+import com.eatsfinder.domain.like.dto.PostLikeResponse
+import com.eatsfinder.domain.like.model.PostLikes
+import com.eatsfinder.domain.like.repository.PostLikeRepository
+import com.eatsfinder.domain.post.repository.PostRepository
+import com.eatsfinder.domain.user.repository.UserRepository
+import com.eatsfinder.global.exception.ModelNotFoundException
+import com.eatsfinder.global.exception.profile.MyProfileException
+import org.springframework.data.repository.findByIdOrNull
+import org.springframework.stereotype.Service
+
+@Service
+class PostPostLikeServiceImpl(
+    private val userRepository: UserRepository,
+    private val postRepository: PostRepository,
+    private val postLikeRepository: PostLikeRepository
+): PostLikeService {
+    override fun createPostLikes(userId: Long, postId: Long) {
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
+        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("post", "이 게시물 아이디: (${postId})는 존재하지 않습니다.")
+        val postLike = postLikeRepository.findByUserIdAndPostId(user, post)
+
+        if (post.userId == postLike?.userId){
+            throw MyProfileException("본인 게시물이므로 좋아요를 할 수 없습니다.")
+        }
+
+        if (postLike == null){
+            postLikeRepository.save(
+                PostLikes(
+                    userId = user,
+                    postId = post
+                )
+            )
+            post.likeCount++
+            postRepository.save(post)
+        } else {
+            throw ModelNotFoundException("like", "좋아요(${postId})는 한번 밖에 하지 못합니다.")
+        }
+    }
+
+    override fun deletePostLikes(userId: Long, postId: Long) {
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
+        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("post", "이 게시물 아이디: (${postId})는 존재하지 않습니다.")
+        val postLike = postLikeRepository.findByUserIdAndPostId(user, post)
+        if (post.userId == postLike?.userId){
+            throw MyProfileException("본인 게시물이므로 좋아요를 취소 할 수 없습니다.")
+        }
+
+        if (postLike != null){
+            postLikeRepository.delete(postLike)
+            post.likeCount--
+            postRepository.save(post)
+        } else {
+            throw ModelNotFoundException("like", "좋아요(${postId})는 존재하지 않아 취소할 수 없습니다.")
+        }
+    }
+
+    override fun getPostLikes(userId: Long): List<PostLikeResponse> {
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
+        return postLikeRepository.findByUserId(user).map { PostLikeResponse.from(it) }
+    }
+}

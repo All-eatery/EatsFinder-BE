@@ -26,7 +26,7 @@ class Post(
 
     @ColumnDefault("0")
     @Column(name = "like_count", nullable = false)
-    val likeCount: Int = 0,
+    var likeCount: Int = 0,
 
     @Column(name = "is_owner", nullable = false, columnDefinition = "TINYINT(1)")
     val isOwner: Boolean,

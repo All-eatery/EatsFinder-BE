@@ -30,7 +30,8 @@ class SecurityConfig(
                     "/auth/callback/**",
                     "/auth/email/**",
                     "/profile/**",
-                    "/my-profile/**"
+                    "/my-profile/**",
+                    "/post-like/**"
                 ).permitAll().anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
