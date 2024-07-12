@@ -19,14 +19,14 @@ class PostLikeController(
 ) {
 
     @Operation(summary = "좋아요한 게시물 조회하기")
-    @GetMapping("/post-like")
+    @GetMapping("/post-likes")
     fun getPostLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<PostLikeResponse>>{
         val userId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(postLikeService.getPostLikes(userId))
     }
 
     @Operation(summary = "게시물 좋아요 하기")
-    @PostMapping("/post-like")
+    @PostMapping("/post-likes")
     fun createPostLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal,postId: Long): BaseResponse<PostLikeResponse>{
         val userId = userPrincipal.id
         postLikeService.createPostLikes(userId, postId)
@@ -34,7 +34,7 @@ class PostLikeController(
     }
 
     @Operation(summary = "게시물 좋아요 취소")
-    @DeleteMapping("/post-like")
+    @DeleteMapping("/post-likes")
     fun deletePostLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal, postId: Long): BaseResponse<PostLikeResponse>{
         val userId = userPrincipal.id
         postLikeService.deletePostLikes(userId, postId)
