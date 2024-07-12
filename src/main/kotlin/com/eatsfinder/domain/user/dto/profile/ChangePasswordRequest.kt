@@ -19,16 +19,3 @@ data class ChangePasswordRequest(
     val newPassword: String
         get() = _newPassword
 }
-//    @field: Pattern(
-//        regexp = "^(?=.*[a-zA-Z])(?=.*[0-9])(?=.*[!@#\$%^&*])[a-zA-Z0-9!@#\$%^&*]{8,15}\$",
-//        message = "영문, 숫자, 특수문자를 포함한 8~16자리로 입력해주세요"
-//    )
-//
-//    private val _changePassword: String?,
-//
-//    val passwordConfirm: String?
-//) {
-//
-//    val changePassword: String?
-//        get() = _changePassword
-//}

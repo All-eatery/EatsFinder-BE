@@ -20,7 +20,6 @@ class CustomExceptionHandler {
             val errorMessage = error.defaultMessage
             errors[fieldName] = errorMessage ?: "Not Exception Message"
         }
-
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
 }

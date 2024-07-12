@@ -39,7 +39,6 @@ class ProfileServiceImpl(
             "이 프로필(id: ${myProfileId})은 존재하지 않습니다."
         )
         val postCount = postRepository.findByUserId(profile)?.size ?: 0
-
         return MyProfileResponse.from(profile, postCount)
     }
 
@@ -55,7 +54,6 @@ class ProfileServiceImpl(
         if (userPrincipal != null && profile.id == userPrincipal.id) {
             throw MyProfileException("본인 프로필이므로 조회할 수 없습니다.")
         }
-
         return ProfileViewedByOthersResponse.from(profile, postCount)
     }
 
@@ -79,7 +77,6 @@ class ProfileServiceImpl(
             profile.profileImage = uploadUrl
         }
 
-
         profile.nickname = req.nickname ?: profile.nickname
         profile.phoneNumber = req.phoneNumber ?: profile.phoneNumber
         userRepository.save(profile)
@@ -95,7 +92,6 @@ class ProfileServiceImpl(
         }
         profile.profileImage = null
         userRepository.save(profile)
-
     }
 
     @Transactional
@@ -118,7 +114,6 @@ class ProfileServiceImpl(
                 userRepository.save(profile)
             }
         }
-
     }
 
     override fun deleteProfile(myProfileId: Long, email: String, code: String) {
@@ -134,9 +129,10 @@ class ProfileServiceImpl(
             !(checkCode.code == code && profile.email == checkCode.email && profile.email == email) -> throw OneTimeMoreWriteException(
                 "다시 한번 입력해주세요"
             )
+            else -> {
+                userRepository.delete(profile)
+                emailUtils.guideEmail(email)
+            }
         }
-        userRepository.delete(profile)
-        emailUtils.guideEmail(email)
     }
-
 }
