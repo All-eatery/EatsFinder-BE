@@ -14,7 +14,7 @@ export class BigIntInterceptor implements NestInterceptor {
     } else if (data !== null && typeof data === 'object') {
       Object.keys(data).forEach((key) => {
         if (typeof data[key] === 'bigint') {
-          data[key] = data[key].toString();
+          data[key] = Number(data[key].toString());
         } else if (typeof data[key] === 'object') {
           this.convertBigIntToString(data[key]);
         }
