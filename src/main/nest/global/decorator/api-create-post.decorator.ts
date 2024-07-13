@@ -3,7 +3,7 @@ import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { CreatePostRequestDto } from '../dto';
 
-export function ApiImageFilesWithDto() {
+export function ApiCreatePost() {
   return applyDecorators(
     UseInterceptors(AnyFilesInterceptor()),
     ApiConsumes('multipart/form-data'),
