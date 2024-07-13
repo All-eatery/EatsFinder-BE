@@ -3,26 +3,28 @@ import { Type } from 'class-transformer';
 import { IsNumber } from 'class-validator';
 
 export class CreatePostRequestDto {
-  @ApiProperty()
+  @ApiProperty({ type: 'string', format: 'binary' })
+  mainImg: any;
+
+  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' }, required: false })
+  imgs: any;
+
+  @ApiProperty({ required: false })
   content?: string;
 
-  @ApiProperty()
+  @ApiProperty({ required: false })
   menuTag: string;
 
-  @ApiProperty()
-  starRating: string;
+  @ApiProperty({ required: false })
+  keywordTag: string;
+
+  @ApiProperty({ type: Number })
+  @IsNumber()
+  @Type(() => Number)
+  starRating: number;
 
   @ApiProperty({ type: Number })
   @IsNumber()
   @Type(() => Number)
   placeId: number;
-
-  @ApiProperty()
-  keywordId: string;
-
-  @ApiProperty({ type: 'string', format: 'binary' })
-  mainImg: any;
-
-  @ApiProperty({ type: 'array', items: { type: 'string', format: 'binary' } })
-  imgs: any;
 }
