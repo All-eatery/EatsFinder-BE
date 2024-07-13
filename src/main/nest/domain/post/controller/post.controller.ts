@@ -1,20 +1,23 @@
-import { BadRequestException, Controller, NotFoundException, Post, UploadedFiles } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { BadRequestException, Body, Controller, NotFoundException, Post, UploadedFiles } from '@nestjs/common';
+import { ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { PostService } from '../service/post.service';
-import { ApiImageFilesWithDto } from '../../../global/decorator/api-files.decorator';
+import { CreatePostRequestDto } from '../../../global/dto';
+import { ApiCreatePost } from '../../../global/decorator/api-create-post.decorator';
 
 @ApiTags('Post')
 @Controller('posts')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
-  //Todo 임시 이미지 업로드 API 기능 구현
-  @Post('image')
-  @ApiOperation({ summary: '이미지 업로드(임시 구현)' })
-  @ApiImageFilesWithDto()
-  async saveImage(@UploadedFiles() files: Array<Express.Multer.File>) {
-    if (files.length === 0) throw new NotFoundException('필수 이미지가 없습니다.');
+  //Todo 임시 기능 구현
+  @Post()
+  @ApiOperation({ summary: '유저 게시물 등록(임시 구현)' })
+  @ApiCreatedResponse({ description: '게시물이 등록되었습니다.' })
+  @ApiCreatePost()
+  async createPost(@UploadedFiles() files: Array<Express.Multer.File>, @Body() dto: CreatePostRequestDto) {
+    const mainImage = files.find((file) => file.fieldname === 'mainImg');
+    if (!mainImage) throw new NotFoundException('대표 이미지는 필수입니다.');
     if (files.length > 5) throw new BadRequestException('최대 5개까지 업로드 가능합니다.');
-    return await this.postService.imageUpload(files);
+    return await this.postService.createPost(files, dto);
   }
 }
