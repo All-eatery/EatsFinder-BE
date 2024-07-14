@@ -13,7 +13,7 @@ export class PostService {
     private readonly s3Service: S3Service,
   ) {}
 
-  async createPost(files: Express.Multer.File[], dto: CreatePostRequestDto) {
+  async createPost(userId: number, files: Express.Multer.File[], dto: CreatePostRequestDto) {
     const S3URL = this.configService.get<string>('ENV_AWS_S3_URL');
     const { content, menuTag, keywordTag, starRating, placeId } = dto;
 
@@ -27,8 +27,6 @@ export class PostService {
     });
     const s3Upload = await Promise.all(uploadToimage);
 
-    //Todo userId 임시 구현
-    const userId: number = 1;
     const createRate = await this.prismaService.starRatings.create({ data: { star: starRating } });
     return await this.prismaService.posts.create({
       data: {
