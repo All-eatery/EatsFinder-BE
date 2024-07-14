@@ -74,4 +74,10 @@ export class AuthService {
       accessToken: this.jwtService.sign(payload),
     };
   }
+
+  async getUser(id: number) {
+    const result = await this.prismaService.users.findFirst({ where: { id } });
+    const { password, ...user } = result;
+    return user;
+  }
 }
