@@ -12,7 +12,7 @@ export class PostController {
   //Todo 임시 기능 구현
   @Post()
   @ApiGuard()
-  @ApiOperation({ summary: '유저 게시물 등록(임시 구현)' })
+  @ApiOperation({ summary: '유저 게시물 등록' })
   @ApiCreatedResponse({ description: '게시물이 등록되었습니다.' })
   @ApiCreatePost()
   async createPost(
