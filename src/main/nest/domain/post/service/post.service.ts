@@ -41,4 +41,65 @@ export class PostService {
       },
     });
   }
+
+  async findOnePost(id: number) {
+    const postData = await this.prismaService.posts.findFirst({
+      where: { id },
+      select: {
+        id: true,
+        content: true,
+        thumbnailUrl: true,
+        imageUrl: true,
+        menuTag: true,
+        keywordTag: true,
+        likeCount: true,
+        createdAt: true,
+        users: {
+          select: {
+            id: true,
+            nickname: true,
+            profileImage: true,
+          },
+        },
+        places: {
+          select: {
+            id: true,
+            name: true,
+            address: true,
+            roadAddress: true,
+            x: true,
+            y: true,
+          },
+        },
+        starRatings: {
+          select: { star: true },
+        },
+      },
+    });
+
+    if (!postData) {
+      throw new NotFoundException('해당 게시물은 존재하지 않습니다.');
+    }
+
+    const menuTagIds = postData.menuTag.split(',').map(Number);
+    const menus = (
+      await this.prismaService.placeMenus.findMany({
+        where: {
+          id: {
+            in: menuTagIds,
+          },
+        },
+        select: {
+          menu: true,
+        },
+      })
+    ).map((menu) => menu.menu);
+
+    const result = {
+      ...postData,
+      menuTag: menus,
+      starRatings: postData.starRatings.star,
+    };
+    return result;
+  }
 }
