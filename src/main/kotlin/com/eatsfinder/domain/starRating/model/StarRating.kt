@@ -1,5 +1,6 @@
 package com.eatsfinder.domain.starRating.model
 
+import com.eatsfinder.domain.place.model.Place
 import jakarta.persistence.*
 
 @Entity
@@ -14,7 +15,11 @@ class StarRating(
 //    @OnDelete(action = OnDeleteAction.CASCADE)
 //    val postId: Post
 
-) {
+    @ManyToOne
+    @JoinColumn(name = "place_id")
+    val placeId: Place
+
+    ) {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
