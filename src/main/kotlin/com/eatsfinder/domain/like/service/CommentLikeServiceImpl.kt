@@ -1,7 +1,6 @@
 package com.eatsfinder.domain.like.service
 
 import com.eatsfinder.domain.comment.repository.CommentRepository
-import com.eatsfinder.domain.like.dto.CommentLikeResponse
 import com.eatsfinder.domain.like.model.CommentLikes
 import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.user.repository.UserRepository
@@ -15,17 +14,25 @@ class CommentLikeServiceImpl(
     private val userRepository: UserRepository,
     private val commentRepository: CommentRepository,
     private val commentLikeRepository: CommentLikeRepository
-): CommentLikeService {
+) : CommentLikeService {
+
+
     override fun createCommentLikes(userId: Long, commentId: Long) {
-        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
-        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("comment", "이 댓글 아이디: (${commentId})는 존재하지 않습니다.")
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 유저 아이디(${userId})는 존재하지 않습니다."
+        )
+        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException(
+            "comment",
+            "이 댓글 아이디: (${commentId})는 존재하지 않습니다."
+        )
         val commentLike = commentLikeRepository.findByUserIdAndCommentId(user, comment)
 
-        if (comment.userId == commentLike?.userId){
+        if (comment.userId.id == user.id) {
             throw MyProfileException("본인 댓글이므로 좋아요를 할 수 없습니다.")
         }
 
-        if (commentLike == null){
+        if (commentLike == null) {
             commentLikeRepository.save(
                 CommentLikes(
                     userId = user,
@@ -40,15 +47,21 @@ class CommentLikeServiceImpl(
     }
 
     override fun deleteCommentLikes(userId: Long, commentId: Long) {
-        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
-        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException("post", "이 댓글 아이디: (${commentId})는 존재하지 않습니다.")
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 유저 아이디(${userId})는 존재하지 않습니다."
+        )
+        val comment = commentRepository.findByIdOrNull(commentId) ?: throw ModelNotFoundException(
+            "post",
+            "이 댓글 아이디: (${commentId})는 존재하지 않습니다."
+        )
         val commentLike = commentLikeRepository.findByUserIdAndCommentId(user, comment)
 
-        if(comment.userId == commentLike?.userId){
-            throw MyProfileException("본인 댓글이므로 좋아요를 취소 할 수 없습니다.")
+        if (comment.userId.id == user.id) {
+            throw MyProfileException("본인 댓글이므로 좋아요를 취소할 수 없습니다.")
         }
 
-        if (commentLike != null){
+        if (commentLike != null) {
             commentLikeRepository.delete(commentLike)
             comment.likeCount--
             commentRepository.save(comment)
