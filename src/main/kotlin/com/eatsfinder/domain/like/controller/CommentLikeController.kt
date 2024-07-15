@@ -5,8 +5,6 @@ import com.eatsfinder.domain.like.service.CommentLikeService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
@@ -22,17 +20,17 @@ class CommentLikeController(
 //    }
     @Operation(summary = "댓글 좋아요 하기")
     @PostMapping("/comment-likes")
-    fun createCommentLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam postId: Long): BaseResponse<CommentLikeResponse> {
+    fun createCommentLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam commentId: Long): BaseResponse<CommentLikeResponse> {
         val userId = userPrincipal.id
-        commentLikeService.createCommentLikes(userId, postId)
+        commentLikeService.createCommentLikes(userId, commentId)
         return BaseResponse(message = "좋아요를 눌렸습니다.")
     }
 
     @Operation(summary = "댓글 좋아요 취소")
     @DeleteMapping("/comment-likes")
-    fun deleteCommentLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam postId: Long): BaseResponse<CommentLikeResponse> {
+    fun deleteCommentLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam commentId: Long): BaseResponse<CommentLikeResponse> {
         val userId = userPrincipal.id
-        commentLikeService.deleteCommentLikes(userId, postId)
+        commentLikeService.deleteCommentLikes(userId, commentId)
         return BaseResponse(message = "좋아요가 취소됐습니다.")
     }
 }

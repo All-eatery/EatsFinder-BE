@@ -8,5 +8,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface CommentLikeRepository: JpaRepository<CommentLikes, Long> {
     fun findByUserIdAndCommentId(userId: User, commentId: Comment): CommentLikes?
 
-    fun findByUserId(userId: User): List<CommentLikes>
+//    fun findByUserId(userId: User): List<CommentLikes>
 }
