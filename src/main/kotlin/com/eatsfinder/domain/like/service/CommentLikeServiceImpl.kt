@@ -35,6 +35,8 @@ class CommentLikeServiceImpl(
             throw MyProfileException("본인 댓글이므로 좋아요를 할 수 없습니다.")
         }
 
+        if (comment.likeCount <= 0) throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
+
         if (commentLike == null) {
             commentLikeRepository.save(
                 CommentLikes(
