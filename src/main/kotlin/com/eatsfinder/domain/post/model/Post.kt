@@ -24,6 +24,9 @@ class Post(
     @Column(name = "menu_tag", columnDefinition = "TEXT")
     val menuTag: String,
 
+    @Column(name = "keyword_tag", columnDefinition = "TEXT")
+    val keywordTag: String,
+
     @ColumnDefault("0")
     @Column(name = "like_count", nullable = false)
     var likeCount: Int = 0,
@@ -42,9 +45,6 @@ class Post(
     @ManyToOne
     @JoinColumn(name = "rating_id", nullable = false)
     val ratingId: StarRating,
-
-    @OneToMany(mappedBy = "postId", cascade = [CascadeType.ALL], orphanRemoval = true)
-    var keywords: MutableList<PostKeyword> = mutableListOf(),
 
     @OneToMany(mappedBy = "postId", cascade = [CascadeType.ALL], orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()
