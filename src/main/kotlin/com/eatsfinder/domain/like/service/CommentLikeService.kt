@@ -7,5 +7,4 @@ interface CommentLikeService {
 
     fun deleteCommentLikes(userId: Long, commentId: Long)
 
-//    fun getCommentLikes(userId: Long): List<CommentLikeResponse>
 }

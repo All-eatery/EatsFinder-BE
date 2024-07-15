@@ -72,9 +72,4 @@ class CommentLikeServiceImpl(
             throw ModelNotFoundException("like", "좋아요(${commentId})는 존재하지 않아 취소할 수 없습니다.")
         }
     }
-
-//    override fun getCommentLikes(userId: Long): List<CommentLikeResponse> {
-//        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
-//        return commentLikeRepository.findByUserId(user).map { CommentLikeResponse.from(it) }
-//    }
 }
