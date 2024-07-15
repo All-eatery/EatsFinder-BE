@@ -12,7 +12,8 @@
     "dev": "nest start --watch",
     "prisma:generate": "npx prisma generate --schema=./src/main/nest/global/prisma/schema.prisma",
     "prisma:pull": "npx prisma db pull --schema=./src/main/nest/global/prisma/schema.prisma",
-    "prisma:format": "npx prisma-case-format --file=./src/main/nest/global/prisma/schema.prisma"
+    "prisma:format": "npx prisma-case-format --file=./src/main/nest/global/prisma/schema.prisma",
+    "prisma:migrate": "npx prisma migrate dev --name init --schema=./src/main/nest/global/prisma/schema.prisma"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.609.0",
@@ -26,6 +27,8 @@
     "@nestjs/swagger": "^7.3.1",
     "@prisma/client": "^5.16.1",
     "bcrypt": "^5.1.1",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.1",
     "n-passport-naver": "^1.0.6",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",

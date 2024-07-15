@@ -65,7 +65,7 @@ export class AuthService {
       const { password, ...result } = user;
       return result;
     }
-    return user;
+    return;
   }
 
   async login(user: any) {
@@ -73,5 +73,11 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(payload),
     };
+  }
+
+  async getUser(id: number) {
+    const result = await this.prismaService.users.findFirst({ where: { id } });
+    const { password, ...user } = result;
+    return user;
   }
 }

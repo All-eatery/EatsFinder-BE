@@ -5,7 +5,15 @@ export function setupSwagger(app: INestApplication): void {
   const swaggerConfig = new DocumentBuilder()
     .setTitle('EatsFinder API')
     .setDescription('EatsFinder API 문서 입니다!')
-    .addCookieAuth('accessToken')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'Authorization',
+      },
+      'accessToken',
+    )
     .build();
 
   const swaggerOptions: SwaggerCustomOptions = {

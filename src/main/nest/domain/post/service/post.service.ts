@@ -1,20 +1,105 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { PrismaService } from '../../../global/prisma/prisma.service';
 import { S3Service } from '../../../global/s3/s3.service';
+import { CreatePostRequestDto } from '../../../global/dto';
+import * as path from 'path';
 
 @Injectable()
 export class PostService {
-  constructor(private readonly s3Service: S3Service) {}
+  constructor(
+    private readonly configService: ConfigService,
+    private readonly prismaService: PrismaService,
+    private readonly s3Service: S3Service,
+  ) {}
 
-  async imageUpload(files: Express.Multer.File[]) {
+  async createPost(userId: number, files: Express.Multer.File[], dto: CreatePostRequestDto) {
+    const S3URL = this.configService.get<string>('ENV_AWS_S3_URL');
+    const { content, menuTag, keywordTag, starRating, placeId } = dto;
+
+    const isPlaceData = await this.prismaService.places.findFirst({ where: { id: placeId } });
+    if (!isPlaceData) throw new NotFoundException('잘못된 장소입니다.');
+
     const uploadToimage = files.map(async (file) => {
-      //Todo key는 임시로 [시간_파일명] 으로 진행함
-      const key = `places/${new Date().toISOString().replace(/:/g, '-')}_${file.originalname}`;
-      const body = file.buffer;
-      const contentType = file.mimetype;
-
-      await this.s3Service.uploadS3(key, body, contentType);
-      return key;
+      const key = `places/${isPlaceData.id.toString()}/${Date.now()}-${Math.random().toString(16).slice(2)}${path.extname(file.originalname)}`;
+      await this.s3Service.uploadS3(key, file.buffer, file.mimetype);
+      return S3URL + key;
     });
-    return await Promise.all(uploadToimage);
+    const s3Upload = await Promise.all(uploadToimage);
+
+    const createRate = await this.prismaService.starRatings.create({ data: { star: starRating } });
+    return await this.prismaService.posts.create({
+      data: {
+        content,
+        thumbnailUrl: s3Upload[0],
+        imageUrl: s3Upload.length > 1 ? s3Upload.slice(1).toString() : null,
+        menuTag,
+        keywordTag,
+        userId,
+        placeId,
+        ratingId: createRate.id,
+      },
+    });
+  }
+
+  async findOnePost(id: number) {
+    const postData = await this.prismaService.posts.findFirst({
+      where: { id },
+      select: {
+        id: true,
+        content: true,
+        thumbnailUrl: true,
+        imageUrl: true,
+        menuTag: true,
+        keywordTag: true,
+        likeCount: true,
+        createdAt: true,
+        users: {
+          select: {
+            id: true,
+            nickname: true,
+            profileImage: true,
+          },
+        },
+        places: {
+          select: {
+            id: true,
+            name: true,
+            address: true,
+            roadAddress: true,
+            x: true,
+            y: true,
+          },
+        },
+        starRatings: {
+          select: { star: true },
+        },
+      },
+    });
+
+    if (!postData) {
+      throw new NotFoundException('해당 게시물은 존재하지 않습니다.');
+    }
+
+    const menuTagIds = postData.menuTag.split(',').map(Number);
+    const menus = (
+      await this.prismaService.placeMenus.findMany({
+        where: {
+          id: {
+            in: menuTagIds,
+          },
+        },
+        select: {
+          menu: true,
+        },
+      })
+    ).map((menu) => menu.menu);
+
+    const result = {
+      ...postData,
+      menuTag: menus,
+      starRatings: postData.starRatings.star,
+    };
+    return result;
   }
 }
