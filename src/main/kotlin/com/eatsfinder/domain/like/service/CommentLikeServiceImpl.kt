@@ -5,6 +5,7 @@ import com.eatsfinder.domain.like.model.CommentLikes
 import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
+import com.eatsfinder.global.exception.like.DefaultZeroException
 import com.eatsfinder.global.exception.profile.MyProfileException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -65,9 +66,13 @@ class CommentLikeServiceImpl(
         }
 
         if (commentLike != null) {
-            commentLikeRepository.delete(commentLike)
-            comment.likeCount--
-            commentRepository.save(comment)
+            if(comment.likeCount > 0) {
+                commentLikeRepository.delete(commentLike)
+                comment.likeCount--
+                commentRepository.save(comment)
+            } else {
+                throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
+            }
         } else {
             throw ModelNotFoundException("like", "좋아요(${commentId})는 존재하지 않아 취소할 수 없습니다.")
         }
