@@ -8,6 +8,7 @@ import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.profile.MyProfileException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CommentLikeServiceImpl(
@@ -17,6 +18,7 @@ class CommentLikeServiceImpl(
 ) : CommentLikeService {
 
 
+    @Transactional
     override fun createCommentLikes(userId: Long, commentId: Long) {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
@@ -46,6 +48,7 @@ class CommentLikeServiceImpl(
         }
     }
 
+    @Transactional
     override fun deleteCommentLikes(userId: Long, commentId: Long) {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",

@@ -9,6 +9,7 @@ import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.profile.MyProfileException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PostLikeServiceImpl(
@@ -17,6 +18,7 @@ class PostLikeServiceImpl(
     private val postLikeRepository: PostLikeRepository
 ): PostLikeService {
 
+    @Transactional
     override fun createPostLikes(userId: Long, postId: Long) {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
         val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("post", "이 게시물 아이디: (${postId})는 존재하지 않습니다.")
@@ -40,6 +42,7 @@ class PostLikeServiceImpl(
         }
     }
 
+    @Transactional
     override fun deletePostLikes(userId: Long, postId: Long) {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
         val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("post", "이 게시물 아이디: (${postId})는 존재하지 않습니다.")
@@ -58,6 +61,7 @@ class PostLikeServiceImpl(
         }
     }
 
+    @Transactional(readOnly = true)
     override fun getPostLikes(userId: Long): List<PostLikeResponse> {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
         return postLikeRepository.findByUserId(user).map { PostLikeResponse.from(it) }

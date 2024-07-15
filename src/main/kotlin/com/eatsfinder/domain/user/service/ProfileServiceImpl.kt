@@ -35,6 +35,7 @@ class ProfileServiceImpl(
     private val awsService: AwsS3Service
 ) : ProfileService {
 
+    @Transactional(readOnly = true)
     override fun getMyProfile(myProfileId: Long): MyProfileResponse {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
             "user",
@@ -44,6 +45,7 @@ class ProfileServiceImpl(
         return MyProfileResponse.from(profile, postCount)
     }
 
+    @Transactional(readOnly = true)
     override fun profileViewedByOthers(profileId: Long): ProfileViewedByOthersResponse {
         val profile = userRepository.findByIdAndDeletedAt(profileId, null) ?: throw ModelNotFoundException(
             "user",
