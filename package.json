@@ -13,7 +13,8 @@
     "prisma:generate": "npx prisma generate --schema=./src/main/nest/global/prisma/schema.prisma",
     "prisma:pull": "npx prisma db pull --schema=./src/main/nest/global/prisma/schema.prisma",
     "prisma:format": "npx prisma-case-format --file=./src/main/nest/global/prisma/schema.prisma",
-    "prisma:migrate": "npx prisma migrate dev --name init --schema=./src/main/nest/global/prisma/schema.prisma"
+    "prisma:migrate": "npx prisma migrate dev --name init --schema=./src/main/nest/global/prisma/schema.prisma",
+    "create:place": "ts-node src/main/nest/script/batch/create-place.batch.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.609.0",
