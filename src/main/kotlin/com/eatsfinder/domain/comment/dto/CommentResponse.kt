@@ -6,7 +6,7 @@ import java.time.LocalDateTime
 data class CommentResponse(
     val id: Long,
     val nickname: String,
-    val profileImage: String,
+    val profileImage: String?,
     val content: String,
     val likeCount: Int,
     val createdAt: LocalDateTime
@@ -16,7 +16,7 @@ data class CommentResponse(
             return CommentResponse(
                 id = comment.id!!,
                 nickname = comment.userId.nickname,
-                profileImage = comment.userId.profileImage!!,
+                profileImage = comment.userId.profileImage,
                 content = comment.content,
                 likeCount = comment.likeCount,
                 createdAt = comment.createdAt
