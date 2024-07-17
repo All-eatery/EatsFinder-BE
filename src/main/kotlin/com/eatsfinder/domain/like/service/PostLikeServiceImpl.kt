@@ -17,21 +17,27 @@ class PostLikeServiceImpl(
     private val userRepository: UserRepository,
     private val postRepository: PostRepository,
     private val postLikeRepository: PostLikeRepository
-): PostLikeService {
+) : PostLikeService {
 
     @Transactional
     override fun createPostLikes(userId: Long, postId: Long) {
-        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
-        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException("post", "이 게시물 아이디: (${postId})는 존재하지 않습니다.")
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 유저 아이디(${userId})는 존재하지 않습니다."
+        )
+        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException(
+            "post",
+            "이 게시물 아이디: (${postId})는 존재하지 않습니다."
+        )
         val postLike = postLikeRepository.findByUserIdAndPostId(user, post)
 
-        if (post.userId.id == user.id){
+        if (post.userId.id == user.id) {
             throw MyProfileException("본인 게시물이므로 좋아요를 할 수 없습니다.")
         }
 
         if (post.likeCount <= 0) throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
 
-        if (postLike == null){
+        if (postLike == null) {
             postLikeRepository.save(
                 PostLikes(
                     userId = user,
@@ -76,7 +82,10 @@ class PostLikeServiceImpl(
 
     @Transactional(readOnly = true)
     override fun getPostLikes(userId: Long): List<PostLikeResponse> {
-        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 유저 아이디(${userId})는 존재하지 않습니다."
+        )
         return postLikeRepository.findByUserId(user).map { PostLikeResponse.from(it) }
     }
 }

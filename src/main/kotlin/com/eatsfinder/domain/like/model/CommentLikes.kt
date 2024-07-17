@@ -8,7 +8,7 @@ import org.hibernate.annotations.OnDeleteAction
 
 @Entity
 @Table(name = "comment_likes")
-class CommentLikes (
+class CommentLikes(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

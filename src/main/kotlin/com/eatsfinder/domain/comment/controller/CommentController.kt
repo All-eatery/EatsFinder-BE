@@ -25,7 +25,9 @@ class CommentController(
     @Operation(summary = "댓글 작성")
     @PostMapping("/posts/{postId}/comments")
     fun createComment(
-        @PathVariable postId: Long, @RequestBody req: CommentRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal
+        @PathVariable postId: Long,
+        @RequestBody req: CommentRequest,
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
     ): BaseResponse<String> {
         val userId = userPrincipal.id
         val message = commentService.createComment(postId, req, userId)
@@ -34,9 +36,12 @@ class CommentController(
 
     @Operation(summary = "댓글 삭제")
     @DeleteMapping("/comments/{commentId}")
-    fun deleteComment(@PathVariable commentId: Long, @AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<Unit> {
+    fun deleteComment(
+        @PathVariable commentId: Long,
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
+    ): ResponseEntity<Unit> {
         val userId = userPrincipal.id
-        commentService.deleteComment(commentId,userId)
+        commentService.deleteComment(commentId, userId)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 }

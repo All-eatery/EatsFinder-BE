@@ -5,7 +5,7 @@ import com.eatsfinder.domain.like.model.CommentLikes
 import com.eatsfinder.domain.user.model.User
 import org.springframework.data.jpa.repository.JpaRepository
 
-interface CommentLikeRepository: JpaRepository<CommentLikes, Long> {
+interface CommentLikeRepository : JpaRepository<CommentLikes, Long> {
     fun findByUserIdAndCommentId(userId: User, commentId: Comment): CommentLikes?
 
 //    fun findByUserId(userId: User): List<CommentLikes>

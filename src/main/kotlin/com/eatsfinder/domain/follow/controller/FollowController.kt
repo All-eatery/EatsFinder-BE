@@ -18,7 +18,10 @@ class FollowController(
 
     @Operation(summary = "유저 팔로우 하기")
     @PostMapping("/follow")
-    fun createUserFollow(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam followingUserId: Long): BaseResponse<FollowResponse> {
+    fun createUserFollow(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal,
+        @RequestParam followingUserId: Long
+    ): BaseResponse<FollowResponse> {
         val userId = userPrincipal.id
         followService.createUserFollow(userId, followingUserId)
         return BaseResponse(message = "팔로우를 하였습니다.")
@@ -26,7 +29,10 @@ class FollowController(
 
     @Operation(summary = "유저 언팔로우 하기")
     @DeleteMapping("/follow")
-    fun deleteUserFollow(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam unfollowingUserId: Long): BaseResponse<FollowResponse> {
+    fun deleteUserFollow(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal,
+        @RequestParam unfollowingUserId: Long
+    ): BaseResponse<FollowResponse> {
         val userId = userPrincipal.id
         followService.deleteUserFollow(userId, unfollowingUserId)
         return BaseResponse(message = "언팔로우를 하였습니다.")
