@@ -6,12 +6,14 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class FollowServiceImpl(
     private val followRepository: FollowRepository,
     private val userRepository: UserRepository
 ) : FollowService {
+
     override fun createUserFollow(userId: Long, followingUserId: Long) {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
@@ -42,6 +44,7 @@ class FollowServiceImpl(
         }
     }
 
+    @Transactional
     override fun deleteUserFollow(userId: Long, unfollowingUserId: Long) {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
