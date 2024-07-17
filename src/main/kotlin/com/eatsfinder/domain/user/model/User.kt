@@ -30,11 +30,11 @@ class User(
 
     @ColumnDefault("0")
     @Column(name = "follower_count", nullable = false)
-    val followerCount: Int = 0,
+    var followerCount: Int = 0,
 
     @ColumnDefault("0")
     @Column(name = "following_count", nullable = false)
-    val followingCount: Int = 0,
+    var followingCount: Int = 0,
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false)
