@@ -5,6 +5,7 @@ import com.eatsfinder.global.exception.email.ExpiredCodeException
 import com.eatsfinder.global.exception.email.NotCheckCompleteException
 import com.eatsfinder.global.exception.email.NotGenerateCodeException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
+import com.eatsfinder.global.exception.like.DefaultZeroException
 import com.eatsfinder.global.exception.profile.*
 import com.eatsfinder.global.exception.status.StatusCode
 import org.springframework.http.HttpStatus
@@ -71,6 +72,12 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(AlreadyDefaultProfileImageException::class)
     protected fun alreadyDefaultProfileImageException(ex: AlreadyDefaultProfileImageException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(DefaultZeroException::class)
+    protected fun defaultZeroException(ex: DefaultZeroException): ResponseEntity<BaseResponse<Map<String, String>>> {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }

@@ -24,9 +24,12 @@ class Post(
     @Column(name = "menu_tag", columnDefinition = "TEXT")
     val menuTag: String,
 
+    @Column(name = "keyword_tag", columnDefinition = "TEXT")
+    val keywordTag: String,
+
     @ColumnDefault("0")
     @Column(name = "like_count", nullable = false)
-    val likeCount: Int = 0,
+    var likeCount: Int = 0,
 
     @Column(name = "is_owner", nullable = false, columnDefinition = "TINYINT(1)")
     val isOwner: Boolean,
@@ -42,10 +45,6 @@ class Post(
     @ManyToOne
     @JoinColumn(name = "rating_id", nullable = false)
     val ratingId: StarRating,
-
-    @ManyToOne
-    @JoinColumn(name = "keyword_id")
-    val keywordId: PostKeyword,
 
     @OneToMany(mappedBy = "postId", cascade = [CascadeType.ALL], orphanRemoval = true)
     var comments: MutableList<Comment> = mutableListOf()

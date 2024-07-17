@@ -4,6 +4,7 @@ import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 import org.hibernate.annotations.SQLDelete
 
 @Entity
@@ -20,7 +21,11 @@ class Comment(
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    val postId: Post
+    val postId: Post,
+
+    @ColumnDefault("0")
+    @Column(name = "like_count", nullable = false)
+    var likeCount: Int = 0
 
 
 ) : BaseTimeEntity() {

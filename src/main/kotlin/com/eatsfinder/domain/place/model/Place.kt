@@ -20,11 +20,11 @@ class Place(
     @Column(name = "telephone", length = 15)
     var telephone: String,
 
-    @Column(name = "x", columnDefinition = "FLOAT", nullable = false)
-    var x: Float,
+    @Column(name = "x", columnDefinition = "DOUBLE", nullable = false)
+    var x: Double,
 
-    @Column(name = "y", columnDefinition = "FLOAT", nullable = false)
-    var y: Float,
+    @Column(name = "y", columnDefinition = "DOUBLE", nullable = false)
+    var y: Double,
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
