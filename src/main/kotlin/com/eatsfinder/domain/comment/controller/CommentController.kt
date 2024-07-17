@@ -3,6 +3,7 @@ package com.eatsfinder.domain.comment.controller
 import com.eatsfinder.domain.comment.dto.CommentRequest
 import com.eatsfinder.domain.comment.dto.CommentResponse
 import com.eatsfinder.domain.comment.service.CommentService
+import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.http.HttpStatus
@@ -25,9 +26,10 @@ class CommentController(
     @PostMapping("/posts/{postId}/comments")
     fun createComment(
         @PathVariable postId: Long, @RequestBody req: CommentRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal
-    ): ResponseEntity<String> {
+    ): BaseResponse<String> {
         val userId = userPrincipal.id
-        return ResponseEntity.status(HttpStatus.CREATED).body(commentService.createComment(postId, req, userId))
+        val message = commentService.createComment(postId, req, userId)
+        return BaseResponse(message = message)
     }
 
     @Operation(summary = "댓글 삭제")
