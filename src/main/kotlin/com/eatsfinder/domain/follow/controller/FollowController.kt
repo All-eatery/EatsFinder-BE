@@ -5,8 +5,11 @@ import com.eatsfinder.domain.follow.service.FollowService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
@@ -16,14 +19,21 @@ class FollowController(
     private val followService: FollowService
 ) {
 
+    @Operation(summary = "팔로우 확인")
+    @GetMapping("/follow")
+    fun checkFollowing(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam followUserId: Long): ResponseEntity<FollowResponse>{
+        val userId = userPrincipal.id
+        return ResponseEntity.status(HttpStatus.OK).body(followService.checkFollowing(userId, followUserId))
+    }
+
     @Operation(summary = "유저 팔로우 하기")
     @PostMapping("/follow")
     fun createUserFollow(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
-        @RequestParam followingUserId: Long
+        @RequestParam followUserId: Long
     ): BaseResponse<FollowResponse> {
         val userId = userPrincipal.id
-        followService.createUserFollow(userId, followingUserId)
+        followService.createUserFollow(userId, followUserId)
         return BaseResponse(message = "팔로우를 하였습니다.")
     }
 
@@ -31,10 +41,10 @@ class FollowController(
     @DeleteMapping("/follow")
     fun deleteUserFollow(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
-        @RequestParam unfollowingUserId: Long
+        @RequestParam unfollowUserId: Long
     ): BaseResponse<FollowResponse> {
         val userId = userPrincipal.id
-        followService.deleteUserFollow(userId, unfollowingUserId)
+        followService.deleteUserFollow(userId, unfollowUserId)
         return BaseResponse(message = "언팔로우를 하였습니다.")
     }
 

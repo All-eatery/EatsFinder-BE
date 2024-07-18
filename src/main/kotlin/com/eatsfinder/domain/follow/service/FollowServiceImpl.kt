@@ -1,5 +1,6 @@
 package com.eatsfinder.domain.follow.service
 
+import com.eatsfinder.domain.follow.dto.FollowResponse
 import com.eatsfinder.domain.follow.model.Follow
 import com.eatsfinder.domain.follow.repository.FollowRepository
 import com.eatsfinder.domain.user.repository.UserRepository
@@ -15,64 +16,84 @@ class FollowServiceImpl(
     private val userRepository: UserRepository
 ) : FollowService {
 
-    override fun createUserFollow(userId: Long, followingUserId: Long) {
+
+    override fun checkFollowing(userId: Long, followUserId: Long): FollowResponse {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필(id:${userId})는 존재하지 않습니다."
         )
-        val followingUser = userRepository.findByIdAndDeletedAt(followingUserId, null) ?: throw ModelNotFoundException(
+        val followingUser = userRepository.findByIdAndDeletedAt(followUserId, null) ?: throw ModelNotFoundException(
             "user",
-            "이 프로필(id:${followingUserId})는 존재하지 않습니다."
+            "이 프로필(id:${followUserId})는 존재하지 않습니다."
         )
 
-        val follow = followRepository.findByFollowedUserIdAndFollowingUserId(user, followingUser)
+        val follow = followRepository.findByFollowedUserIdAndFollowingUserId(user, followingUser) ?: throw ModelNotFoundException(
+            "follow",
+            "팔로우 한 계정이 아닙니다."
+        )
 
-        if (user.followerCount <= 0 && followingUser.followingCount <= 0) throw DefaultZeroException("사용자의 팔로워 수 또는 팔로잉 수가 0 이하입니다.")
+        return FollowResponse.from(follow)
+    }
 
-        if (userId == followingUserId) throw InvalidInputException("본인에게 팔로우를 할 수는 없습니다.")
+    override fun createUserFollow(userId: Long, followUserId: Long) {
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 프로필(id:${userId})는 존재하지 않습니다."
+        )
+        val followUser = userRepository.findByIdAndDeletedAt(followUserId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 프로필(id:${followUserId})는 존재하지 않습니다."
+        )
+
+        val follow = followRepository.findByFollowedUserIdAndFollowingUserId(user, followUser)
+
+        if (user.followerCount < 0 && followUser.followingCount < 0) throw DefaultZeroException("사용자의 팔로워 수 또는 팔로잉 수가 0 이하입니다.")
+
+        if (userId == followUserId) throw InvalidInputException("본인에게 팔로우를 할 수는 없습니다.")
 
         if (follow == null) {
             followRepository.save(
                 Follow(
-                    followingUserId = followingUser,
+                    followingUserId = followUser,
                     followedUserId = user
                 )
             )
             user.followingCount++
-            followingUser.followerCount++
+            followUser.followerCount++
             userRepository.save(user)
-            userRepository.save(followingUser)
+            userRepository.save(followUser)
         } else {
             throw ModelNotFoundException("follow", "이미 팔로우(${follow})중입니다.")
         }
     }
 
     @Transactional
-    override fun deleteUserFollow(userId: Long, unfollowingUserId: Long) {
+    override fun deleteUserFollow(userId: Long, unfollowUserId: Long) {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필(id:${userId})는 존재하지 않습니다."
         )
-        val unfollowingUser =
-            userRepository.findByIdAndDeletedAt(unfollowingUserId, null) ?: throw ModelNotFoundException(
+        val unfollowUser =
+            userRepository.findByIdAndDeletedAt(unfollowUserId, null) ?: throw ModelNotFoundException(
                 "user",
-                "이 프로필(id:${unfollowingUserId})는 존재하지 않습니다."
+                "이 프로필(id:${unfollowUserId})는 존재하지 않습니다."
             )
 
-        val follow = followRepository.findByFollowedUserIdAndFollowingUserId(user, unfollowingUser)
+        val follow = followRepository.findByFollowedUserIdAndFollowingUserId(user, unfollowUser)
 
-        if (user.followerCount <= 0 && unfollowingUser.followingCount <= 0) throw DefaultZeroException("사용자의 팔로워 수 또는 팔로잉 수가 0 이하입니다.")
+        if (user.followerCount < 0 && unfollowUser.followingCount < 0) throw DefaultZeroException("사용자의 팔로워 수 또는 팔로잉 수가 0 이하입니다.")
 
-        if (userId == unfollowingUserId) throw InvalidInputException("본인에게 언팔로우를 할 수 없습니다.")
+        if (userId == unfollowUserId) throw InvalidInputException("본인에게 언팔로우를 할 수 없습니다.")
 
         if (follow != null) {
             followRepository.delete(follow)
             user.followingCount--
-            unfollowingUser.followerCount--
+            unfollowUser.followerCount--
             userRepository.save(user)
-            userRepository.save(unfollowingUser)
+            userRepository.save(unfollowUser)
         } else {
             throw ModelNotFoundException("follow", "이미 언팔로우(${follow})하셨습니다.")
         }
     }
+
 }
