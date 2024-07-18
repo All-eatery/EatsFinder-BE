@@ -27,4 +27,11 @@ class EmailController(
         mailService.checkVerifyCode(email, code)
         return BaseResponse(message = "입력하신 코드는 맞는 코드입니다!")
     }
+
+    @Operation(summary = "이메일 중복확인하기")
+    @GetMapping("/email")
+    fun checkVerifyCode(@RequestParam email: String): BaseResponse<String> {
+        val checkEmail = mailService.checkEmail(email)
+        return BaseResponse(message = checkEmail)
+    }
 }
