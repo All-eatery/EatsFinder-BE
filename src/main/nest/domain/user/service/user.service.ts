@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 import { FindPasswordDto } from '../dto/find-password.dto';
 import { PasswordMailService } from '../../../global/mail/send/find-password-mail.service';
@@ -36,5 +36,13 @@ export class UserService {
       where: { id: isUserData.id },
       data: { password: hashPassword },
     });
+  }
+
+  async checkNickname(nickname: string) {
+    const nicknameCheck = await this.prismaService.users.findFirst({ where: { nickname } });
+    if (nicknameCheck) {
+      throw new ConflictException('이미 사용중인 닉네임입니다.');
+    }
+    return;
   }
 }
