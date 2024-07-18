@@ -1,8 +1,7 @@
-import { Controller, Body, Post, Get, Param, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Body, Post, Get, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody } from '@nestjs/swagger';
 import { UserService } from '../service/user.service';
 import { FindPasswordDto } from '../dto/find-password.dto';
-import { STATUS_CODES } from 'http';
 
 @ApiTags('User')
 @Controller('users')
