@@ -17,6 +17,7 @@ class FollowServiceImpl(
 ) : FollowService {
 
 
+    @Transactional(readOnly = true)
     override fun checkFollowing(userId: Long, followUserId: Long): FollowResponse {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",

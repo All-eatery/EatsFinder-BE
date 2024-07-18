@@ -27,6 +27,7 @@ class CommentServiceImpl(
         return commentRepository.findByPostIdAndDeletedAt(post, null).map { from(it) }
     }
 
+    @Transactional
     override fun createComment(postId: Long, req: CommentRequest, userId: Long): String {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
