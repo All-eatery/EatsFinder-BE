@@ -2,6 +2,7 @@ package com.eatsfinder.domain.email.controller
 
 import com.eatsfinder.domain.email.dto.EmailRequest
 import com.eatsfinder.domain.email.service.EmailService
+import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.global.exception.dto.BaseResponse
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.Valid
@@ -29,9 +30,9 @@ class EmailController(
     }
 
     @Operation(summary = "이메일 중복확인하기")
-    @GetMapping("/email")
-    fun checkVerifyCode(@RequestParam email: String): BaseResponse<String> {
-        val checkEmail = mailService.checkEmail(email)
+    @GetMapping("/email/{provider}")
+    fun checkVerifyCode(@RequestParam email: String, @RequestParam provider: SocialType): BaseResponse<String> {
+        val checkEmail = mailService.checkEmail(email, provider)
         return BaseResponse(message = checkEmail)
     }
 }

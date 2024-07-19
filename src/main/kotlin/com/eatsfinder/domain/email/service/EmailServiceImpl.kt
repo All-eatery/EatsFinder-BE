@@ -3,8 +3,10 @@ package com.eatsfinder.domain.email.service
 import com.eatsfinder.domain.email.dto.EmailRequest
 import com.eatsfinder.domain.email.model.Email
 import com.eatsfinder.domain.email.repository.EmailRepository
+import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.repository.UserRepository
-import com.eatsfinder.global.exception.ModelNotFoundException
+import com.eatsfinder.global.exception.AlreadyExistException
+import com.eatsfinder.global.exception.InvalidInputException
 import com.eatsfinder.global.exception.email.ExpiredCodeException
 import com.eatsfinder.global.exception.email.NotGenerateCodeException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
@@ -66,11 +68,12 @@ class EmailServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun checkEmail(email: String): String {
-        val existUser = userRepository.existsByEmailAndDeletedAt(email, null)
-        if (existUser) {
-            throw ModelNotFoundException("email", "이미 가입되어 있는 이메일입니다 : $email")
+    override fun checkEmail(email: String, provider: SocialType): String {
+        val existUser = userRepository.findByEmailAndDeletedAtAndProvider(email, null, SocialType.LOCAL)
+        if (existUser != null && provider == SocialType.LOCAL ){
+            throw AlreadyExistException("이미 가입되어 있는 이메일입니다 : $email")
         }
+
         return "가입 가능한 이메일입니다."
     }
 }
