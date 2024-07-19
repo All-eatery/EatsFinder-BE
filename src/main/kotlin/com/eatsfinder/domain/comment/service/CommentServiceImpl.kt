@@ -9,6 +9,7 @@ import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CommentServiceImpl(
@@ -16,14 +17,26 @@ class CommentServiceImpl(
     private val postRepository: PostRepository,
     private val commentRepository: CommentRepository
 ) : CommentService {
+
+    @Transactional(readOnly = true)
     override fun getCommentList(postId: Long): List<CommentResponse> {
-        val post = postRepository.findByIdAndDeletedAt(postId, null) ?: throw ModelNotFoundException("post", "이 게시물 아이디: (${postId})는 존재하지 않습니다.")
+        val post = postRepository.findByIdAndDeletedAt(postId, null) ?: throw ModelNotFoundException(
+            "post",
+            "이 게시물 아이디: (${postId})는 존재하지 않습니다."
+        )
         return commentRepository.findByPostIdAndDeletedAt(post, null).map { from(it) }
     }
 
+    @Transactional
     override fun createComment(postId: Long, req: CommentRequest, userId: Long): String {
-        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException("user", "이 유저 아이디(${userId})는 존재하지 않습니다.")
-        val post = postRepository.findByIdAndDeletedAt(postId, null) ?: throw ModelNotFoundException("post", "이 게시물 아이디: (${postId})는 존재하지 않습니다.")
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 유저 아이디(${userId})는 존재하지 않습니다."
+        )
+        val post = postRepository.findByIdAndDeletedAt(postId, null) ?: throw ModelNotFoundException(
+            "post",
+            "이 게시물 아이디: (${postId})는 존재하지 않습니다."
+        )
         commentRepository.save(
             Comment(
                 content = req.content,
@@ -34,8 +47,12 @@ class CommentServiceImpl(
         return "댓글이 작성되었습니다!"
     }
 
+    @Transactional
     override fun deleteComment(commentId: Long, userId: Long) {
-        val comment = commentRepository.findByIdAndDeletedAt(commentId, null) ?: throw ModelNotFoundException("comment", "이 댓글(${commentId})은 존재하지 않습니다.")
+        val comment = commentRepository.findByIdAndDeletedAt(commentId, null) ?: throw ModelNotFoundException(
+            "comment",
+            "이 댓글(${commentId})은 존재하지 않습니다."
+        )
         commentRepository.delete(comment)
     }
 }

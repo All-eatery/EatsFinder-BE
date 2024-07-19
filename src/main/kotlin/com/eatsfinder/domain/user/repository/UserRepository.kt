@@ -12,4 +12,6 @@ interface UserRepository : JpaRepository<User, Long> {
 
     fun findByIdAndDeletedAt(id: Long, deleteAt: LocalDateTime?): User?
 
+    fun findByEmailAndDeletedAtAndProvider(email: String, deletedAt: LocalDateTime?, provider: SocialType): User?
+
 }

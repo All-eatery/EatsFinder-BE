@@ -15,7 +15,10 @@ class CommentLikeController(
 
     @Operation(summary = "댓글 좋아요 하기")
     @PostMapping("/comment-likes")
-    fun createCommentLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam commentId: Long): BaseResponse<CommentLikeResponse> {
+    fun createCommentLikes(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal,
+        @RequestParam commentId: Long
+    ): BaseResponse<CommentLikeResponse> {
         val userId = userPrincipal.id
         commentLikeService.createCommentLikes(userId, commentId)
         return BaseResponse(message = "좋아요를 눌렸습니다.")
@@ -23,7 +26,10 @@ class CommentLikeController(
 
     @Operation(summary = "댓글 좋아요 취소")
     @DeleteMapping("/comment-likes")
-    fun deleteCommentLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam commentId: Long): BaseResponse<CommentLikeResponse> {
+    fun deleteCommentLikes(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal,
+        @RequestParam commentId: Long
+    ): BaseResponse<CommentLikeResponse> {
         val userId = userPrincipal.id
         commentLikeService.deleteCommentLikes(userId, commentId)
         return BaseResponse(message = "좋아요가 취소됐습니다.")

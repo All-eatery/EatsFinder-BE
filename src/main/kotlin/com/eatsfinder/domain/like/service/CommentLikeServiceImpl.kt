@@ -68,7 +68,7 @@ class CommentLikeServiceImpl(
         }
 
         if (commentLike != null) {
-            if(comment.likeCount > 0) {
+            if (comment.likeCount > 0) {
                 commentLikeRepository.delete(commentLike)
                 comment.likeCount--
                 commentRepository.save(comment)

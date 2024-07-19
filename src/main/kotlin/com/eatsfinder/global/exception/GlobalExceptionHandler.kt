@@ -1,10 +1,7 @@
 package com.eatsfinder.global.exception
 
 import com.eatsfinder.global.exception.dto.BaseResponse
-import com.eatsfinder.global.exception.email.ExpiredCodeException
-import com.eatsfinder.global.exception.email.NotCheckCompleteException
-import com.eatsfinder.global.exception.email.NotGenerateCodeException
-import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
+import com.eatsfinder.global.exception.email.*
 import com.eatsfinder.global.exception.like.DefaultZeroException
 import com.eatsfinder.global.exception.profile.*
 import com.eatsfinder.global.exception.status.StatusCode
@@ -78,6 +75,18 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(DefaultZeroException::class)
     protected fun defaultZeroException(ex: DefaultZeroException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(InvalidInputException::class)
+    protected fun invalidInputException(ex: InvalidInputException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(AlreadyExistException::class)
+    protected fun alreadyExistException(ex: AlreadyExistException): ResponseEntity<BaseResponse<Map<String, String>>> {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
