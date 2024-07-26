@@ -31,13 +31,15 @@ class SecurityConfig(
                     "/v3/api-docs/**",
                     "/auth/login/**",
                     "/auth/callback/**",
+                    "/auth/email/**",
+                    "/categories",
                     "/profile/**",
                     "/my-profile/**",
                     "/post-likes/**",
                     "/comment-likes/**",
                     "/posts/**",
                     "/comments/**",
-                    "/follows/**"
+                    "/follows"
                 ).permitAll().anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
