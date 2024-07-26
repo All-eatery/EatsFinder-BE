@@ -3,7 +3,6 @@ package com.eatsfinder.global.security
 import com.eatsfinder.global.security.jwt.JwtAuthenticationFilter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.HttpMethod
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
@@ -34,10 +33,11 @@ class SecurityConfig(
                     "/auth/callback/**",
                     "/profile/**",
                     "/my-profile/**",
-                    "/post-like/**",
+                    "/post-likes/**",
                     "/comment-likes/**",
                     "/posts/**",
-                    "/comments/**"
+                    "/comments/**",
+                    "/follows/**"
                 ).permitAll().anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
