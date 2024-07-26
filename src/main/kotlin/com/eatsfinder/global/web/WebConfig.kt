@@ -9,7 +9,8 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 class WebConfig(
-    @Value("\${kApi.url}") private val kApiUrl: String
+    @Value("\${kApi.url}") private val kApiUrl: String,
+    @Value("\${frontend.domain}") private val frontDomain: String,
 ) : WebMvcConfigurer {
     override fun addFormatters(registry: FormatterRegistry) {
         registry.addConverter(OAuth2ProviderConverter())
@@ -18,7 +19,7 @@ class WebConfig(
     override fun addCorsMappings(registry: CorsRegistry) {
         registry.addMapping("/**")
             .allowedOrigins(
-                "http://localhost:8080", "http://localhost:8090", "http://localhost:3000", kApiUrl,
+                "http://localhost:8080", "http://localhost:8090", "http://localhost:3000", kApiUrl, frontDomain
             )
             .allowedMethods("GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS")
             .allowedHeaders("*")
