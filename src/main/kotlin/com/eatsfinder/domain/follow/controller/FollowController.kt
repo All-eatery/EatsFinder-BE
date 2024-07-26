@@ -20,14 +20,14 @@ class FollowController(
 ) {
 
     @Operation(summary = "팔로우 확인")
-    @GetMapping("/follow")
+    @GetMapping("/follows")
     fun checkFollowing(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam followUserId: Long): ResponseEntity<FollowResponse>{
         val userId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(followService.checkFollowing(userId, followUserId))
     }
 
     @Operation(summary = "유저 팔로우 하기")
-    @PostMapping("/follow")
+    @PostMapping("/follows")
     fun createUserFollow(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam followUserId: Long
@@ -38,7 +38,7 @@ class FollowController(
     }
 
     @Operation(summary = "유저 언팔로우 하기")
-    @DeleteMapping("/follow")
+    @DeleteMapping("/follows")
     fun deleteUserFollow(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam unfollowUserId: Long
