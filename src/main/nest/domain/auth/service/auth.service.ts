@@ -13,6 +13,7 @@ export class AuthService {
   ) {}
 
   async createUser(dto: CreateUserDto, socialType: UsersSocialType) {
+    console.log('🚀  dto: ', dto);
     const nicknameCheck = await this.prismaService.users.findFirst({ where: { nickname: dto.nickname } });
     switch (socialType) {
       case 'LOCAL':
