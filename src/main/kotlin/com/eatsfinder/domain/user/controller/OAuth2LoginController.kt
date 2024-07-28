@@ -21,11 +21,9 @@ import java.net.URI
 @RestController
 @RequestMapping("/auth")
 class OAuth2LoginController(
-    @Value("\${frontend.domain}") private val loginRedirectUrl: String,
     private val oAuth2LoginService: OAuth2LoginService,
     private val oAuth2Client: OAuth2ClientService
 ) {
-    private val localHost = loginRedirectUrl
 
     @Operation(summary = "소셜 로그인 (로그인 페이지로 Redirect 하기)")
     @PreAuthorize("isAnonymous()")
@@ -46,12 +44,8 @@ class OAuth2LoginController(
     ): ResponseEntity<OAuthResponse> {
 
         val accessToken = oAuth2LoginService.login(provider, authorizationCode)
-
-        val headers = HttpHeaders()
-            .also { it.location = URI.create(localHost) }
-
         val oauthResponse = OAuthResponse(accessToken)
 
-        return ResponseEntity(oauthResponse, headers, HttpStatus.PERMANENT_REDIRECT)
+        return ResponseEntity(oauthResponse, HttpStatus.OK)
     }
 }
