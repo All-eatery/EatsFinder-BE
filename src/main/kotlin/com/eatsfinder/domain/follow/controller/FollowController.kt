@@ -48,4 +48,16 @@ class FollowController(
         return BaseResponse(message = "언팔로우를 하였습니다.")
     }
 
+    @Operation(summary = "팔로워 확인")
+    @GetMapping("/follower")
+    fun getFollowingList(@RequestParam userId: Long): ResponseEntity<List<FollowResponse>>{
+        return ResponseEntity.status(HttpStatus.OK).body(followService.getFollowingList(userId))
+    }
+
+    @Operation(summary = "팔로잉 확인")
+    @GetMapping("/following")
+    fun getFollowerList(@RequestParam userId: Long): ResponseEntity<List<FollowResponse>>{
+        return ResponseEntity.status(HttpStatus.OK).body(followService.getFollowerList(userId))
+    }
+
 }

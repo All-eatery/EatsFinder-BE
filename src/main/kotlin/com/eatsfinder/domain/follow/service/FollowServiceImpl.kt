@@ -7,6 +7,7 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.InvalidInputException
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -95,6 +96,16 @@ class FollowServiceImpl(
         } else {
             throw ModelNotFoundException("follow", "이미 언팔로우(${follow})하셨습니다.")
         }
+    }
+
+    @Transactional(readOnly = true)
+    override fun getFollowingList(userId: Long): List<FollowResponse> {
+        return followRepository.findAll().filter { it.followedUserId.id == userId }.map { FollowResponse.from(it) }
+    }
+
+    @Transactional(readOnly = true)
+    override fun getFollowerList(userId: Long): List<FollowResponse> {
+        return followRepository.findAll().filter { it.followingUserId.id == userId }.map { FollowResponse.from(it) }
     }
 
 }
