@@ -1,6 +1,8 @@
 package com.eatsfinder.domain.follow.controller
 
 import com.eatsfinder.domain.follow.dto.FollowResponse
+import com.eatsfinder.domain.follow.dto.FollowerListResponse
+import com.eatsfinder.domain.follow.dto.FollowingListResponse
 import com.eatsfinder.domain.follow.service.FollowService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -48,15 +50,15 @@ class FollowController(
         return BaseResponse(message = "언팔로우를 하였습니다.")
     }
 
-    @Operation(summary = "팔로워 확인")
-    @GetMapping("/follower")
-    fun getFollowingList(@RequestParam userId: Long): ResponseEntity<List<FollowResponse>>{
+    @Operation(summary = "팔로잉 확인")
+    @GetMapping("/following")
+    fun getFollowingList(@RequestParam userId: Long): ResponseEntity<List<FollowingListResponse>>{
         return ResponseEntity.status(HttpStatus.OK).body(followService.getFollowingList(userId))
     }
 
-    @Operation(summary = "팔로잉 확인")
-    @GetMapping("/following")
-    fun getFollowerList(@RequestParam userId: Long): ResponseEntity<List<FollowResponse>>{
+    @Operation(summary = "팔로워 확인")
+    @GetMapping("/follower")
+    fun getFollowerList(@RequestParam userId: Long): ResponseEntity<List<FollowerListResponse>>{
         return ResponseEntity.status(HttpStatus.OK).body(followService.getFollowerList(userId))
     }
 

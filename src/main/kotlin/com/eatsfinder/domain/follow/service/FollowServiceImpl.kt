@@ -1,13 +1,14 @@
 package com.eatsfinder.domain.follow.service
 
 import com.eatsfinder.domain.follow.dto.FollowResponse
+import com.eatsfinder.domain.follow.dto.FollowerListResponse
+import com.eatsfinder.domain.follow.dto.FollowingListResponse
 import com.eatsfinder.domain.follow.model.Follow
 import com.eatsfinder.domain.follow.repository.FollowRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.InvalidInputException
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -99,13 +100,13 @@ class FollowServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun getFollowingList(userId: Long): List<FollowResponse> {
-        return followRepository.findAll().filter { it.followedUserId.id == userId }.map { FollowResponse.from(it) }
+    override fun getFollowingList(userId: Long): List<FollowingListResponse> {
+        return followRepository.findAll().filter { it.followingUserId.id == userId }.map { FollowingListResponse.from(it) }
     }
 
     @Transactional(readOnly = true)
-    override fun getFollowerList(userId: Long): List<FollowResponse> {
-        return followRepository.findAll().filter { it.followingUserId.id == userId }.map { FollowResponse.from(it) }
+    override fun getFollowerList(userId: Long): List<FollowerListResponse> {
+        return followRepository.findAll().filter { it.followedUserId.id == userId }.map { FollowerListResponse.from(it) }
     }
 
 }
