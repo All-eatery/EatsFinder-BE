@@ -1,5 +1,6 @@
 package com.eatsfinder.domain.user.dto.profile
 
+import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.model.User
 
 data class MyProfileResponse(
@@ -8,6 +9,7 @@ data class MyProfileResponse(
     val email: String,
     val phoneNumber: String,
     val profileImage: String?,
+    val userType: SocialType,
     val followingCount: Int,
     val followerCount: Int,
     val postCount: Int = 0
@@ -20,6 +22,7 @@ data class MyProfileResponse(
                 email = profile.email,
                 phoneNumber = profile.phoneNumber,
                 profileImage = profile.profileImage,
+                userType = profile.provider,
                 followingCount = profile.followingCount,
                 followerCount = profile.followerCount,
                 postCount = postCount
