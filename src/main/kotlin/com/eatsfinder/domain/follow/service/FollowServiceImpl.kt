@@ -1,6 +1,8 @@
 package com.eatsfinder.domain.follow.service
 
 import com.eatsfinder.domain.follow.dto.FollowResponse
+import com.eatsfinder.domain.follow.dto.FollowerListResponse
+import com.eatsfinder.domain.follow.dto.FollowingListResponse
 import com.eatsfinder.domain.follow.model.Follow
 import com.eatsfinder.domain.follow.repository.FollowRepository
 import com.eatsfinder.domain.user.repository.UserRepository
@@ -95,6 +97,16 @@ class FollowServiceImpl(
         } else {
             throw ModelNotFoundException("follow", "이미 언팔로우(${follow})하셨습니다.")
         }
+    }
+
+    @Transactional(readOnly = true)
+    override fun getFollowingList(userId: Long): List<FollowingListResponse> {
+        return followRepository.findAll().filter { it.followingUserId.id == userId }.map { FollowingListResponse.from(it) }
+    }
+
+    @Transactional(readOnly = true)
+    override fun getFollowerList(userId: Long): List<FollowerListResponse> {
+        return followRepository.findAll().filter { it.followedUserId.id == userId }.map { FollowerListResponse.from(it) }
     }
 
 }
