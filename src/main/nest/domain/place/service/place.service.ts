@@ -52,7 +52,7 @@ export class PlaceService {
       select: {
         id: true,
         name: true,
-        address: true,
+        roadAddress: true,
         posts: {
           select: {
             thumbnailUrl: true,
@@ -70,7 +70,7 @@ export class PlaceService {
     return findManyPlace.map((place) => ({
       id: Number(place.id),
       name: place.name,
-      address: place.address,
+      roadAddress: place.roadAddress,
       thumbnailUrl: place.posts.length > 0 ? place.posts[0].thumbnailUrl : null,
     }));
   }
