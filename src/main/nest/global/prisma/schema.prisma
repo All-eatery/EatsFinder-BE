@@ -101,8 +101,11 @@ model Posts {
 model StarRatings {
   id                              BigInt  @id @default(autoincrement())
   star                            Float   @db.Float
-  postsPostsRatingIdTostarRatings Posts[] @relation("posts_rating_idTostar_ratings")
+  placeId BigInt @map("place_id")
+  places  Places @relation(fields: [placeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKtetf81etfl12ilk3s0wm4il5")
+  Posts Posts[] @relation("posts_rating_idTostar_ratings")
 
+  @@index([placeId], map: "FKtetf81etfl12ilk3s0wm4il5")
   @@map("star_ratings")
 }
 
@@ -146,6 +149,7 @@ model Places {
   deletedAt   DateTime?    @map("deleted_at") @db.Timestamp(6)
   posts       Posts[]
   placeMenus  PlaceMenus[]
+  starRatings StarRatings[]
   categories  Categories   @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKca17w9kt9f18v0lr91ssmivx5")
 
   @@index([categoryId], map: "FKca17w9kt9f18v0lr91ssmivx5")

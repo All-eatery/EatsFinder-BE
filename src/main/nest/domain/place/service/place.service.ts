@@ -52,7 +52,7 @@ export class PlaceService {
       select: {
         id: true,
         name: true,
-        address: true,
+        roadAddress: true,
         posts: {
           select: {
             thumbnailUrl: true,
@@ -70,8 +70,28 @@ export class PlaceService {
     return findManyPlace.map((place) => ({
       id: Number(place.id),
       name: place.name,
-      address: place.address,
+      roadAddress: place.roadAddress,
       thumbnailUrl: place.posts.length > 0 ? place.posts[0].thumbnailUrl : null,
     }));
+  }
+
+  async placeAddMenus(menuTag: string, placeId: number) {
+    const menuArray = menuTag.split(',').map((menu) => menu.trim());
+
+    for (const menuName of menuArray) {
+      const menu = await this.prismaService.placeMenus.findFirst({ where: { menu: menuName, placeId } });
+
+      if (!menu) {
+        await this.prismaService.placeMenus.create({ data: { menu: menuName, placeId } });
+      }
+    }
+    return await this.prismaService.placeMenus.findMany({
+      where: {
+        menu: {
+          in: menuArray,
+        },
+        placeId,
+      },
+    });
   }
 }

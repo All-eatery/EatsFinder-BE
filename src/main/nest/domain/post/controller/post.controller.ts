@@ -35,7 +35,7 @@ export class PostController {
     return await this.postService.createPost(userId, files, dto);
   }
 
-  @Get(':id')
+  @Get(':id/details')
   @ApiOperation({ summary: '유저 게시물 단건 조회' })
   @ApiOkResponse({ type: FindOnePostResponseDto })
   @ApiNotFoundResponse({ description: '해당 게시물은 존재하지 않습니다.' })

@@ -8,7 +8,7 @@ export class FindPlaceResponseDto {
   name: string;
 
   @ApiProperty()
-  address: string;
+  roadAddress: string;
 
   @ApiProperty()
   thumbnailUrl: string;

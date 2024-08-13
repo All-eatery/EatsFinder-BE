@@ -4,6 +4,7 @@ import { PrismaService } from '../../../global/prisma/prisma.service';
 import { S3Service } from '../../../global/s3/s3.service';
 import { CreatePostRequestDto } from '../../../global/dto';
 import * as path from 'path';
+import { PlaceService } from '../../place/service/place.service';
 
 @Injectable()
 export class PostService {
@@ -11,6 +12,7 @@ export class PostService {
     private readonly configService: ConfigService,
     private readonly prismaService: PrismaService,
     private readonly s3Service: S3Service,
+    private readonly placeService: PlaceService,
   ) {}
 
   async createPost(userId: number, files: Express.Multer.File[], dto: CreatePostRequestDto) {
@@ -20,6 +22,9 @@ export class PostService {
     const isPlaceData = await this.prismaService.places.findFirst({ where: { id: placeId } });
     if (!isPlaceData) throw new NotFoundException('잘못된 장소입니다.');
 
+    const menuData = await this.placeService.placeAddMenus(menuTag, placeId);
+    const menuTagId = menuData.map((menu) => menu.id.toString()).join(',');
+
     const uploadToimage = files.map(async (file) => {
       const key = `places/${isPlaceData.id.toString()}/${Date.now()}-${Math.random().toString(16).slice(2)}${path.extname(file.originalname)}`;
       await this.s3Service.uploadS3(key, file.buffer, file.mimetype);
@@ -27,13 +32,13 @@ export class PostService {
     });
     const s3Upload = await Promise.all(uploadToimage);
 
-    const createRate = await this.prismaService.starRatings.create({ data: { star: starRating } });
+    const createRate = await this.prismaService.starRatings.create({ data: { star: starRating, placeId } });
     return await this.prismaService.posts.create({
       data: {
         content,
         thumbnailUrl: s3Upload[0],
         imageUrl: s3Upload.length > 1 ? s3Upload.slice(1).toString() : null,
-        menuTag,
+        menuTag: menuTagId,
         keywordTag,
         userId,
         placeId,
