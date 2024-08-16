@@ -54,7 +54,7 @@ class EmailServiceImpl(
 
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     override fun checkVerifyCode(email: String, code: String) {
         val checkCode = emailRepository.findByCode(code)
         when {
