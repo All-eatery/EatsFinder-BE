@@ -18,7 +18,7 @@ class OAuthUserService(
         return if (!userRepository.existsByProviderAndEmail(oAuth2UserInfo.provider, oAuth2UserInfo.email)) {
             val nickname= oAuth2UserInfo.nickname
 
-            if (checkNickname.nickname == oAuth2UserInfo.nickname) {
+            if (checkNickname?.nickname == oAuth2UserInfo.nickname) {
                 oAuth2UserInfo.nickname = "${nickname}-${oAuth2UserInfo.provider.name.lowercase()}"
                 userRepository.save(checkNickname)
             }

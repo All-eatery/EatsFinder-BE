@@ -16,6 +16,6 @@ interface UserRepository : JpaRepository<User, Long> {
 
     fun findByEmailOrNicknameAndProvider(email: String, nickname: String, provider: SocialType): User?
 
-    fun findByNickname(nickname: String): User
+    fun findByNickname(nickname: String): User?
 
 }
