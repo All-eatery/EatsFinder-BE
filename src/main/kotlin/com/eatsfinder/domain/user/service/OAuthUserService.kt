@@ -14,7 +14,7 @@ class OAuthUserService(
     @Transactional
     fun registerIfNotExist(oAuth2UserInfo: OAuth2UserInfo): User {
         val checkNickname = userRepository.findByNickname(oAuth2UserInfo.nickname)
-        val existingUser = userRepository.findByEmailOrNicknameAndProvider(oAuth2UserInfo.email, oAuth2UserInfo.nickname, oAuth2UserInfo.provider)
+        val existingUser = userRepository.findFirstByEmailOrNicknameAndProvider(oAuth2UserInfo.email, oAuth2UserInfo.nickname, oAuth2UserInfo.provider)
         return if (!userRepository.existsByProviderAndEmail(oAuth2UserInfo.provider, oAuth2UserInfo.email)) {
             val nickname= oAuth2UserInfo.nickname
 
