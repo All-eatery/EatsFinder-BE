@@ -1,9 +1,7 @@
 package com.eatsfinder.domain.user.controller
 
-import com.eatsfinder.domain.user.dto.profile.ChangePasswordRequest
-import com.eatsfinder.domain.user.dto.profile.MyProfileResponse
-import com.eatsfinder.domain.user.dto.profile.ProfileViewedByOthersResponse
-import com.eatsfinder.domain.user.dto.profile.UpdateProfileRequest
+import com.eatsfinder.domain.user.dto.profile.*
+import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.service.ProfileService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -62,5 +60,20 @@ class ProfileController(
         val myProfileId = userPrincipal.id
         profileService.deleteProfile(myProfileId, email, code)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+    }
+
+    @Operation(summary = "내 피드 조회하기")
+    @GetMapping("/my-feed")
+    fun getMyFeed(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyFeedResponse>> {
+        val myProfileId = userPrincipal.id
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyFeed(myProfileId))
+    }
+
+    @Operation(summary = "내 활동 조회하기")
+    @GetMapping("/my-active")
+    fun getMyActive(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam type: MyActiveType): ResponseEntity<Unit> {
+        val myProfileId = userPrincipal.id
+        profileService.getMyActive(myProfileId)
+        return ResponseEntity.status(HttpStatus.OK).build()
     }
 }

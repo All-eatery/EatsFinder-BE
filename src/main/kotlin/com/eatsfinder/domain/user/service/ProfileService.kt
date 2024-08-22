@@ -1,9 +1,6 @@
 package com.eatsfinder.domain.user.service
 
-import com.eatsfinder.domain.user.dto.profile.ChangePasswordRequest
-import com.eatsfinder.domain.user.dto.profile.MyProfileResponse
-import com.eatsfinder.domain.user.dto.profile.ProfileViewedByOthersResponse
-import com.eatsfinder.domain.user.dto.profile.UpdateProfileRequest
+import com.eatsfinder.domain.user.dto.profile.*
 
 interface ProfileService {
 
@@ -18,4 +15,8 @@ interface ProfileService {
     fun changePassword(req: ChangePasswordRequest, myProfileId: Long)
 
     fun deleteProfile(myProfileId: Long, email: String, code: String)
+
+    fun getMyFeed(myProfileId: Long) : List<MyFeedResponse>
+
+    fun getMyActive(myProfileId: Long,)
 }

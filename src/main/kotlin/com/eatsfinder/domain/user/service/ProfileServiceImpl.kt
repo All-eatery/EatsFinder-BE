@@ -139,4 +139,12 @@ class ProfileServiceImpl(
             }
         }
     }
+
+    override fun getMyFeed(myProfileId: Long): List<MyFeedResponse> {
+        return postRepository.findAll().map { MyFeedResponse.from(it) }
+    }
+
+    override fun getMyActive(myProfileId: Long) {
+        TODO("Not yet implemented")
+    }
 }
