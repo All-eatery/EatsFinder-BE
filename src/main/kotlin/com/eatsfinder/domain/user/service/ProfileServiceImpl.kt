@@ -141,7 +141,11 @@ class ProfileServiceImpl(
     }
 
     override fun getMyFeed(myProfileId: Long): List<MyFeedResponse> {
-        return postRepository.findAll().map { MyFeedResponse.from(it) }
+        val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
+        )
+        return postRepository.findByUserId(profile)!!.map { MyFeedResponse.from(it) }
     }
 
     override fun getMyActive(myProfileId: Long) {
