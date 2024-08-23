@@ -1,7 +1,7 @@
 package com.eatsfinder.domain.user.service
 
 import com.eatsfinder.domain.user.dto.profile.*
-import com.eatsfinder.domain.user.model.MyActiveType
+import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
 
 interface ProfileService {
 

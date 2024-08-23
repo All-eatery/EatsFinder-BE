@@ -1,7 +1,7 @@
 package com.eatsfinder.domain.user.controller
 
 import com.eatsfinder.domain.user.dto.profile.*
-import com.eatsfinder.domain.user.model.MyActiveType
+import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
 import com.eatsfinder.domain.user.service.ProfileService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal

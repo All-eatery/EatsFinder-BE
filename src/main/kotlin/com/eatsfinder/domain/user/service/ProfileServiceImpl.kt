@@ -4,6 +4,7 @@ import com.eatsfinder.domain.email.repository.EmailRepository
 import com.eatsfinder.domain.email.service.EmailUtils
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.dto.profile.*
+import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
 import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
@@ -155,6 +156,11 @@ class ProfileServiceImpl(
             "user",
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
-        return userLogRepository.findByUserId(profile)!!.map { MyActiveResponse.from(it) }
+        val logs = userLogRepository.findByUserId(profile)?.distinct() ?: emptyList()
+        return if (logs.isNotEmpty()) {
+            listOf(MyActiveResponse.from(logs))
+        } else {
+            emptyList()
+        }
     }
 }
