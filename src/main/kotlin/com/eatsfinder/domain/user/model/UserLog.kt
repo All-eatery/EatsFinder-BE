@@ -13,7 +13,7 @@ import java.time.LocalDateTime
 @Table(name="user_logs")
 class UserLog(
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "user_id", nullable = false)
     val userId: User,
 
@@ -44,4 +44,7 @@ class UserLog(
     @Column(columnDefinition = "TIMESTAMP(6)", name = "created_at", nullable = false, updatable = false)
     @CreatedDate
     var createdAt: LocalDateTime = LocalDateTime.now()
+
+    @Column(columnDefinition = "TIMESTAMP(6)", name = "deleted_at", nullable = true)
+    var deletedAt: LocalDateTime? = null
 }

@@ -7,11 +7,11 @@ import jakarta.persistence.*
 @Table(name = "star_ratings")
 class StarRating(
 
-    @Column(name = "star", nullable = false, columnDefinition = "FLOAT(2,1)")
-    val star: Float,
+    @Column(name = "star", nullable = false, columnDefinition = "TINYINT")
+    val star: Int,
 
     @ManyToOne
-    @JoinColumn(name = "place_id")
+    @JoinColumn(name = "place_id", nullable = false)
     val placeId: Place
 
     ) {

@@ -162,5 +162,6 @@ class ProfileServiceImpl(
         } else {
             emptyList()
         }
+//        return userLogRepository.findByUserId(profile)!!.map { MyActiveResponse.from(it) }
     }
 }

@@ -26,6 +26,19 @@ class Place(
     @Column(name = "y", columnDefinition = "DOUBLE", nullable = false)
     var y: Double,
 
+    @Column(name = "depth_1", nullable = false, length = 10)
+    var depth1: String,
+
+    @Column(name = "depth_2", nullable = false, length = 10)
+    var depth2: String,
+
+    @Column(name = "depth_3", nullable = true, length = 10)
+    var depth3: String,
+
+    @Column(name = "depth_4", nullable = true, length = 10)
+    var depth4: String,
+
+
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
     val categoryId: Category
