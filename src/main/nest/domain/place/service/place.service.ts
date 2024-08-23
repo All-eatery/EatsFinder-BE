@@ -14,14 +14,16 @@ export class PlaceService {
     const isPlaceData = places.length === 0 ? false : places;
     if (isPlaceData) throw new ConflictException('입력하신 장소가 이미 존재합니다.');
 
+    const categoryArray = category.split('>').map((depth) => depth.trim());
+
     let isCategoryData = await this.prismaService.categories.findFirst({
-      where: { name: category.split('>')[1].trim() },
+      where: { name: categoryArray[1] },
     });
     let createCategory: Categories;
     if (!isCategoryData) {
       createCategory = await this.prismaService.categories.create({
         data: {
-          name: category.split('>')[1].trim(),
+          name: categoryArray[1],
           type: categoryName,
           code: categoryCode,
         },
@@ -37,6 +39,10 @@ export class PlaceService {
         telephone,
         x,
         y,
+        depth1: categoryArray[0],
+        depth2: categoryArray[1],
+        depth3: categoryArray[2],
+        depth4: categoryArray[3],
         categoryId: isCategoryData.id,
       },
     });
