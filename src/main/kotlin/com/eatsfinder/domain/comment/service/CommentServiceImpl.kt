@@ -55,7 +55,7 @@ class CommentServiceImpl(
                 postLikeId = null,
                 commentLikeId = null,
                 commentId = comment,
-                myActiveType = MyActiveType.COMMENT_LIKES
+                myActiveType = MyActiveType.COMMENT
             )
         )
         return "댓글이 작성되었습니다!"

@@ -5,29 +5,43 @@ import java.time.format.DateTimeFormatter
 
 
 data class MyActiveResponse(
-    val user: MyActiveUserResponse,
     val data: List<MyActiveDataResponse>
 ) {
     companion object {
         fun from(log: List<UserLog>): MyActiveResponse {
             val createdDate = DateTimeFormatter.ofPattern("yyyy.MM.dd")
-            val user = MyActiveUserResponse(
-                userNickname = log.first().userId.nickname,
-                userImageUrl = log.first().userId.profileImage
-            )
             val data = log.map { logs ->
                 MyActiveDataResponse(
-                    postLikeId = logs.postLikeId?.id,
-                    commentLikeId = logs.commentLikeId?.id,
+                    type = logs.myActiveType.name,
+                    postLikeId = MyActivePostLikeResponse(
+                        postId = logs.postLikeId?.postId?.id,
+                        createBy = MyActivePostUserResponse(
+                            postUserNickname = logs.postLikeId?.postId?.userId?.nickname,
+                            postUserImageUrl = logs.postLikeId?.postId?.userId?.profileImage
+                        ),
+                        postContent = logs.postLikeId?.postId?.content
+                    ),
+                    commentLikeId = MyActiveCommentLikeResponse(
+                        postId = logs.commentLikeId?.commentId?.postId?.id,
+                        createBy = MyActiveCommentUserResponse(
+                            commentUserNickname = logs.commentLikeId?.commentId?.userId?.nickname,
+                            commentUserImageUrl = logs.commentLikeId?.commentId?.userId?.profileImage
+                        ),
+                        commentContent = logs.commentLikeId?.commentId?.content
+                    ),
                     comment = MyActiveCommentResponse(
                         id = logs.commentId?.id,
+                        postId = logs.commentId?.postId?.id,
+                        createBy = MyActivePostUserResponse(
+                            postUserNickname = logs.commentId?.postId?.userId?.nickname,
+                            postUserImageUrl = logs.commentId?.postId?.userId?.profileImage
+                        ),
                         content = logs.commentId?.content
                     ),
                     createdAt = logs.createdAt.toLocalDate().format(createdDate)
                 )
             }
             return MyActiveResponse(
-                user = user,
                 data = data
             )
         }

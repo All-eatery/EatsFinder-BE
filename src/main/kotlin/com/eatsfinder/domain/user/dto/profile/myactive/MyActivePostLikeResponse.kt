@@ -1,8 +1,7 @@
 package com.eatsfinder.domain.user.dto.profile.myactive
 
-data class MyActiveCommentResponse(
-    val id: Long?,
+data class MyActivePostLikeResponse (
     val postId: Long?,
     val createBy: MyActivePostUserResponse? = null,
-    val content: String?
+    val postContent: String?
 )
