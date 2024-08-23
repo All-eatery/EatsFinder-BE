@@ -17,17 +17,17 @@ class UserLog(
     @JoinColumn(name = "user_id", nullable = false)
     val userId: User,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "comment_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     val commentId: Comment?,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "post_like_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     val postLikeId: PostLikes?,
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "comment_like_id", nullable = true)
     @OnDelete(action = OnDeleteAction.CASCADE)
     val commentLikeId: CommentLikes?,
