@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.user.service
 
 import com.eatsfinder.domain.user.dto.profile.*
+import com.eatsfinder.domain.user.model.MyActiveType
 
 interface ProfileService {
 
@@ -18,5 +19,5 @@ interface ProfileService {
 
     fun getMyFeed(myProfileId: Long) : List<MyFeedResponse>
 
-    fun getMyActive(myProfileId: Long,)
+    fun getMyActive(myProfileId: Long): List<MyActiveResponse>
 }

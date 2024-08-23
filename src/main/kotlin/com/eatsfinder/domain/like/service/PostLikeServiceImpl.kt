@@ -4,6 +4,9 @@ import com.eatsfinder.domain.like.dto.PostLikeResponse
 import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.like.repository.PostLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
+import com.eatsfinder.domain.user.model.MyActiveType
+import com.eatsfinder.domain.user.model.UserLog
+import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
@@ -16,7 +19,8 @@ import org.springframework.transaction.annotation.Transactional
 class PostLikeServiceImpl(
     private val userRepository: UserRepository,
     private val postRepository: PostRepository,
-    private val postLikeRepository: PostLikeRepository
+    private val postLikeRepository: PostLikeRepository,
+    private val userLogRepository: UserLogRepository
 ) : PostLikeService {
 
     @Transactional
@@ -35,7 +39,7 @@ class PostLikeServiceImpl(
             throw MyProfileException("본인 게시물이므로 좋아요를 할 수 없습니다.")
         }
 
-        if (post.likeCount <= 0) throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
+        if (post.likeCount < 0) throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
 
         if (postLike == null) {
             postLikeRepository.save(
@@ -46,6 +50,15 @@ class PostLikeServiceImpl(
             )
             post.likeCount++
             postRepository.save(post)
+            userLogRepository.save(
+                UserLog(
+                    userId = user,
+                    postLikeId =  PostLikes(userId = user, postId = post),
+                    commentLikeId = null,
+                    commentId = null,
+                    myActiveType = MyActiveType.POST_LIKES
+                )
+            )
         } else {
             throw ModelNotFoundException("like", "좋아요(${postId})는 한번 밖에 하지 못합니다.")
         }

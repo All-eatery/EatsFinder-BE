@@ -71,9 +71,8 @@ class ProfileController(
 
     @Operation(summary = "내 활동 조회하기")
     @GetMapping("/my-active")
-    fun getMyActive(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam type: MyActiveType): ResponseEntity<Unit> {
+    fun getMyActive(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyActiveResponse>> {
         val myProfileId = userPrincipal.id
-        profileService.getMyActive(myProfileId)
-        return ResponseEntity.status(HttpStatus.OK).build()
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyActive(myProfileId))
     }
 }
