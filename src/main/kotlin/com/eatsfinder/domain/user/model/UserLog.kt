@@ -4,8 +4,6 @@ import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.like.model.CommentLikes
 import com.eatsfinder.domain.like.model.PostLikes
 import jakarta.persistence.*
-import org.hibernate.annotations.OnDelete
-import org.hibernate.annotations.OnDeleteAction
 import org.springframework.data.annotation.CreatedDate
 import java.time.LocalDateTime
 
@@ -19,17 +17,14 @@ class UserLog(
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "comment_id", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     val commentId: Comment?,
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "post_like_id", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     val postLikeId: PostLikes?,
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "comment_like_id", nullable = true)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     val commentLikeId: CommentLikes?,
 
     @Enumerated(EnumType.STRING)
@@ -44,7 +39,4 @@ class UserLog(
     @Column(columnDefinition = "TIMESTAMP(6)", name = "created_at", nullable = false, updatable = false)
     @CreatedDate
     var createdAt: LocalDateTime = LocalDateTime.now()
-
-    @Column(columnDefinition = "TIMESTAMP(6)", name = "deleted_at", nullable = true)
-    var deletedAt: LocalDateTime? = null
 }
