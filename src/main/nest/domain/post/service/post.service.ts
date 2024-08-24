@@ -81,6 +81,7 @@ export class PostService {
             roadAddress: true,
             x: true,
             y: true,
+            categories: { select: { name: true } },
           },
         },
         starRatings: {
