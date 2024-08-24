@@ -10,7 +10,7 @@ interface UserRepository : JpaRepository<User, Long> {
     fun existsByProviderAndEmail(provider: SocialType, email: String): Boolean
     fun findByProviderAndEmail(provider: SocialType, email: String): User
 
-    fun findByIdAndDeletedAt(id: Long, deleteAt: LocalDateTime?): User?
+    fun findByIdAndDeletedAt(id: Long, deletedAt: LocalDateTime?): User?
 
 //    fun findByIdAndDeletedAtAndProvider(id: Long, deleteAt: LocalDateTime?, provider: SocialType): User?
 
