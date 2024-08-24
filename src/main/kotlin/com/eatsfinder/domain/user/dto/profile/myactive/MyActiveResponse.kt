@@ -17,7 +17,7 @@ data class MyActiveResponse(
                         type = "POST_LIKES",
                         postLike = MyActivePostLikeResponse(
                             postId = logs.postLikeId?.postId?.id,
-                            createBy = MyActivePostUserResponse(
+                            createdBy = MyActivePostUserResponse(
                                 postUserNickname = logs.postLikeId?.postId?.userId?.nickname,
                                 postUserImageUrl = logs.postLikeId?.postId?.userId?.profileImage
                             ),
@@ -34,7 +34,7 @@ data class MyActiveResponse(
                         comment = MyActiveCommentResponse(
                             id = logs.commentId?.id,
                             postId = logs.commentId?.postId?.id,
-                            createBy = MyActivePostUserResponse(
+                            createdBy = MyActivePostUserResponse(
                                 postUserNickname = logs.commentId?.postId?.userId?.nickname,
                                 postUserImageUrl = logs.commentId?.postId?.userId?.profileImage
                             ),
@@ -47,7 +47,8 @@ data class MyActiveResponse(
                         postLike = null,
                         commentLike = MyActiveCommentLikeResponse(
                             postId = logs.commentLikeId?.commentId?.postId?.id,
-                            createBy = MyActiveCommentUserResponse(
+                            commentId = logs.commentLikeId?.commentId?.id,
+                            createdBy = MyActiveCommentUserResponse(
                                 commentUserNickname = logs.commentLikeId?.commentId?.userId?.nickname,
                                 commentUserImageUrl = logs.commentLikeId?.commentId?.userId?.profileImage
                             ),
