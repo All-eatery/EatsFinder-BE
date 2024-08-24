@@ -5,7 +5,6 @@ import com.eatsfinder.domain.comment.dto.CommentResponse
 import com.eatsfinder.domain.comment.dto.CommentResponse.Companion.from
 import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.comment.repository.CommentRepository
-import com.eatsfinder.domain.like.model.CommentLikes
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
@@ -42,19 +41,16 @@ class CommentServiceImpl(
             "post",
             "이 게시물 아이디: (${postId})는 존재하지 않습니다."
         )
-        val comment = commentRepository.save(
-            Comment(
-                content = req.content,
-                userId = user,
-                postId = post
-            )
-        )
         userLogRepository.save(
             UserLog(
                 userId = user,
                 postLikeId = null,
                 commentLikeId = null,
-                commentId = comment,
+                commentId = Comment(
+                    content = req.content,
+                    userId = user,
+                    postId = post
+                ),
                 myActiveType = MyActiveType.COMMENT
             )
         )
@@ -68,5 +64,8 @@ class CommentServiceImpl(
             "이 댓글(${commentId})은 존재하지 않습니다."
         )
         commentRepository.delete(comment)
+        val userLog = userLogRepository.findUserLogByCommentIdAndMyActiveType(comment, MyActiveType.COMMENT)
+            ?: throw ModelNotFoundException("userLog")
+        userLogRepository.delete(userLog)
     }
 }

@@ -14,6 +14,7 @@ import com.eatsfinder.global.exception.profile.MyProfileException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
 @Service
 class PostLikeServiceImpl(
@@ -42,12 +43,6 @@ class PostLikeServiceImpl(
         if (post.likeCount < 0) throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
 
         if (postLike == null) {
-            postLikeRepository.save(
-                PostLikes(
-                    userId = user,
-                    postId = post
-                )
-            )
             post.likeCount++
             postRepository.save(post)
             userLogRepository.save(
@@ -85,6 +80,11 @@ class PostLikeServiceImpl(
                 postLikeRepository.delete(postLike)
                 post.likeCount--
                 postRepository.save(post)
+
+                val userLog =
+                    userLogRepository.findUserLogByPostLikeIdAndMyActiveType(postLike, MyActiveType.POST_LIKES)
+                        ?: throw ModelNotFoundException("userLog")
+                userLogRepository.delete(userLog)
             } else {
                 throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
             }

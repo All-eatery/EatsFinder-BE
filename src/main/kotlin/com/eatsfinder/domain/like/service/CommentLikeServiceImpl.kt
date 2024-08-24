@@ -2,7 +2,6 @@ package com.eatsfinder.domain.like.service
 
 import com.eatsfinder.domain.comment.repository.CommentRepository
 import com.eatsfinder.domain.like.model.CommentLikes
-import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
@@ -43,12 +42,6 @@ class CommentLikeServiceImpl(
         if (comment.likeCount < 0) throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
 
         if (commentLike == null) {
-            commentLikeRepository.save(
-                CommentLikes(
-                    userId = user,
-                    commentId = comment
-                )
-            )
             comment.likeCount++
             commentRepository.save(comment)
             userLogRepository.save(
@@ -86,6 +79,11 @@ class CommentLikeServiceImpl(
                 commentLikeRepository.delete(commentLike)
                 comment.likeCount--
                 commentRepository.save(comment)
+
+                val userLog =
+                    userLogRepository.findUserLogByCommentLikeIdAndMyActiveType(commentLike, MyActiveType.COMMENT_LIKES)
+                        ?: throw ModelNotFoundException("userLog")
+                userLogRepository.delete(userLog)
             } else {
                 throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
             }
