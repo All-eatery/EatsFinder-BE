@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 import { S3Service } from '../../../global/s3/s3.service';
@@ -106,5 +106,39 @@ export class PostService {
       starRatings: postData.starRatings.star,
     };
     return result;
+  }
+
+  async checkPost(id: number) {
+    const postData = await this.prismaService.posts.findFirst({
+      where: { id },
+      select: {
+        content: true,
+        thumbnailUrl: true,
+        imageUrl: true,
+        menuTag: true,
+        keywordTag: true,
+        ratingId: true,
+        userId: true,
+        createdAt: true,
+        comments: { select: { userId: true } },
+      },
+    });
+    if (!postData) {
+      throw new BadRequestException('해당 게시물은 존재하지 않습니다');
+    }
+
+    const createdTime = new Date(postData.createdAt);
+    const currentTime = new Date(new Date().getTime() + 9 * 60 * 60 * 1000);
+    const oneDay = 24 * 60 * 60 * 1000;
+    if (!(currentTime.getTime() - createdTime.getTime() < oneDay)) {
+      throw new ForbiddenException('게시물은 24시간 이내에 수정이 가능해요');
+    }
+
+    const isComments = postData.comments.some((comment) => comment.userId !== postData.userId);
+    if (isComments) {
+      throw new HttpException('다른 사용자의 반응(댓글)이 있는 글은 수정할 수 없어요', 423);
+    }
+
+    return { message: '수정가능 합니다', postData };
   }
 }
