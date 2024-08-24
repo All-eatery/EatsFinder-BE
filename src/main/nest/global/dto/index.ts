@@ -9,3 +9,4 @@ export * from './response/find-one-post-response.dto';
 export * from './request/create-place-request.dto';
 export * from './request/create-menu-request.dto';
 export * from './request/create-post-request.dto';
+export * from './request/update-post-request.dto';
