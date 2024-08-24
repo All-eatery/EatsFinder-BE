@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Get,
+  Patch,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -18,10 +19,11 @@ import {
   ApiOperation,
   ApiResponse,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { PostService } from '../service/post.service';
-import { CreatePostRequestDto, FindOnePostResponseDto } from '../../../global/dto';
-import { GetUserId, ApiGuard, ApiCreatePost } from '../../../global/decorator';
+import { CreatePostRequestDto, FindOnePostResponseDto, UpdatePostRequestDto } from '../../../global/dto';
+import { GetUserId, ApiGuard, ApiCreatePost, ApiUpdatePost } from '../../../global/decorator';
 
 @ApiTags('Post')
 @Controller('posts')
@@ -60,5 +62,22 @@ export class PostController {
   @ApiResponse({ status: 423, description: '다른 사용자의 반응(댓글)이 있는 글은 수정할 수 없어요' })
   async checkPost(@Param('id', ParseIntPipe) id: number) {
     return await this.postService.checkPost(id);
+  }
+
+  @Patch(':id')
+  @ApiGuard()
+  @ApiUpdatePost()
+  @ApiOperation({ summary: '유저 게시물 수정' })
+  @ApiOkResponse({ description: '수정되었습니다' })
+  @ApiBadRequestResponse({ description: '최대 5개까지 업로드 가능합니다.' })
+  @ApiUnauthorizedResponse({ description: '작성자가 아닙니다' })
+  @ApiNotFoundResponse({ description: '대표 이미지는 필수입니다.' })
+  async updatePost(
+    @GetUserId() userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+    @Body() dto: UpdatePostRequestDto,
+  ) {
+    return await this.postService.updatePost(userId, id, files, dto);
   }
 }

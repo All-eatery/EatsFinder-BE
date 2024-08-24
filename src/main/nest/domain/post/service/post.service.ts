@@ -1,8 +1,15 @@
-import { BadRequestException, ForbiddenException, HttpException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ForbiddenException,
+  HttpException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 import { S3Service } from '../../../global/s3/s3.service';
-import { CreatePostRequestDto } from '../../../global/dto';
+import { CreatePostRequestDto, UpdatePostRequestDto } from '../../../global/dto';
 import * as path from 'path';
 import { PlaceService } from '../../place/service/place.service';
 
@@ -117,6 +124,7 @@ export class PostService {
         imageUrl: true,
         menuTag: true,
         keywordTag: true,
+        placeId: true,
         ratingId: true,
         userId: true,
         createdAt: true,
@@ -140,5 +148,44 @@ export class PostService {
     }
 
     return { message: '수정가능 합니다', postData };
+  }
+
+  async updatePost(userId: number, id: number, files: Express.Multer.File[], dto: UpdatePostRequestDto) {
+    const { postData } = await this.checkPost(id);
+
+    if (Number(userId) !== Number(postData.userId)) throw new UnauthorizedException('작성자가 아닙니다');
+
+    let s3Upload = [];
+    if (files && files.length > 0) {
+      const S3URL = this.configService.get<string>('ENV_AWS_S3_URL');
+      const uploadToimage = files.map(async (file) => {
+        const key = `places/${id.toString()}/${Date.now()}-${Math.random().toString(16).slice(2)}${path.extname(file.originalname)}`;
+        await this.s3Service.uploadS3(key, file.buffer, file.mimetype);
+        return S3URL + key;
+      });
+      s3Upload = await Promise.all(uploadToimage);
+    }
+
+    let menuTagId = undefined;
+    if (dto.menuTag && dto.menuTag.length > 0) {
+      const menuData = await this.placeService.placeAddMenus(dto.menuTag, Number(postData.placeId));
+      menuTagId = menuData.map((menu) => menu.id.toString()).join(',');
+    }
+
+    await this.prismaService.starRatings.update({
+      where: { id: Number(postData.ratingId) },
+      data: { star: dto.starRating },
+    });
+    await this.prismaService.posts.update({
+      where: { id },
+      data: {
+        content: dto.content && dto.content.length > 0 ? dto.content : postData.content,
+        thumbnailUrl: s3Upload.length > 0 ? s3Upload[0] : postData.thumbnailUrl,
+        imageUrl: s3Upload.length > 1 ? s3Upload.slice(1).toString() : null,
+        menuTag: menuTagId !== undefined ? menuTagId : postData.menuTag,
+        keywordTag: dto.keywordTag && dto.keywordTag.length > 0 ? dto.keywordTag : postData.keywordTag,
+      },
+    });
+    return { message: '수정되었습니다' };
   }
 }
