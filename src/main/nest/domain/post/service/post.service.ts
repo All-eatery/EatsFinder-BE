@@ -56,7 +56,7 @@ export class PostService {
 
   async findOnePost(id: number) {
     const postData = await this.prismaService.posts.findFirst({
-      where: { id },
+      where: { id, deletedAt: null },
       select: {
         id: true,
         content: true,
@@ -118,7 +118,7 @@ export class PostService {
 
   async checkPost(id: number) {
     const postData = await this.prismaService.posts.findFirst({
-      where: { id },
+      where: { id, deletedAt: null },
       select: {
         content: true,
         thumbnailUrl: true,
@@ -188,5 +188,13 @@ export class PostService {
       },
     });
     return { message: '수정되었습니다' };
+  }
+
+  async deletePost(userId: number, id: number) {
+    const postData = await this.prismaService.posts.findFirst({ where: { id, deletedAt: null } });
+    if (!postData) throw new NotFoundException('해당 게시물은 존재하지 않습니다');
+    if (Number(userId) !== Number(postData.userId)) throw new UnauthorizedException('작성자가 아닙니다');
+    await this.prismaService.posts.update({ where: { id }, data: { deletedAt: new Date() } });
+    return { message: '삭제되었습니다' };
   }
 }

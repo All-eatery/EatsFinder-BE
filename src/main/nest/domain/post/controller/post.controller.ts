@@ -9,6 +9,7 @@ import {
   Post,
   Get,
   Patch,
+  Delete,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -79,5 +80,15 @@ export class PostController {
     @Body() dto: UpdatePostRequestDto,
   ) {
     return await this.postService.updatePost(userId, id, files, dto);
+  }
+
+  @Delete(':id')
+  @ApiGuard()
+  @ApiOperation({ summary: '유저 게시물 삭제' })
+  @ApiOkResponse({ description: '삭제되었습니다' })
+  @ApiUnauthorizedResponse({ description: '작성자가 아닙니다' })
+  @ApiNotFoundResponse({ description: '해당 게시물은 존재하지 않습니다' })
+  async deletePost(@GetUserId() userId: number, @Param('id', ParseIntPipe) id: number) {
+    return await this.postService.deletePost(userId, id);
   }
 }
