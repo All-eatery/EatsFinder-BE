@@ -60,6 +60,9 @@ export class PrismaService extends PrismaClient implements OnModuleInit, OnModul
         if (fields.includes('updatedAt')) {
           params.args.data.updatedAt = kstTime;
         }
+        if (fields.includes('deletedAt') && params.args.data.deletedAt !== undefined) {
+          params.args.data.deletedAt = kstTime;
+        }
       }
       return next(params);
     });

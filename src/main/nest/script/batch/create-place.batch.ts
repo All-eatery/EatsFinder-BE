@@ -25,14 +25,16 @@ async function createPlace() {
         y,
       } = place;
 
+      const categoryArray = category_name.split('>').map((depth) => depth.trim());
+
       let category = await prisma.categories.findFirst({
-        where: { name: category_name.split('>')[1].trim() },
+        where: { name: categoryArray[1] },
       });
 
       if (!category) {
         category = await prisma.categories.create({
           data: {
-            name: category_name.split('>')[1].trim(),
+            name: categoryArray[1],
             type: category_group_name,
             code: category_group_code,
           },
@@ -47,6 +49,10 @@ async function createPlace() {
           telephone: phone,
           x: Number(x),
           y: Number(y),
+          depth1: categoryArray[0],
+          depth2: categoryArray[1],
+          depth3: categoryArray[2],
+          depth4: categoryArray[3],
           categoryId: category.id,
         },
       });

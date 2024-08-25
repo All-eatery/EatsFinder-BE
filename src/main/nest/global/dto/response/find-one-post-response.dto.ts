@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-class usertest {
+class Users {
   @ApiProperty({ example: 1 })
   id: number;
 
@@ -11,7 +11,12 @@ class usertest {
   profileImage: string | null;
 }
 
-class usertes123t {
+class Categories {
+  @ApiProperty({ example: '한식' })
+  name: string;
+}
+
+class Places {
   @ApiProperty({ example: 1 })
   id: number;
 
@@ -29,6 +34,9 @@ class usertes123t {
 
   @ApiProperty({ example: 38.19155114124001 })
   y: number;
+
+  @ApiProperty({ example: 38.19155114124001 })
+  categories: Categories;
 }
 
 export class FindOnePostResponseDto {
@@ -57,10 +65,10 @@ export class FindOnePostResponseDto {
   createdAt: Date;
 
   @ApiProperty()
-  users: usertest;
+  users: Users;
 
   @ApiProperty()
-  places: usertes123t;
+  places: Places;
 
   @ApiProperty({ example: 4.5 })
   starRatings: number;
