@@ -19,7 +19,7 @@ data class MyActiveResponse(
                             postId = logs.postLikeId?.postId?.id,
                             createdBy = MyActivePostUserResponse(
                                 postUserNickname = logs.postLikeId?.postId?.userId?.nickname,
-                                postUserImageUrl = logs.postLikeId?.postId?.userId?.profileImage
+                                postImageUrl = logs.postLikeId?.postId?.thumbnailUrl
                             ),
                             postContent = logs.postLikeId?.postId?.content
                         ),
@@ -34,9 +34,10 @@ data class MyActiveResponse(
                         comment = MyActiveCommentResponse(
                             id = logs.commentId?.id,
                             postId = logs.commentId?.postId?.id,
+                            postDeletedAt = logs.commentId?.postId?.deletedAt,
                             createdBy = MyActivePostUserResponse(
                                 postUserNickname = logs.commentId?.postId?.userId?.nickname,
-                                postUserImageUrl = logs.commentId?.postId?.userId?.profileImage
+                                postImageUrl = logs.commentId?.postId?.thumbnailUrl
                             ),
                             content = logs.commentId?.content
                         ),
