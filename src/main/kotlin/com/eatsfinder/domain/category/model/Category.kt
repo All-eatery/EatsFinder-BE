@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.category.model
 
 import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "categories")
@@ -13,7 +14,11 @@ class Category(
     val type: String,
 
     @Column(name = "code", length = 6)
-    val code: String
+    val code: String,
+
+    @ColumnDefault("0")
+    @Column(name = "cg_count", nullable = false)
+    val cgCount: Int = 0,
 
 ) {
     @Id

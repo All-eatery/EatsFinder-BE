@@ -3,11 +3,10 @@ package com.eatsfinder.domain.user.service
 import com.eatsfinder.domain.email.repository.EmailRepository
 import com.eatsfinder.domain.email.service.EmailUtils
 import com.eatsfinder.domain.post.repository.PostRepository
-import com.eatsfinder.domain.user.dto.profile.ChangePasswordRequest
-import com.eatsfinder.domain.user.dto.profile.MyProfileResponse
-import com.eatsfinder.domain.user.dto.profile.ProfileViewedByOthersResponse
-import com.eatsfinder.domain.user.dto.profile.UpdateProfileRequest
+import com.eatsfinder.domain.user.dto.profile.*
+import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
 import com.eatsfinder.domain.user.model.SocialType
+import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.aws.AwsS3Service
 import com.eatsfinder.global.exception.ModelNotFoundException
@@ -31,6 +30,7 @@ class ProfileServiceImpl(
     private val emailRepository: EmailRepository,
     private val passwordEncoder: PasswordEncoder,
     private val postRepository: PostRepository,
+    private val userLogRepository: UserLogRepository,
     private val emailUtils: EmailUtils,
     private val awsService: AwsS3Service
 ) : ProfileService {
@@ -68,10 +68,6 @@ class ProfileServiceImpl(
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
 
-        if (profile.provider != SocialType.LOCAL) {
-            throw ImmutableUserException("프로필 수정할 수 없는 소셜 유저입니다.")
-        }
-
         req.profileImage?.let {
             profile.profileImage?.let { image ->
                 awsService.deleteImage(image)
@@ -93,13 +89,10 @@ class ProfileServiceImpl(
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
 
-        if (profile.provider != SocialType.LOCAL) {
-            throw ImmutableUserException("프로필 이미지를 삭제할 수 없는 소셜 유저입니다.")
-        }
-
         if (profile.profileImage == null){
             throw AlreadyDefaultProfileImageException("이미 기본 프로필인 상태입니다.")
         }
+
         profile.profileImage?.let { image ->
             awsService.deleteImage(image)
             profile.profileImage = null
@@ -148,5 +141,27 @@ class ProfileServiceImpl(
                 emailUtils.guideEmail(email)
             }
         }
+    }
+
+    override fun getMyFeed(myProfileId: Long): List<MyFeedResponse> {
+        val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
+        )
+        return postRepository.findByUserId(profile)!!.map { MyFeedResponse.from(it) }
+    }
+
+    override fun getMyActive(myProfileId: Long): List<MyActiveResponse> {
+        val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
+        )
+        val logs = userLogRepository.findByUserId(profile)?.distinct() ?: emptyList()
+        return if (logs.isNotEmpty()) {
+            listOf(MyActiveResponse.from(logs))
+        } else {
+            emptyList()
+        }
+//        return userLogRepository.findByUserId(profile)!!.map { MyActiveResponse.from(it) }
     }
 }

@@ -34,6 +34,10 @@ class Post(
     @Column(name = "is_owner", nullable = false, columnDefinition = "TINYINT(1)")
     val isOwner: Boolean,
 
+    @ColumnDefault("0")
+    @Column(name = "view_count", nullable = false)
+    val viewCount: Int = 0,
+
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     val userId: User,
