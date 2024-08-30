@@ -33,7 +33,7 @@ export class PostService {
     const menuTagId = menuData.map((menu) => menu.id.toString()).join(',');
 
     const uploadToimage = files.map(async (file) => {
-      const key = `places/${isPlaceData.id.toString()}/${Date.now()}-${Math.random().toString(16).slice(2)}${path.extname(file.originalname)}`;
+      const key = `/places/${isPlaceData.id.toString()}/${Date.now()}-${Math.random().toString(16).slice(2)}${path.extname(file.originalname)}`;
       await this.s3Service.uploadS3(key, file.buffer, file.mimetype);
       return S3URL + key;
     });
@@ -160,7 +160,7 @@ export class PostService {
     if (files && files.length > 0) {
       const S3URL = this.configService.get<string>('ENV_AWS_S3_URL');
       const uploadToimage = files.map(async (file) => {
-        const key = `places/${id.toString()}/${Date.now()}-${Math.random().toString(16).slice(2)}${path.extname(file.originalname)}`;
+        const key = `/places/${id.toString()}/${Date.now()}-${Math.random().toString(16).slice(2)}${path.extname(file.originalname)}`;
         await this.s3Service.uploadS3(key, file.buffer, file.mimetype);
         return S3URL + key;
       });
