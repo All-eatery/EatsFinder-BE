@@ -9,7 +9,12 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreatePlaceRequestDto, CreatePlaceResponseDto, FindPlaceResponseDto } from '../../../global/dto';
+import {
+  CreatePlaceRequestDto,
+  CreatePlaceResponseDto,
+  FindLocalPlaceResponseDto,
+  FindPlaceResponseDto,
+} from '../../../global/dto';
 
 @ApiTags('Place')
 @Controller('places')
@@ -31,5 +36,12 @@ export class PlaceController {
   @ApiOkResponse({ type: [FindPlaceResponseDto] })
   async findPlace(@Param('name') name: string) {
     return await this.placeService.findPlace(name);
+  }
+
+  @Get(':local/local')
+  @ApiOperation({ summary: '주변 맛집 조회' })
+  @ApiOkResponse({ type: [FindLocalPlaceResponseDto] })
+  async findLocalPlace(@Param('local') local: string) {
+    return await this.placeService.findLocalPlace(local);
   }
 }
