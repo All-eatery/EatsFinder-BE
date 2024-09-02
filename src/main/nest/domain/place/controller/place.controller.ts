@@ -26,7 +26,7 @@ export class PlaceController {
     return { message: '맛집이 등록되었습니다.', id: Number(place.id) };
   }
 
-  @Get(':name')
+  @Get(':name/name')
   @ApiOperation({ summary: '등록된 맛집 조회' })
   @ApiOkResponse({ type: [FindPlaceResponseDto] })
   async findPlace(@Param('name') name: string) {
