@@ -15,8 +15,8 @@ class PostController(
     private val postService: PostService
 )
 {
-    @Operation(summary = "이웃의 새로운 게시글")
-    @GetMapping("/neighbor/new-post")
+    @Operation(summary = "이웃들의 새로운 게시글들")
+    @GetMapping("/neighbors/new-posts")
     fun getNewPostByNeighbor(@AuthenticationPrincipal userPrincipal: UserPrincipal?): ResponseEntity<NewPostByNeighborResponse> {
         val response = if (userPrincipal == null) {
             NewPostByNeighborResponse(followingCount = 0, neighborPost = emptyList())
