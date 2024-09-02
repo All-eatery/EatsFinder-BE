@@ -10,4 +10,6 @@ interface PostRepository: JpaRepository<Post, Long> {
     fun findByUserId(userId: User): List<Post>?
 
     fun findByIdAndDeletedAt(id: Long, deletedAt: LocalDateTime?): Post?
+
+    fun findPostByUserIdInAndUpdatedAtAfter(userIds: List<User>, updatedAt: LocalDateTime): List<Post>?
 }
