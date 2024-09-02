@@ -4,6 +4,7 @@ export * from './response/find-place-response.dto';
 export * from './response/create-menu-response.dto';
 export * from './response/find-menu-response.dto';
 export * from './response/find-one-post-response.dto';
+export * from './response/find-similar-response.dto';
 
 // Request
 export * from './request/create-place-request.dto';
