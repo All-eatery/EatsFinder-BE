@@ -1,8 +1,8 @@
 import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../global/prisma/prisma.service';
-import { FindPasswordDto } from '../dto/find-password.dto';
 import { PasswordMailService } from '../../../global/mail/send/find-password-mail.service';
 import * as bcrypt from 'bcrypt';
+import { FindPasswordRequestDto } from '../../../global/dto';
 
 @Injectable()
 export class UserService {
@@ -11,8 +11,8 @@ export class UserService {
     private readonly passwordMailService: PasswordMailService,
   ) {}
 
-  async findPassword(findPasswordDto: FindPasswordDto) {
-    const { name, email } = findPasswordDto;
+  async findPassword(dto: FindPasswordRequestDto) {
+    const { name, email } = dto;
     const isUserData = await this.prismaService.users.findFirst({ where: { name, email } });
 
     if (!isUserData) {
