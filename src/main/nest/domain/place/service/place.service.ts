@@ -100,4 +100,30 @@ export class PlaceService {
       },
     });
   }
+
+  async findLocalPlace(local: string) {
+    const findManyPlace = await this.prismaService.places.findMany({
+      where: { roadAddress: { contains: local } },
+      select: {
+        id: true,
+        name: true,
+        roadAddress: true,
+        starRatings: { select: { star: true } },
+        categories: { select: { name: true } },
+        posts: { select: { thumbnailUrl: true }, orderBy: { likeCount: 'desc' } },
+      },
+      orderBy: { id: 'desc' },
+    });
+
+    const findLocalPlace = await Promise.all(
+      findManyPlace.map(async (place) => {
+        const avgRating = await this.prismaService.starRatings.aggregate({
+          where: { placeId: place.id },
+          _avg: { star: true },
+        });
+        return { ...place, starRatings: avgRating._avg.star, bookmarkStatus: false /* 임시 북마크 처리 */ };
+      }),
+    );
+    return findLocalPlace;
+  }
 }
