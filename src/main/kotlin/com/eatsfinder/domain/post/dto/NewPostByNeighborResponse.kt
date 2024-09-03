@@ -3,13 +3,16 @@ package com.eatsfinder.domain.post.dto
 import com.eatsfinder.domain.follow.model.Follow
 import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.user.model.User
+import org.springframework.data.domain.Pageable
 
 data class NewPostByNeighborResponse(
+    val pagination: PaginationNeighborPostResponse,
     val followingCount: Int,
     val neighborPost: List<NeighborPostResponse>
 ){
     companion object {
-        fun from(posts: List<Post>, user: User, follows: List<Follow>): NewPostByNeighborResponse {
+        fun from(posts: List<Post>, user: User, follows: List<Follow>, pageable: Pageable): NewPostByNeighborResponse {
+
             val neighborPosts = posts.mapNotNull { post ->
                 val follow = follows.find { it.followingUserId == post.userId }
                 follow?.let {
@@ -25,9 +28,25 @@ data class NewPostByNeighborResponse(
                     )
                 }
             }
+
+            val totalPost = neighborPosts.size.toLong()
+            val pagedPosts = neighborPosts.drop(pageable.pageNumber * pageable.pageSize)
+                .take(pageable.pageSize)
+
+            val isLastPage = (pageable.pageNumber + 1) * pageable.pageSize >= totalPost
+
+            val pagination = PaginationNeighborPostResponse(
+                page = pageable.pageNumber,
+                size = pageable.pageSize,
+                totalPost = totalPost,
+                isLastPage = isLastPage
+            )
+
+
             return NewPostByNeighborResponse(
+                pagination = pagination,
                 followingCount = user.followingCount,
-                neighborPost = neighborPosts
+                neighborPost = pagedPosts,
             )
         }
     }

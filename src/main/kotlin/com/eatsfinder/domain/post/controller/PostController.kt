@@ -1,9 +1,12 @@
 package com.eatsfinder.domain.post.controller
 
 import com.eatsfinder.domain.post.dto.NewPostByNeighborResponse
+import com.eatsfinder.domain.post.dto.PaginationNeighborPostResponse
 import com.eatsfinder.domain.post.service.PostService
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -17,12 +20,18 @@ class PostController(
 {
     @Operation(summary = "이웃들의 새로운 게시글들")
     @GetMapping("/neighbors/new-posts")
-    fun getNewPostByNeighbor(@AuthenticationPrincipal userPrincipal: UserPrincipal?): ResponseEntity<NewPostByNeighborResponse> {
+    fun getNewPostByNeighbor(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal?,
+        @PageableDefault(size = 10, sort = ["updatedAt"]) pageable: Pageable,
+    ): ResponseEntity<NewPostByNeighborResponse> {
         val response = if (userPrincipal == null) {
-            NewPostByNeighborResponse(followingCount = 0, neighborPost = emptyList())
+            NewPostByNeighborResponse(
+                pagination = PaginationNeighborPostResponse(page = 0, size = 0, totalPost = 0, isLastPage = false),
+                followingCount = 0,
+                neighborPost = emptyList())
         } else {
             val userId = userPrincipal.id
-            postService.getNewPostByNeighbor(userId)
+            postService.getNewPostByNeighbor(userId, pageable)
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(response)

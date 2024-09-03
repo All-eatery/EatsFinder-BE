@@ -5,6 +5,7 @@ import com.eatsfinder.domain.post.dto.NewPostByNeighborResponse
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 
@@ -14,7 +15,7 @@ class PostServiceImpl(
     private val followRepository: FollowRepository,
     private val userRepository: UserRepository
 ): PostService {
-    override fun getNewPostByNeighbor(userId: Long?): NewPostByNeighborResponse {
+    override fun getNewPostByNeighbor(userId: Long?, pageable: Pageable): NewPostByNeighborResponse {
         val user = userRepository.findByIdAndDeletedAt(userId!!, null) ?: throw ModelNotFoundException(
             "user",
             "이 계정(id: ${userId})은 존재하지 않습니다."
@@ -26,9 +27,9 @@ class PostServiceImpl(
 
         val time = LocalDateTime.now().minusHours(72)
 
-        val posts = postRepository.findPostByUserIdInAndUpdatedAtAfter(followUserList, time)
+        val posts = postRepository.findPostByUserIdInAndOrderByUpdatedAtAfter(followUserList, time)
 
-        return NewPostByNeighborResponse.from(posts ?: emptyList(), user, followingUser)
+        return NewPostByNeighborResponse.from(posts ?: emptyList(), user, followingUser, pageable)
 
     }
 
