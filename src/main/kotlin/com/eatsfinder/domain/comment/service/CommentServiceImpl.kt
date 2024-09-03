@@ -13,6 +13,7 @@ import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.profile.ImmutableUserException
+import com.eatsfinder.global.security.jwt.UserPrincipal
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -25,12 +26,13 @@ class CommentServiceImpl(
 ) : CommentService {
 
     @Transactional(readOnly = true)
-    override fun getCommentList(postId: Long): List<CommentResponse> {
+    override fun getCommentList(postId: Long, userId: UserPrincipal?): List<CommentResponse> {
         val post = postRepository.findByIdAndDeletedAt(postId, null) ?: throw ModelNotFoundException(
             "post",
             "이 게시물 아이디: (${postId})는 존재하지 않습니다."
         )
-        return commentRepository.findByPostIdAndDeletedAt(post, null).map { from(it) }
+
+        return commentRepository.findByPostIdAndDeletedAt(post, null).map { from(it, userId) }
     }
 
     @Transactional
