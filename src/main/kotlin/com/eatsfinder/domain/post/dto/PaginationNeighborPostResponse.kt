@@ -1,8 +1,9 @@
 package com.eatsfinder.domain.post.dto
 
 data class PaginationNeighborPostResponse(
-    val page: Int,
-    val size: Int,
-    val totalPost: Long,
+    val totalPosts: Long,
+    val postsPerPage: Int,
+    val totalPage: Long,
+    val currentPage: Int,
     val isLastPage: Boolean
 )

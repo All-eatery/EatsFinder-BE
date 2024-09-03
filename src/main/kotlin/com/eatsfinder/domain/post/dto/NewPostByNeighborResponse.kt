@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.post.dto
 
 import com.eatsfinder.domain.follow.model.Follow
+import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.user.model.User
 import org.springframework.data.domain.Pageable
@@ -11,11 +12,12 @@ data class NewPostByNeighborResponse(
     val neighborPost: List<NeighborPostResponse>
 ){
     companion object {
-        fun from(posts: List<Post>, user: User, follows: List<Follow>, pageable: Pageable): NewPostByNeighborResponse {
+        fun from(posts: List<Post>, user: User, follows: List<Follow>,  likes: List<PostLikes>, pageable: Pageable): NewPostByNeighborResponse {
 
             val neighborPosts = posts.mapNotNull { post ->
                 val follow = follows.find { it.followingUserId == post.userId }
                 follow?.let {
+                    val isPostLike = likes.any { like -> like.postId.id == post.id && like.userId.id == user.id }
                     NeighborPostResponse(
                         followingUser = FollowingUserDataResponse(
                             nickname = it.followingUserId.nickname,
@@ -24,7 +26,9 @@ data class NewPostByNeighborResponse(
                         postId = post.id,
                         placeName = post.placeId.name,
                         postThumbnailUrl = post.thumbnailUrl,
-                        postLikeCount = post.likeCount
+                        isPostLike = isPostLike,
+                        postLikeCount = post.likeCount,
+                        updatedAt = post.updatedAt
                     )
                 }
             }
@@ -33,12 +37,19 @@ data class NewPostByNeighborResponse(
             val pagedPosts = neighborPosts.drop(pageable.pageNumber * pageable.pageSize)
                 .take(pageable.pageSize)
 
+            val totalPage = if (totalPost == 0L) {
+                0L
+            } else {
+                (totalPost + pageable.pageSize - 1) / pageable.pageSize
+            }
+
             val isLastPage = (pageable.pageNumber + 1) * pageable.pageSize >= totalPost
 
             val pagination = PaginationNeighborPostResponse(
-                page = pageable.pageNumber,
-                size = pageable.pageSize,
-                totalPost = totalPost,
+                totalPosts = totalPost,
+                postsPerPage = pageable.pageSize,
+                totalPage = totalPage,
+                currentPage = pageable.pageNumber,
                 isLastPage = isLastPage
             )
 

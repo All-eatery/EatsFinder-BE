@@ -26,7 +26,7 @@ class PostController(
     ): ResponseEntity<NewPostByNeighborResponse> {
         val response = if (userPrincipal == null) {
             NewPostByNeighborResponse(
-                pagination = PaginationNeighborPostResponse(page = 0, size = 0, totalPost = 0, isLastPage = false),
+                pagination = PaginationNeighborPostResponse(totalPosts = 0, postsPerPage = 0, totalPage = 0, currentPage = 0, isLastPage = false),
                 followingCount = 0,
                 neighborPost = emptyList())
         } else {

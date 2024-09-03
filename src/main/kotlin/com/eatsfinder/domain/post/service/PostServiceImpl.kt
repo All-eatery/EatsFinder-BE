@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.post.service
 
 import com.eatsfinder.domain.follow.repository.FollowRepository
+import com.eatsfinder.domain.like.repository.PostLikeRepository
 import com.eatsfinder.domain.post.dto.NewPostByNeighborResponse
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.repository.UserRepository
@@ -12,6 +13,7 @@ import java.time.LocalDateTime
 @Service
 class PostServiceImpl(
     private val postRepository: PostRepository,
+    private val postLikeRepository: PostLikeRepository,
     private val followRepository: FollowRepository,
     private val userRepository: UserRepository
 ): PostService {
@@ -29,7 +31,9 @@ class PostServiceImpl(
 
         val posts = postRepository.findPostByUserIdInAndOrderByUpdatedAtAfter(followUserList, time)
 
-        return NewPostByNeighborResponse.from(posts ?: emptyList(), user, followingUser, pageable)
+        val postLikes = postLikeRepository.findByUserId(user)
+
+        return NewPostByNeighborResponse.from(posts ?: emptyList(), user, followingUser, postLikes, pageable)
 
     }
 
