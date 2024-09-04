@@ -23,17 +23,17 @@ class PostServiceImpl(
             "이 계정(id: ${userId})은 존재하지 않습니다."
         )
 
-        val followingUser = followRepository.findByFollowedUserId(user)
+        val followUser = followRepository.findByFollowedUserId(user)
 
-        val followUserList = followingUser.map { it.followingUserId }
+        val followingUserList = followUser.map { it.followingUserId }
 
         val time = LocalDateTime.now().minusHours(72)
 
-        val posts = postRepository.findPostByUserIdInAndOrderByUpdatedAtAfter(followUserList, time)
+        val posts = postRepository.findPostByUserIdInAndOrderByUpdatedAtAfter(followingUserList, time)
 
         val postLikes = postLikeRepository.findByUserId(user)
 
-        return NewPostByNeighborResponse.from(posts ?: emptyList(), user, followingUser, postLikes, pageable)
+        return NewPostByNeighborResponse.from(posts ?: emptyList(), user, followUser, postLikes, pageable)
 
     }
 
