@@ -19,7 +19,7 @@ class PostController(
 )
 {
     @Operation(summary = "이웃들의 새로운 게시글들")
-    @GetMapping("/neighbors/new-posts")
+    @GetMapping("/posts/follows")
     fun getNewPostByNeighbor(
         @AuthenticationPrincipal userPrincipal: UserPrincipal?,
         @PageableDefault(size = 10, sort = ["updatedAt"]) pageable: Pageable,

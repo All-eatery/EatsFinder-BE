@@ -43,8 +43,7 @@ class SecurityConfig(
                     "/follower",
                     "/following",
                     "/my-profile/new-password",
-                    "/my-profile/default-images",
-                    "/neighbors/**"
+                    "/my-profile/default-images"
                 ).permitAll().anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
