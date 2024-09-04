@@ -1,9 +1,9 @@
 package com.eatsfinder.domain.user.service
 
-import com.eatsfinder.domain.user.dto.profile.*
-import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
+import com.eatsfinder.domain.user.dto.user.*
+import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
 
-interface ProfileService {
+interface UserService {
 
     fun getMyProfile(myProfileId: Long): MyProfileResponse
 

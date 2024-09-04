@@ -1,8 +1,8 @@
 package com.eatsfinder.domain.user.controller
 
-import com.eatsfinder.domain.user.dto.profile.*
-import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
-import com.eatsfinder.domain.user.service.ProfileService
+import com.eatsfinder.domain.user.dto.user.*
+import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
+import com.eatsfinder.domain.user.service.UserService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
@@ -14,8 +14,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
-class ProfileController(
-    private val profileService: ProfileService
+class UserController(
+    private val profileService: UserService
 ) {
     @Operation(summary = "본인 프로필 조회하기")
     @GetMapping("/my-profile")

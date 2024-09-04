@@ -3,8 +3,8 @@ package com.eatsfinder.domain.user.service
 import com.eatsfinder.domain.email.repository.EmailRepository
 import com.eatsfinder.domain.email.service.EmailUtils
 import com.eatsfinder.domain.post.repository.PostRepository
-import com.eatsfinder.domain.user.dto.profile.*
-import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
+import com.eatsfinder.domain.user.dto.user.*
+import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
 import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
-class ProfileServiceImpl(
+class UserServiceImpl(
     private val userRepository: UserRepository,
     private val emailRepository: EmailRepository,
     private val passwordEncoder: PasswordEncoder,
@@ -33,7 +33,7 @@ class ProfileServiceImpl(
     private val userLogRepository: UserLogRepository,
     private val emailUtils: EmailUtils,
     private val awsService: AwsS3Service
-) : ProfileService {
+) : UserService {
 
     @Transactional(readOnly = true)
     override fun getMyProfile(myProfileId: Long): MyProfileResponse {

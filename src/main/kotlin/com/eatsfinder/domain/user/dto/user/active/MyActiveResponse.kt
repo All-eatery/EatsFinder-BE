@@ -1,4 +1,4 @@
-package com.eatsfinder.domain.user.dto.profile.myactive
+package com.eatsfinder.domain.user.dto.user.active
 
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
