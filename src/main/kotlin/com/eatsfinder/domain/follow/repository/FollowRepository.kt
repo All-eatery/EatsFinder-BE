@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface FollowRepository: JpaRepository<Follow, Long> {
 
     fun findByFollowedUserIdAndFollowingUserId(followedUserId: User, followingUserId: User): Follow?
+
+    fun findByFollowedUserId(followedUserId: User): List<Follow>
 }
