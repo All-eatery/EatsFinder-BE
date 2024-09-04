@@ -98,6 +98,6 @@ class PostLikeServiceImpl(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
-        return postLikeRepository.findByUserId(user).map { PostLikeResponse.from(it) }
+        return postLikeRepository.findByUserId(user).map { PostLikeResponse.from(it, user) }
     }
 }

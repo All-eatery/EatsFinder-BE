@@ -10,6 +10,8 @@ interface PostRepository: JpaRepository<Post, Long> {
 
     fun findByUserId(userId: User): List<Post>?
 
+    fun findPostByUserId(userId: User): Post?
+
     fun findByIdAndDeletedAt(id: Long, deletedAt: LocalDateTime?): Post?
 
     @Query("SELECT p FROM Post p WHERE p.userId IN :userIds AND p.updatedAt > :updatedAt ORDER BY p.updatedAt ASC")
