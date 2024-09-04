@@ -40,7 +40,7 @@ class UserController(
     }
 
     @Operation(summary = "프로필 이미지 삭제하기 : 기본 프로필로 전환")
-    @PutMapping("/default-images")
+    @PutMapping("/default-image")
     fun defaultProfileImage(@AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.defaultProfileImage(myProfileId)
