@@ -46,10 +46,10 @@ class UserServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun profileViewedByOthers(profileId: Long): ProfileViewedByOthersResponse {
-        val profile = userRepository.findByIdAndDeletedAt(profileId, null) ?: throw ModelNotFoundException(
+    override fun profileViewedByOthers(otherProfileId: Long): ProfileViewedByOthersResponse {
+        val profile = userRepository.findByIdAndDeletedAt(otherProfileId, null) ?: throw ModelNotFoundException(
             "user",
-            "이 프로필(id: ${profileId})은 존재하지 않습니다."
+            "이 프로필(id: ${otherProfileId})은 존재하지 않습니다."
         )
         val postCount = postRepository.findByUserId(profile)?.size ?: 0
 

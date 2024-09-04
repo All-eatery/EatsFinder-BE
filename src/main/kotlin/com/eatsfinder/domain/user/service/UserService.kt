@@ -7,7 +7,7 @@ interface UserService {
 
     fun getMyProfile(myProfileId: Long): MyProfileResponse
 
-    fun profileViewedByOthers(profileId: Long): ProfileViewedByOthersResponse
+    fun profileViewedByOthers(otherProfileId: Long): ProfileViewedByOthersResponse
 
     fun updateProfile(req: UpdateProfileRequest, myProfileId: Long)
 
