@@ -14,24 +14,25 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
+@RequestMapping("/users")
 class UserController(
     private val profileService: UserService
 ) {
     @Operation(summary = "본인 프로필 조회하기")
-    @GetMapping("/my-profile")
+    @GetMapping
     fun getMyProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<MyProfileResponse> {
         val myProfileId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyProfile(myProfileId))
     }
 
     @Operation(summary = "다른 유저 프로필 조회하기")
-    @GetMapping("/profile/{profileId}")
-    fun profileViewedByOthers(@PathVariable profileId: Long): ResponseEntity<ProfileViewedByOthersResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.profileViewedByOthers(profileId))
+    @GetMapping("/{otherProfileId}")
+    fun profileViewedByOthers(@PathVariable otherProfileId: Long): ResponseEntity<ProfileViewedByOthersResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.profileViewedByOthers(otherProfileId))
     }
 
     @Operation(summary = "본인 프로필 수정하기")
-    @PatchMapping("/my-profile", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PatchMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun updateProfile(@ModelAttribute req: UpdateProfileRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.updateProfile(req, myProfileId)
@@ -39,7 +40,7 @@ class UserController(
     }
 
     @Operation(summary = "프로필 이미지 삭제하기 : 기본 프로필로 전환")
-    @PutMapping("/my-profile/default-images")
+    @PutMapping("/default-images")
     fun defaultProfileImage(@AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.defaultProfileImage(myProfileId)
@@ -47,7 +48,7 @@ class UserController(
     }
 
     @Operation(summary = "비밀번호 재설정")
-    @PutMapping("/my-profile/new-password")
+    @PutMapping("/new-password")
     fun changePassword(@RequestBody @Valid req: ChangePasswordRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.changePassword(req, myProfileId)
@@ -55,7 +56,7 @@ class UserController(
     }
 
     @Operation(summary = "탈퇴하기")
-    @DeleteMapping("/my-profile")
+    @DeleteMapping
     fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam email: String, @RequestParam code: String): ResponseEntity<Unit> {
         val myProfileId = userPrincipal.id
         profileService.deleteProfile(myProfileId, email, code)
@@ -63,14 +64,14 @@ class UserController(
     }
 
     @Operation(summary = "내 피드 조회하기")
-    @GetMapping("/my-feed")
+    @GetMapping("/feeds")
     fun getMyFeed(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyFeedResponse>> {
         val myProfileId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyFeed(myProfileId))
     }
 
     @Operation(summary = "내 활동 조회하기")
-    @GetMapping("/my-active")
+    @GetMapping("/actives")
     fun getMyActive(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyActiveResponse>> {
         val myProfileId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyActive(myProfileId))

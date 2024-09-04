@@ -33,8 +33,7 @@ class SecurityConfig(
                     "/auth/callback/**",
                     "/auth/email/**",
                     "/categories",
-                    "/profile/**",
-                    "/my-profile/**",
+                    "/users/**",
                     "/post-likes/**",
                     "/comment-likes/**",
                     "/posts/**",
@@ -42,8 +41,6 @@ class SecurityConfig(
                     "/follows",
                     "/follower",
                     "/following",
-                    "/my-profile/new-password",
-                    "/my-profile/default-images"
                 ).permitAll().anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
