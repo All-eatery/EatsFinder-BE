@@ -1,6 +1,6 @@
 package com.eatsfinder.domain.like.service
 
-import com.eatsfinder.domain.like.dto.PostLikeResponse
+import com.eatsfinder.domain.like.dto.PostLikesResponse
 import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.like.repository.PostLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
@@ -93,11 +93,17 @@ class PostLikeServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun getPostLikes(userId: Long): List<PostLikeResponse> {
+    override fun getPostLikes(userId: Long): PostLikesResponse {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
-        return postLikeRepository.findByUserId(user).map { PostLikeResponse.from(it, user) }
+        val post = postRepository.findPostByUserId(user) ?: throw ModelNotFoundException(
+            "post"
+        )
+        val postLikes = postLikeRepository.findByUserId(user)
+        val postCount = postLikes.size
+
+        return PostLikesResponse.from(postLikes, user, postCount)
     }
 }
