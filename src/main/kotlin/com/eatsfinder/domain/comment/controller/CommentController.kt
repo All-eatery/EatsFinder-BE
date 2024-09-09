@@ -34,6 +34,18 @@ class CommentController(
         return BaseResponse(message = message)
     }
 
+    @Operation(summary = "댓글 수정")
+    @PutMapping("/comments/{commentId}")
+    fun updateComment(
+        @PathVariable commentId: Long,
+        @RequestBody req: CommentRequest,
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
+    ): BaseResponse<String> {
+        val userId = userPrincipal.id
+        val message = commentService.updateComment(req, userId, commentId)
+        return BaseResponse(message = message)
+    }
+
     @Operation(summary = "댓글 삭제")
     @DeleteMapping("/comments/{commentId}")
     fun deleteComment(

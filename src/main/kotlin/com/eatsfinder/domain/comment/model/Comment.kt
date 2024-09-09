@@ -13,7 +13,7 @@ import org.hibernate.annotations.SQLDelete
 class Comment(
 
     @Column(name = "content", columnDefinition = "TEXT", nullable = false)
-    val content: String,
+    var content: String,
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

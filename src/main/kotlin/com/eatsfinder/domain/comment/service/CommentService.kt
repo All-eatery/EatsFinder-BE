@@ -10,5 +10,7 @@ interface CommentService {
 
     fun createComment(postId: Long, req: CommentRequest, userId: Long): String
 
+    fun updateComment(req: CommentRequest, userId: Long, commentId: Long): String
+
     fun deleteComment(commentId: Long, userId: Long)
 }
