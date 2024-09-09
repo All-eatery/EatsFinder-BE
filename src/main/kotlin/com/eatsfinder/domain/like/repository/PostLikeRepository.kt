@@ -9,6 +9,4 @@ import java.time.LocalDateTime
 interface PostLikeRepository : JpaRepository<PostLikes, Long> {
     fun findByUserIdAndPostId(userId: User, postId: Post): PostLikes?
     fun findByUserId(userId: User): List<PostLikes>
-
-    fun countByPostId(likes: PostLikes): Int?
 }

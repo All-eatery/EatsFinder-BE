@@ -98,9 +98,6 @@ class PostLikeServiceImpl(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
-        val post = postRepository.findPostByUserId(user) ?: throw ModelNotFoundException(
-            "post"
-        )
         val postLikes = postLikeRepository.findByUserId(user)
         val postCount = postLikes.size
 
