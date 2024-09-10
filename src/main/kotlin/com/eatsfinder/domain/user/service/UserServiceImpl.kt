@@ -124,16 +124,27 @@ class UserServiceImpl(
         }
     }
 
-    override fun deleteProfile(myProfileId: Long, req: DeleteReasonRequest, reasonType: DeleteUserReason) {
+    override fun deleteProfile(
+        myProfileId: Long,
+        email: String,
+        code: String,
+        unavailability: Boolean,
+        infrequent: Boolean,
+        privacy: Boolean,
+        inconvenience: Boolean,
+        switching: Boolean,
+        others: Boolean,
+        reason: String?
+    ) {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
-        if (reasonType.name == DeleteUserReason.OTHERS.name && req.reason == null){
+        if (others && reason == null){
             throw EnterAddInfoException("기타 사유를 입력해주세요")
         }
 
-        val checkCode = emailRepository.findByCode(req.code)
+        val checkCode = emailRepository.findByCode(code)
             ?: throw OneTimeMoreWriteException("다시 한번 입력해주세요")
 
         when {
@@ -141,17 +152,23 @@ class UserServiceImpl(
                 throw ExpiredCodeException("인증번호가 만료되었습니다.")
             !checkCode.complete ->
                 throw NotCheckCompleteException("인증확인이 되지 않았습니다.")
-            checkCode.code != req.code || profile.email != checkCode.email || profile.email != req.email ->
+            checkCode.code != code || profile.email != checkCode.email || profile.email != email ->
                 throw OneTimeMoreWriteException("다시 한번 입력해주세요")
         }
 
         userRepository.delete(profile)
-        emailUtils.guideEmail(req.email)
+        emailUtils.guideEmail(email)
         deleteUserDataRepository.save(
             DeleteUserData(
                 userId = profile,
-                reason = req.reason,
-                reasonType = reasonType
+                userEmail = profile.email,
+                unavailability = unavailability,
+                infrequent = infrequent,
+                privacy = privacy,
+                inconvenience = inconvenience,
+                switching = switching,
+                others = others,
+                reason = reason
             )
         )
     }

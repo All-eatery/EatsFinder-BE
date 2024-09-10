@@ -9,12 +9,29 @@ class DeleteUserData(
     @JoinColumn(name = "user_id", nullable = false)
     val userId: User,
 
-    @Column(name = "reason")
-    var reason: String? = null,
+    @Column(name = "user_email")
+    val userEmail: String,
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "reason_type", nullable = false)
-    val reasonType: DeleteUserReason
+    @Column(name = "unavailability")
+    var unavailability: Boolean,
+
+    @Column(name = "infrequent")
+    var infrequent: Boolean,
+
+    @Column(name = "privacy")
+    var privacy: Boolean,
+
+    @Column(name = "inconvenience")
+    var inconvenience: Boolean,
+
+    @Column(name = "switching")
+    var switching: Boolean,
+
+    @Column(name = "others")
+    var others: Boolean,
+
+    @Column(name = "reason")
+    var reason: String? = null
 
 ) {
     @Id

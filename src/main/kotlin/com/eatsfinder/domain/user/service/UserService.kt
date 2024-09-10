@@ -16,7 +16,18 @@ interface UserService {
 
     fun changePassword(req: ChangePasswordRequest, myProfileId: Long)
 
-    fun deleteProfile(myProfileId: Long, req: DeleteReasonRequest, reasonType: DeleteUserReason)
+    fun deleteProfile(
+        myProfileId: Long,
+        email: String,
+        code: String,
+        unavailability: Boolean,
+        infrequent: Boolean,
+        privacy: Boolean,
+        inconvenience: Boolean,
+        switching: Boolean,
+        others: Boolean,
+        reason: String?
+    )
 
     fun getMyFeed(myProfileId: Long) : List<MyFeedResponse>
 

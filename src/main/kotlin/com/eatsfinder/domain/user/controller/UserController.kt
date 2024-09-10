@@ -59,11 +59,18 @@ class UserController(
     @Operation(summary = "탈퇴하기")
     @DeleteMapping
     fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal,
-                      @RequestBody req: DeleteReasonRequest,
-                      @RequestParam reasonType: DeleteUserReason
+                      @RequestParam email : String,
+                      @RequestParam code : String,
+                      @RequestParam unavailability : Boolean,
+                      @RequestParam infrequent : Boolean,
+                      @RequestParam privacy : Boolean,
+                      @RequestParam inconvenience : Boolean,
+                      @RequestParam switching : Boolean,
+                      @RequestParam others : Boolean,
+                      @RequestParam reason : String?,
     ): ResponseEntity<Unit> {
         val myProfileId = userPrincipal.id
-        profileService.deleteProfile(myProfileId, req, reasonType)
+        profileService.deleteProfile(myProfileId, email, code, unavailability, infrequent, privacy, inconvenience, switching, others, reason)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
