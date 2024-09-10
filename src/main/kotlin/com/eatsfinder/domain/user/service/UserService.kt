@@ -2,6 +2,7 @@ package com.eatsfinder.domain.user.service
 
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
+import com.eatsfinder.domain.user.model.DeleteUserReason
 
 interface UserService {
 
@@ -15,7 +16,7 @@ interface UserService {
 
     fun changePassword(req: ChangePasswordRequest, myProfileId: Long)
 
-    fun deleteProfile(myProfileId: Long, email: String, code: String)
+    fun deleteProfile(myProfileId: Long, req: DeleteReasonRequest, reasonType: DeleteUserReason)
 
     fun getMyFeed(myProfileId: Long) : List<MyFeedResponse>
 

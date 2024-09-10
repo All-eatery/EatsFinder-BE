@@ -2,6 +2,7 @@ package com.eatsfinder.domain.user.controller
 
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
+import com.eatsfinder.domain.user.model.DeleteUserReason
 import com.eatsfinder.domain.user.service.UserService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -57,9 +58,12 @@ class UserController(
 
     @Operation(summary = "탈퇴하기")
     @DeleteMapping
-    fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam email: String, @RequestParam code: String): ResponseEntity<Unit> {
+    fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal,
+                      @RequestBody req: DeleteReasonRequest,
+                      @RequestParam reasonType: DeleteUserReason
+    ): ResponseEntity<Unit> {
         val myProfileId = userPrincipal.id
-        profileService.deleteProfile(myProfileId, email, code)
+        profileService.deleteProfile(myProfileId, req, reasonType)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
