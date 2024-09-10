@@ -134,24 +134,26 @@ class UserServiceImpl(
         }
 
         val checkCode = emailRepository.findByCode(req.code)
+            ?: throw OneTimeMoreWriteException("다시 한번 입력해주세요")
+
         when {
-            checkCode == null || !(checkCode.code == req.code && profile.email == checkCode.email && profile.email == req.email) -> throw OneTimeMoreWriteException("다시 한번 입력해주세요")
-            checkCode.expiredAt.isBefore(LocalDateTime.now()) -> throw ExpiredCodeException("인증번호가 만료되었습니다.")
-            !checkCode.complete-> throw NotCheckCompleteException(
-                "인증확인이 되지 않았습니다."
-            )
-            else -> {
-                userRepository.delete(profile)
-                emailUtils.guideEmail(req.email)
-                deleteUserDataRepository.save(
-                    DeleteUserData(
-                        userId = profile,
-                        reason = req.reason,
-                        reasonType = reasonType
-                    )
-                )
-            }
+            checkCode.expiredAt.isBefore(LocalDateTime.now()) ->
+                throw ExpiredCodeException("인증번호가 만료되었습니다.")
+            !checkCode.complete ->
+                throw NotCheckCompleteException("인증확인이 되지 않았습니다.")
+            checkCode.code != req.code || profile.email != checkCode.email || profile.email != req.email ->
+                throw OneTimeMoreWriteException("다시 한번 입력해주세요")
         }
+
+        userRepository.delete(profile)
+        emailUtils.guideEmail(req.email)
+        deleteUserDataRepository.save(
+            DeleteUserData(
+                userId = profile,
+                reason = req.reason,
+                reasonType = reasonType
+            )
+        )
     }
 
     override fun getMyFeed(myProfileId: Long): List<MyFeedResponse> {
