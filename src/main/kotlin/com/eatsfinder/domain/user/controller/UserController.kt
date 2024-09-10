@@ -1,8 +1,9 @@
 package com.eatsfinder.domain.user.controller
 
-import com.eatsfinder.domain.user.dto.profile.*
-import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
-import com.eatsfinder.domain.user.service.ProfileService
+import com.eatsfinder.domain.user.dto.user.*
+import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
+import com.eatsfinder.domain.user.model.DeleteUserReason
+import com.eatsfinder.domain.user.service.UserService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
@@ -14,24 +15,25 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
 
 @RestController
-class ProfileController(
-    private val profileService: ProfileService
+@RequestMapping("/users")
+class UserController(
+    private val profileService: UserService
 ) {
     @Operation(summary = "본인 프로필 조회하기")
-    @GetMapping("/my-profile")
+    @GetMapping
     fun getMyProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<MyProfileResponse> {
         val myProfileId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyProfile(myProfileId))
     }
 
     @Operation(summary = "다른 유저 프로필 조회하기")
-    @GetMapping("/profile/{profileId}")
-    fun profileViewedByOthers(@PathVariable profileId: Long): ResponseEntity<ProfileViewedByOthersResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.profileViewedByOthers(profileId))
+    @GetMapping("/{otherProfileId}")
+    fun profileViewedByOthers(@PathVariable otherProfileId: Long): ResponseEntity<ProfileViewedByOthersResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.profileViewedByOthers(otherProfileId))
     }
 
     @Operation(summary = "본인 프로필 수정하기")
-    @PatchMapping("/my-profile", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PatchMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun updateProfile(@ModelAttribute req: UpdateProfileRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.updateProfile(req, myProfileId)
@@ -39,7 +41,7 @@ class ProfileController(
     }
 
     @Operation(summary = "프로필 이미지 삭제하기 : 기본 프로필로 전환")
-    @PutMapping("/my-profile/default-images")
+    @PutMapping("/default-image")
     fun defaultProfileImage(@AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.defaultProfileImage(myProfileId)
@@ -47,7 +49,7 @@ class ProfileController(
     }
 
     @Operation(summary = "비밀번호 재설정")
-    @PutMapping("/my-profile/new-password")
+    @PutMapping("/new-password")
     fun changePassword(@RequestBody @Valid req: ChangePasswordRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.changePassword(req, myProfileId)
@@ -55,22 +57,25 @@ class ProfileController(
     }
 
     @Operation(summary = "탈퇴하기")
-    @DeleteMapping("/my-profile")
-    fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal, @RequestParam email: String, @RequestParam code: String): ResponseEntity<Unit> {
+    @DeleteMapping
+    fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal,
+                      @RequestBody req: DeleteReasonRequest,
+                      @RequestParam reasonType: DeleteUserReason
+    ): ResponseEntity<Unit> {
         val myProfileId = userPrincipal.id
-        profileService.deleteProfile(myProfileId, email, code)
+        profileService.deleteProfile(myProfileId, req, reasonType)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
     @Operation(summary = "내 피드 조회하기")
-    @GetMapping("/my-feed")
+    @GetMapping("/feeds")
     fun getMyFeed(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyFeedResponse>> {
         val myProfileId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyFeed(myProfileId))
     }
 
     @Operation(summary = "내 활동 조회하기")
-    @GetMapping("/my-active")
+    @GetMapping("/actives")
     fun getMyActive(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyActiveResponse>> {
         val myProfileId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyActive(myProfileId))

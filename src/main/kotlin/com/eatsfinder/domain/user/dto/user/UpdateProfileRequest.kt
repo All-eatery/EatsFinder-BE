@@ -1,4 +1,4 @@
-package com.eatsfinder.domain.user.dto.profile
+package com.eatsfinder.domain.user.dto.user
 
 import org.springframework.web.multipart.MultipartFile
 

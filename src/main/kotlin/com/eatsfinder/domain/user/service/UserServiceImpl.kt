@@ -3,9 +3,12 @@ package com.eatsfinder.domain.user.service
 import com.eatsfinder.domain.email.repository.EmailRepository
 import com.eatsfinder.domain.email.service.EmailUtils
 import com.eatsfinder.domain.post.repository.PostRepository
-import com.eatsfinder.domain.user.dto.profile.*
-import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
+import com.eatsfinder.domain.user.dto.user.*
+import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
+import com.eatsfinder.domain.user.model.DeleteUserData
 import com.eatsfinder.domain.user.model.SocialType
+import com.eatsfinder.domain.user.model.DeleteUserReason
+import com.eatsfinder.domain.user.repository.DeleteUserDataRepository
 import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.aws.AwsS3Service
@@ -13,10 +16,7 @@ import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.email.ExpiredCodeException
 import com.eatsfinder.global.exception.email.NotCheckCompleteException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
-import com.eatsfinder.global.exception.profile.AlreadyDefaultProfileImageException
-import com.eatsfinder.global.exception.profile.ImmutableUserException
-import com.eatsfinder.global.exception.profile.MyProfileException
-import com.eatsfinder.global.exception.profile.WrongPasswordException
+import com.eatsfinder.global.exception.profile.*
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -25,15 +25,16 @@ import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @Service
-class ProfileServiceImpl(
+class UserServiceImpl(
     private val userRepository: UserRepository,
     private val emailRepository: EmailRepository,
     private val passwordEncoder: PasswordEncoder,
     private val postRepository: PostRepository,
     private val userLogRepository: UserLogRepository,
+    private val deleteUserDataRepository: DeleteUserDataRepository,
     private val emailUtils: EmailUtils,
     private val awsService: AwsS3Service
-) : ProfileService {
+) : UserService {
 
     @Transactional(readOnly = true)
     override fun getMyProfile(myProfileId: Long): MyProfileResponse {
@@ -46,10 +47,10 @@ class ProfileServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun profileViewedByOthers(profileId: Long): ProfileViewedByOthersResponse {
-        val profile = userRepository.findByIdAndDeletedAt(profileId, null) ?: throw ModelNotFoundException(
+    override fun profileViewedByOthers(otherProfileId: Long): ProfileViewedByOthersResponse {
+        val profile = userRepository.findByIdAndDeletedAt(otherProfileId, null) ?: throw ModelNotFoundException(
             "user",
-            "이 프로필(id: ${profileId})은 존재하지 않습니다."
+            "이 프로필(id: ${otherProfileId})은 존재하지 않습니다."
         )
         val postCount = postRepository.findByUserId(profile)?.size ?: 0
 
@@ -123,24 +124,36 @@ class ProfileServiceImpl(
         }
     }
 
-    override fun deleteProfile(myProfileId: Long, email: String, code: String) {
+    override fun deleteProfile(myProfileId: Long, req: DeleteReasonRequest, reasonType: DeleteUserReason) {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
-
-        val checkCode = emailRepository.findByCode(code)
-        when {
-            checkCode == null || !(checkCode.code == code && profile.email == checkCode.email && profile.email == email) -> throw OneTimeMoreWriteException("다시 한번 입력해주세요")
-            checkCode.expiredAt.isBefore(LocalDateTime.now()) -> throw ExpiredCodeException("인증번호가 만료되었습니다.")
-            !checkCode.complete-> throw NotCheckCompleteException(
-                "인증확인이 되지 않았습니다."
-            )
-            else -> {
-                userRepository.delete(profile)
-                emailUtils.guideEmail(email)
-            }
+        if (reasonType.name == DeleteUserReason.OTHERS.name && req.reason == null){
+            throw EnterAddInfoException("기타 사유를 입력해주세요")
         }
+
+        val checkCode = emailRepository.findByCode(req.code)
+            ?: throw OneTimeMoreWriteException("다시 한번 입력해주세요")
+
+        when {
+            checkCode.expiredAt.isBefore(LocalDateTime.now()) ->
+                throw ExpiredCodeException("인증번호가 만료되었습니다.")
+            !checkCode.complete ->
+                throw NotCheckCompleteException("인증확인이 되지 않았습니다.")
+            checkCode.code != req.code || profile.email != checkCode.email || profile.email != req.email ->
+                throw OneTimeMoreWriteException("다시 한번 입력해주세요")
+        }
+
+        userRepository.delete(profile)
+        emailUtils.guideEmail(req.email)
+        deleteUserDataRepository.save(
+            DeleteUserData(
+                userId = profile,
+                reason = req.reason,
+                reasonType = reasonType
+            )
+        )
     }
 
     override fun getMyFeed(myProfileId: Long): List<MyFeedResponse> {
@@ -162,6 +175,5 @@ class ProfileServiceImpl(
         } else {
             emptyList()
         }
-//        return userLogRepository.findByUserId(profile)!!.map { MyActiveResponse.from(it) }
     }
 }

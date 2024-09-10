@@ -1,11 +1,10 @@
 package com.eatsfinder.domain.comment.service
 
 import com.eatsfinder.domain.comment.dto.CommentRequest
-import com.eatsfinder.domain.comment.dto.CommentResponse
-import com.eatsfinder.domain.comment.dto.CommentResponse.Companion.from
+import com.eatsfinder.domain.comment.dto.CommentsResponse
+import com.eatsfinder.domain.comment.dto.CommentsResponse.Companion.from
 import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.comment.repository.CommentRepository
-import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
@@ -26,13 +25,16 @@ class CommentServiceImpl(
 ) : CommentService {
 
     @Transactional(readOnly = true)
-    override fun getCommentList(postId: Long, userId: UserPrincipal?): List<CommentResponse> {
+    override fun getCommentList(postId: Long, userId: UserPrincipal?): CommentsResponse {
         val post = postRepository.findByIdAndDeletedAt(postId, null) ?: throw ModelNotFoundException(
             "post",
             "이 게시물 아이디: (${postId})는 존재하지 않습니다."
         )
 
-        return commentRepository.findByPostIdAndDeletedAt(post, null).map { from(it, userId) }
+        val commentCount = commentRepository.countByPostIdAndDeletedAt(post, null) ?: 0
+        val comments = commentRepository.findByPostIdAndDeletedAt(post, null)
+
+        return from(comments, userId, commentCount)
     }
 
     @Transactional
@@ -59,6 +61,22 @@ class CommentServiceImpl(
             )
         )
         return "댓글이 작성되었습니다!"
+    }
+
+    @Transactional
+    override fun updateComment(req: CommentRequest, userId: Long, commentId: Long): String {
+        val comment = commentRepository.findByIdAndDeletedAt(commentId, null) ?: throw ModelNotFoundException(
+            "comment",
+            "이 댓글(${commentId})은 존재하지 않습니다."
+        )
+
+        if (comment.userId.id != userId) {
+            throw ImmutableUserException("이 댓글을 수정할 권한이 없습니다.")
+        }
+
+        comment.content = req.content
+        commentRepository.save(comment)
+        return "댓글이 수정되었습니다!"
     }
 
     @Transactional

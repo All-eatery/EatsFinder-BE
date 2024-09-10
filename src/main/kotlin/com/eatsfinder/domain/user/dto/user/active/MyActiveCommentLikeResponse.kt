@@ -1,4 +1,4 @@
-package com.eatsfinder.domain.user.dto.profile.myactive
+package com.eatsfinder.domain.user.dto.user.active
 
 data class MyActiveCommentLikeResponse(
     val postId: Long?,

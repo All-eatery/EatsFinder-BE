@@ -1,6 +1,6 @@
 package com.eatsfinder.domain.like.service
 
-import com.eatsfinder.domain.like.dto.PostLikeResponse
+import com.eatsfinder.domain.like.dto.PostLikesResponse
 
 interface PostLikeService {
 
@@ -8,5 +8,5 @@ interface PostLikeService {
 
     fun deletePostLikes(userId: Long, postId: Long)
 
-    fun getPostLikes(userId: Long): List<PostLikeResponse>
+    fun getPostLikes(userId: Long): PostLikesResponse
 }

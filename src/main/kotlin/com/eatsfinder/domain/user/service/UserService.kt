@@ -1,13 +1,14 @@
 package com.eatsfinder.domain.user.service
 
-import com.eatsfinder.domain.user.dto.profile.*
-import com.eatsfinder.domain.user.dto.profile.myactive.MyActiveResponse
+import com.eatsfinder.domain.user.dto.user.*
+import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
+import com.eatsfinder.domain.user.model.DeleteUserReason
 
-interface ProfileService {
+interface UserService {
 
     fun getMyProfile(myProfileId: Long): MyProfileResponse
 
-    fun profileViewedByOthers(profileId: Long): ProfileViewedByOthersResponse
+    fun profileViewedByOthers(otherProfileId: Long): ProfileViewedByOthersResponse
 
     fun updateProfile(req: UpdateProfileRequest, myProfileId: Long)
 
@@ -15,7 +16,7 @@ interface ProfileService {
 
     fun changePassword(req: ChangePasswordRequest, myProfileId: Long)
 
-    fun deleteProfile(myProfileId: Long, email: String, code: String)
+    fun deleteProfile(myProfileId: Long, req: DeleteReasonRequest, reasonType: DeleteUserReason)
 
     fun getMyFeed(myProfileId: Long) : List<MyFeedResponse>
 

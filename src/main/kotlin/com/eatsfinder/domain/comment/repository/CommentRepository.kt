@@ -10,4 +10,6 @@ interface CommentRepository : JpaRepository<Comment, Long> {
     fun findByPostIdAndDeletedAt(postId: Post, deleteAt: LocalDateTime?): List<Comment>
 
     fun findByIdAndDeletedAt(id: Long, deleteAt: LocalDateTime?): Comment?
+
+    fun countByPostIdAndDeletedAt(postId: Post, deleteAt: LocalDateTime?): Int?
 }

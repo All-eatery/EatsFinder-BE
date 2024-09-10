@@ -1,4 +1,4 @@
-package com.eatsfinder.domain.user.dto.profile
+package com.eatsfinder.domain.user.dto.user
 
 import com.fasterxml.jackson.annotation.JsonProperty
 import jakarta.validation.constraints.NotBlank

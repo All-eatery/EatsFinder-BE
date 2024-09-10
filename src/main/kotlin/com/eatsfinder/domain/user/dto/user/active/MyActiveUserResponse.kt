@@ -1,4 +1,4 @@
-package com.eatsfinder.domain.user.dto.profile.myactive
+package com.eatsfinder.domain.user.dto.user.active
 
 data class MyActiveUserResponse(
     val userNickname: String,

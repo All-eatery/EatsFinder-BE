@@ -1,6 +1,6 @@
 package com.eatsfinder.domain.like.controller
 
-import com.eatsfinder.domain.like.dto.PostLikeResponse
+import com.eatsfinder.domain.like.dto.PostLikesResponse
 import com.eatsfinder.domain.like.service.PostLikeService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -21,7 +21,7 @@ class PostLikeController(
 
     @Operation(summary = "좋아요한 게시물 조회하기")
     @GetMapping("/post-likes")
-    fun getPostLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<PostLikeResponse>> {
+    fun getPostLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<PostLikesResponse> {
         val userId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(postLikeService.getPostLikes(userId))
     }
@@ -31,7 +31,7 @@ class PostLikeController(
     fun createPostLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam postId: Long
-    ): BaseResponse<PostLikeResponse> {
+    ): BaseResponse<PostLikesResponse> {
         val userId = userPrincipal.id
         postLikeService.createPostLikes(userId, postId)
         return BaseResponse(message = "좋아요를 눌렸습니다.")
@@ -42,7 +42,7 @@ class PostLikeController(
     fun deletePostLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam postId: Long
-    ): BaseResponse<PostLikeResponse> {
+    ): BaseResponse<PostLikesResponse> {
         val userId = userPrincipal.id
         postLikeService.deletePostLikes(userId, postId)
         return BaseResponse(message = "좋아요가 취소됐습니다.")

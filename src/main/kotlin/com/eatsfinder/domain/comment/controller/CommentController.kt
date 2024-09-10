@@ -1,7 +1,7 @@
 package com.eatsfinder.domain.comment.controller
 
 import com.eatsfinder.domain.comment.dto.CommentRequest
-import com.eatsfinder.domain.comment.dto.CommentResponse
+import com.eatsfinder.domain.comment.dto.CommentsResponse
 import com.eatsfinder.domain.comment.service.CommentService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -18,7 +18,7 @@ class CommentController(
 
     @Operation(summary = "댓글 전체 조회")
     @GetMapping("/posts/{postId}/comments")
-    fun getCommentList(@PathVariable postId: Long, @AuthenticationPrincipal userPrincipal: UserPrincipal?): ResponseEntity<List<CommentResponse>> {
+    fun getCommentList(@PathVariable postId: Long, @AuthenticationPrincipal userPrincipal: UserPrincipal?): ResponseEntity<CommentsResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentList(postId, userPrincipal))
     }
 
@@ -31,6 +31,18 @@ class CommentController(
     ): BaseResponse<String> {
         val userId = userPrincipal.id
         val message = commentService.createComment(postId, req, userId)
+        return BaseResponse(message = message)
+    }
+
+    @Operation(summary = "댓글 수정")
+    @PutMapping("/comments/{commentId}")
+    fun updateComment(
+        @PathVariable commentId: Long,
+        @RequestBody req: CommentRequest,
+        @AuthenticationPrincipal userPrincipal: UserPrincipal
+    ): BaseResponse<String> {
+        val userId = userPrincipal.id
+        val message = commentService.updateComment(req, userId, commentId)
         return BaseResponse(message = message)
     }
 

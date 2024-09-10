@@ -1,4 +1,4 @@
-package com.eatsfinder.domain.user.dto.profile
+package com.eatsfinder.domain.user.dto.user
 
 import com.eatsfinder.domain.post.model.Post
 import java.time.format.DateTimeFormatter
