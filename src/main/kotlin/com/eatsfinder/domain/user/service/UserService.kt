@@ -29,6 +29,8 @@ interface UserService {
         reason: String?
     )
 
+    fun cancelWithdrawal(myProfileId: Long)
+
     fun getMyFeed(myProfileId: Long) : List<MyFeedResponse>
 
     fun getMyActive(myProfileId: Long): List<MyActiveResponse>

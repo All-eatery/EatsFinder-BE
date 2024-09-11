@@ -18,6 +18,7 @@ import com.eatsfinder.global.exception.email.NotCheckCompleteException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
 import com.eatsfinder.global.exception.profile.*
 import com.eatsfinder.global.security.jwt.UserPrincipal
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
@@ -132,6 +133,7 @@ class UserServiceImpl(
         }
     }
 
+    @Transactional
     override fun deleteProfile(
         myProfileId: Long,
         email: String,
@@ -150,6 +152,10 @@ class UserServiceImpl(
         )
         if (others && reason == null){
             throw EnterAddInfoException("기타 사유를 입력해주세요")
+        }
+
+        if (!unavailability && !infrequent && !privacy && !inconvenience && !switching && !others) {
+            throw EnterAddInfoException("탈퇴 사유를 하나 이상 선택해주세요.")
         }
 
         val checkCode = emailRepository.findByCode(code)
@@ -179,6 +185,25 @@ class UserServiceImpl(
                 reason = reason
             )
         )
+    }
+
+    @Transactional
+    override fun cancelWithdrawal(myProfileId: Long) {
+        val profile = userRepository.findByIdOrNull(myProfileId) ?: throw ModelNotFoundException(
+            "user",
+            "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
+        )
+        if (profile.deletedAt == null)  throw NoCancelWithdrawalException("탈퇴 처리가 된 유저가 아니므로 탈퇴 철회가 불가합니다.")
+
+        val limitTime = profile.deletedAt?.plusDays(7)
+
+        if(LocalDateTime.now().isBefore(limitTime)){
+            profile.deletedAt = null
+            userRepository.save(profile)
+        } else {
+            throw NoCancelWithdrawalException("7일이 지나 탈퇴 철회가 불가합니다.")
+        }
+
     }
 
     override fun getMyFeed(myProfileId: Long): List<MyFeedResponse> {

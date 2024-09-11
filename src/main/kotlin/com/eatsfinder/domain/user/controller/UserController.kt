@@ -74,6 +74,14 @@ class UserController(
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
     }
 
+    @Operation(summary = "탈퇴 철회하기")
+    @PutMapping
+    fun cancelWithdrawal(@AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
+        val myProfileId = userPrincipal.id
+        profileService.cancelWithdrawal(myProfileId)
+        return BaseResponse(message = "탈퇴 철회가 완료되었습니다.")
+    }
+
     @Operation(summary = "내 피드 조회하기")
     @GetMapping("/feeds")
     fun getMyFeed(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyFeedResponse>> {
