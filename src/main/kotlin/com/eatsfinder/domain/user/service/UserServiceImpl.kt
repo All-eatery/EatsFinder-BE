@@ -157,10 +157,10 @@ class UserServiceImpl(
             throw WithdrawalReasonException("탈퇴 사유를 하나 이상 선택해주세요.")
         }
 
-        val checkEmail = emailRepository.findEmailByEmail(email) ?: throw NoMatchEmailException("해당된 이메일이 아닙니다.")
+        val checkEmail = emailRepository.findEmailByEmail(email)
 
         when {
-            profile.email != email || checkEmail.email != email ->
+            checkEmail == null || profile.email != email ->
                 throw NoMatchEmailException("해당된 이메일이 아닙니다.")
             !checkEmail.complete ->
                 throw NotCheckCompleteException("인증확인이 되지 않았습니다.")
