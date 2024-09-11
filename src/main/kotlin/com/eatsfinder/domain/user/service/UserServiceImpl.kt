@@ -209,6 +209,21 @@ class UserServiceImpl(
         return postRepository.findByUserId(profile)!!.map { MyFeedResponse.from(it) }
     }
 
+    override fun getOtherPeopleFeed(otherProfileId: Long): List<OtherPeopleFeedResponse> {
+        val profile = userRepository.findByIdAndDeletedAt(otherProfileId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 프로필은(id: ${otherProfileId})은 존재하지 않습니다."
+        )
+
+        val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
+
+        if (userPrincipal != null && profile.id == userPrincipal.id) {
+            throw MyProfileException("본인 피드이므로 조회할 수 없습니다.")
+        }
+
+        return postRepository.findByUserId(profile)!!.map { OtherPeopleFeedResponse.from(it) }
+    }
+
     override fun getMyActive(myProfileId: Long): List<MyActiveResponse> {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
             "user",

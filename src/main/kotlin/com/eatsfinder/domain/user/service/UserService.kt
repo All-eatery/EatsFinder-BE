@@ -31,5 +31,8 @@ interface UserService {
 
     fun getMyFeed(myProfileId: Long) : List<MyFeedResponse>
 
+
+    fun getOtherPeopleFeed(otherProfileId: Long) : List<OtherPeopleFeedResponse>
+
     fun getMyActive(myProfileId: Long): List<MyActiveResponse>
 }

@@ -87,6 +87,12 @@ class UserController(
         return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyFeed(myProfileId))
     }
 
+    @Operation(summary = "다른 사람 피드 조회하기")
+    @GetMapping("/feeds/{otherProfileId}")
+    fun getMyFeed(@PathVariable otherProfileId: Long): ResponseEntity<List<OtherPeopleFeedResponse>> {
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getOtherPeopleFeed(otherProfileId))
+    }
+
     @Operation(summary = "내 활동 조회하기")
     @GetMapping("/actives")
     fun getMyActive(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyActiveResponse>> {
