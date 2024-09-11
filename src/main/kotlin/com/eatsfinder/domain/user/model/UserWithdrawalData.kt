@@ -4,8 +4,8 @@ import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 
 @Entity
-@Table(name = "delete_user_data")
-class DeleteUserData(
+@Table(name = "user_withdrawal_data")
+class UserWithdrawalData(
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     val userId: User,

@@ -5,7 +5,7 @@ import com.eatsfinder.domain.email.service.EmailUtils
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
-import com.eatsfinder.domain.user.model.DeleteUserData
+import com.eatsfinder.domain.user.model.UserWithdrawalData
 import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.repository.DeleteUserDataRepository
 import com.eatsfinder.domain.user.repository.UserLogRepository
@@ -168,7 +168,7 @@ class UserServiceImpl(
         userRepository.delete(profile)
         emailUtils.guideEmail(profile.email)
         deleteUserDataRepository.save(
-            DeleteUserData(
+            UserWithdrawalData(
                 userId = profile,
                 userEmail = profile.email,
                 unavailability = unavailability,
