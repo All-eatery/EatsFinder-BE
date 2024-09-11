@@ -59,12 +59,12 @@ class UserController(
     @DeleteMapping
     fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal,
                       @RequestParam email : String,
-                      @RequestParam unavailability : Boolean,
-                      @RequestParam infrequent : Boolean,
-                      @RequestParam privacy : Boolean,
-                      @RequestParam inconvenience : Boolean,
-                      @RequestParam switching : Boolean,
-                      @RequestParam others : Boolean,
+                      @RequestParam (required = false) unavailability : Boolean,
+                      @RequestParam (required = false) infrequent : Boolean,
+                      @RequestParam (required = false) privacy : Boolean,
+                      @RequestParam (required = false) inconvenience : Boolean,
+                      @RequestParam (required = false) switching : Boolean,
+                      @RequestParam (required = false) others : Boolean,
                       @RequestParam reason : String?,
     ): ResponseEntity<Unit> {
         val myProfileId = userPrincipal.id
