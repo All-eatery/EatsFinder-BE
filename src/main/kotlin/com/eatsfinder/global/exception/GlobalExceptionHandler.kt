@@ -96,4 +96,10 @@ class GlobalExceptionHandler {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
+
+    @ExceptionHandler(NoChangeNicknameAtException::class)
+    protected fun noChangeNicknameAtException(ex: NoChangeNicknameAtException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
 }

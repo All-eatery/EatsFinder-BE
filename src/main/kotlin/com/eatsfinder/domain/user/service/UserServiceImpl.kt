@@ -79,6 +79,14 @@ class UserServiceImpl(
         }
 
         profile.nickname = req.nickname ?: profile.nickname
+        if (profile.nickname == req.nickname) {
+            if (profile.nicknameLimitAt == null || profile.nicknameLimitAt!!.isBefore(LocalDateTime.now())) {
+                profile.nicknameLimitAt = LocalDateTime.now().plusDays(7)
+                userRepository.save(profile)
+            } else {
+                throw NoChangeNicknameAtException("닉네임을 변경한 직후부터 일주일 동안은 다시 변경할 수 없습니다.")
+            }
+        }
         profile.phoneNumber = req.phoneNumber ?: profile.phoneNumber
         userRepository.save(profile)
     }
