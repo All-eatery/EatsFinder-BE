@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.user.model
 
 import jakarta.persistence.*
+import org.hibernate.annotations.ColumnDefault
 
 @Entity
 @Table(name = "delete_user_data")
@@ -12,23 +13,29 @@ class DeleteUserData(
     @Column(name = "user_email")
     val userEmail: String,
 
+    @ColumnDefault("false")
     @Column(name = "unavailability")
-    var unavailability: Boolean,
+    var unavailability: Boolean = false,
 
+    @ColumnDefault("false")
     @Column(name = "infrequent")
-    var infrequent: Boolean,
+    var infrequent: Boolean = false,
 
+    @ColumnDefault("false")
     @Column(name = "privacy")
-    var privacy: Boolean,
+    var privacy: Boolean = false,
 
+    @ColumnDefault("false")
     @Column(name = "inconvenience")
-    var inconvenience: Boolean,
+    var inconvenience: Boolean = false,
 
+    @ColumnDefault("false")
     @Column(name = "switching")
-    var switching: Boolean,
+    var switching: Boolean = false,
 
+    @ColumnDefault("false")
     @Column(name = "others")
-    var others: Boolean,
+    var others: Boolean = false,
 
     @Column(name = "reason")
     var reason: String? = null

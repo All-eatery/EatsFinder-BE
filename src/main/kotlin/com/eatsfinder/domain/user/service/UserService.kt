@@ -18,7 +18,6 @@ interface UserService {
     fun deleteProfile(
         myProfileId: Long,
         email: String,
-        code: String,
         unavailability: Boolean,
         infrequent: Boolean,
         privacy: Boolean,

@@ -13,6 +13,7 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.aws.AwsS3Service
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.email.ExpiredCodeException
+import com.eatsfinder.global.exception.email.NoMatchEmailException
 import com.eatsfinder.global.exception.email.NotCheckCompleteException
 import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
 import com.eatsfinder.global.exception.profile.*
@@ -136,7 +137,6 @@ class UserServiceImpl(
     override fun deleteProfile(
         myProfileId: Long,
         email: String,
-        code: String,
         unavailability: Boolean,
         infrequent: Boolean,
         privacy: Boolean,
@@ -157,20 +157,17 @@ class UserServiceImpl(
             throw WithdrawalReasonException("탈퇴 사유를 하나 이상 선택해주세요.")
         }
 
-        val checkCode = emailRepository.findByCode(code)
-            ?: throw OneTimeMoreWriteException("다시 한번 입력해주세요")
+        val checkEmail = emailRepository.findEmailByEmail(email) ?: throw NoMatchEmailException("해당된 이메일이 아닙니다.")
 
         when {
-            checkCode.expiredAt.isBefore(LocalDateTime.now()) ->
-                throw ExpiredCodeException("인증번호가 만료되었습니다.")
-            !checkCode.complete ->
+            profile.email != email || checkEmail.email != email ->
+                throw NoMatchEmailException("해당된 이메일이 아닙니다.")
+            !checkEmail.complete ->
                 throw NotCheckCompleteException("인증확인이 되지 않았습니다.")
-            checkCode.code != code || profile.email != checkCode.email || profile.email != email ->
-                throw OneTimeMoreWriteException("다시 한번 입력해주세요")
         }
 
         userRepository.delete(profile)
-        emailUtils.guideEmail(email)
+        emailUtils.guideEmail(profile.email)
         deleteUserDataRepository.save(
             DeleteUserData(
                 userId = profile,

@@ -30,6 +30,12 @@ class GlobalExceptionHandler {
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(NoMatchEmailException::class)
+    protected fun noMatchEmailException(ex: NoMatchEmailException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
     @ExceptionHandler(OneTimeMoreWriteException::class)
     protected fun expiredCodeException(ex: OneTimeMoreWriteException): ResponseEntity<BaseResponse<Map<String, String>>> {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
