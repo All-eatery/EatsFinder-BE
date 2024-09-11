@@ -30,6 +30,12 @@ class GlobalExceptionHandler {
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
 
+    @ExceptionHandler(NoMatchEmailException::class)
+    protected fun noMatchEmailException(ex: NoMatchEmailException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
     @ExceptionHandler(OneTimeMoreWriteException::class)
     protected fun expiredCodeException(ex: OneTimeMoreWriteException): ResponseEntity<BaseResponse<Map<String, String>>> {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
@@ -91,8 +97,20 @@ class GlobalExceptionHandler {
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
 
-    @ExceptionHandler(EnterAddInfoException::class)
-    protected fun enterAddInfoException(ex: EnterAddInfoException): ResponseEntity<BaseResponse<Map<String, String>>> {
+    @ExceptionHandler(WithdrawalReasonException::class)
+    protected fun withdrawalReasonException(ex: WithdrawalReasonException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(NoChangeNicknameAtException::class)
+    protected fun noChangeNicknameAtException(ex: NoChangeNicknameAtException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(NoCancelWithdrawalException::class)
+    protected fun noCancelWithdrawalException(ex: NoCancelWithdrawalException): ResponseEntity<BaseResponse<Map<String, String>>> {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }

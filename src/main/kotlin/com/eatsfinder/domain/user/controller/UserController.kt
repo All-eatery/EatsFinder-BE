@@ -2,7 +2,6 @@ package com.eatsfinder.domain.user.controller
 
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
-import com.eatsfinder.domain.user.model.DeleteUserReason
 import com.eatsfinder.domain.user.service.UserService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -59,12 +58,26 @@ class UserController(
     @Operation(summary = "탈퇴하기")
     @DeleteMapping
     fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal,
-                      @RequestBody req: DeleteReasonRequest,
-                      @RequestParam reasonType: DeleteUserReason
+                      @RequestParam email : String,
+                      @RequestParam unavailability : Boolean,
+                      @RequestParam infrequent : Boolean,
+                      @RequestParam privacy : Boolean,
+                      @RequestParam inconvenience : Boolean,
+                      @RequestParam switching : Boolean,
+                      @RequestParam others : Boolean,
+                      @RequestParam reason : String?,
     ): ResponseEntity<Unit> {
         val myProfileId = userPrincipal.id
-        profileService.deleteProfile(myProfileId, req, reasonType)
+        profileService.deleteProfile(myProfileId, email, unavailability, infrequent, privacy, inconvenience, switching, others, reason)
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+    }
+
+    @Operation(summary = "탈퇴 철회하기")
+    @PutMapping
+    fun cancelWithdrawal(@AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
+        val myProfileId = userPrincipal.id
+        profileService.cancelWithdrawal(myProfileId)
+        return BaseResponse(message = "탈퇴 철회가 완료되었습니다.")
     }
 
     @Operation(summary = "내 피드 조회하기")

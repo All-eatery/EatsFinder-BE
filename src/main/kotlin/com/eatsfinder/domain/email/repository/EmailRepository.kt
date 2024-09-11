@@ -14,5 +14,5 @@ interface EmailRepository : JpaRepository<Email, Long> {
 
     fun findByCode(code: String): Email?
 
-    fun findByCodeAndComplete(code: String, complete: Boolean): Email?
+    fun findEmailByEmail(email: String): Email?
 }

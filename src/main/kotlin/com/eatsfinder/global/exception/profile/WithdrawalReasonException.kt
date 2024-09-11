@@ -1,6 +1,6 @@
 package com.eatsfinder.global.exception.profile
 
-class EnterAddInfoException(
+class WithdrawalReasonException(
     val fieldName: String,
     message: String = "EnterAddInfo"
 ) : RuntimeException(message)
