@@ -7,7 +7,6 @@ import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
 import com.eatsfinder.domain.user.model.DeleteUserData
 import com.eatsfinder.domain.user.model.SocialType
-import com.eatsfinder.domain.user.model.DeleteUserReason
 import com.eatsfinder.domain.user.repository.DeleteUserDataRepository
 import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository

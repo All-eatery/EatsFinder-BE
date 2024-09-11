@@ -2,7 +2,6 @@ package com.eatsfinder.domain.user.service
 
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
-import com.eatsfinder.domain.user.model.DeleteUserReason
 
 interface UserService {
 

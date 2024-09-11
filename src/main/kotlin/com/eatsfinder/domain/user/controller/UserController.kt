@@ -2,7 +2,6 @@ package com.eatsfinder.domain.user.controller
 
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
-import com.eatsfinder.domain.user.model.DeleteUserReason
 import com.eatsfinder.domain.user.service.UserService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
