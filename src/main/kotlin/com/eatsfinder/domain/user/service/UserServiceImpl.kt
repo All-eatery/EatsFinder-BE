@@ -150,11 +150,11 @@ class UserServiceImpl(
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
         if (others && reason == null){
-            throw EnterAddInfoException("기타 사유를 입력해주세요")
+            throw WithdrawalReasonException("기타 사유를 입력해주세요")
         }
 
         if (!unavailability && !infrequent && !privacy && !inconvenience && !switching && !others) {
-            throw EnterAddInfoException("탈퇴 사유를 하나 이상 선택해주세요.")
+            throw WithdrawalReasonException("탈퇴 사유를 하나 이상 선택해주세요.")
         }
 
         val checkCode = emailRepository.findByCode(code)
