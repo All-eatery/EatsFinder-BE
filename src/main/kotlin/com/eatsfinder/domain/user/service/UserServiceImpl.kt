@@ -12,10 +12,8 @@ import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.aws.AwsS3Service
 import com.eatsfinder.global.exception.ModelNotFoundException
-import com.eatsfinder.global.exception.email.ExpiredCodeException
 import com.eatsfinder.global.exception.email.NoMatchEmailException
 import com.eatsfinder.global.exception.email.NotCheckCompleteException
-import com.eatsfinder.global.exception.email.OneTimeMoreWriteException
 import com.eatsfinder.global.exception.profile.*
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import org.springframework.data.repository.findByIdOrNull
@@ -23,6 +21,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service
@@ -81,8 +80,8 @@ class UserServiceImpl(
 
         profile.nickname = req.nickname ?: profile.nickname
         if (profile.nickname == req.nickname) {
-            if (profile.nicknameLimitAt == null || profile.nicknameLimitAt!!.isBefore(LocalDateTime.now())) {
-                profile.nicknameLimitAt = LocalDateTime.now().plusDays(7)
+            if (profile.nicknameLimitAt == null || profile.nicknameLimitAt!!.isBefore(LocalDate.now())) {
+                profile.nicknameLimitAt = LocalDate.now().plusDays(7)
                 userRepository.save(profile)
             } else {
                 throw NoChangeNicknameAtException("닉네임을 변경한 직후부터 일주일 동안은 다시 변경할 수 없습니다.")

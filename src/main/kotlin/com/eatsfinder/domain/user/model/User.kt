@@ -4,6 +4,7 @@ import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import org.hibernate.annotations.SQLDelete
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
@@ -54,8 +55,8 @@ class User(
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
 
-    @Column(columnDefinition = "TIMESTAMP(6)", name = "nickname_limit_at")
-    var nicknameLimitAt: LocalDateTime? = LocalDateTime.now()
+    @Column(columnDefinition = "DATE", name = "nickname_limit_at")
+    var nicknameLimitAt: LocalDate? = LocalDate.now()
 
     companion object{
         fun ofKakao(nickname: String, email: String, profileImage: String): User {
