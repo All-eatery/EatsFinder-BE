@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter
 data class OtherPeopleFeedResponse(
     val thumbnailUrl: String,
     val placeName: String,
-    val content: String,
+    val content: String?,
     val createdAt: String
 ) {
     companion object {
