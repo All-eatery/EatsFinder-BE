@@ -3,8 +3,8 @@ import { ApiTags, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { UsersSocialType } from '@prisma/client';
 import { AuthService } from '../service/auth.service';
 import { CreateUserRequestDto, LoginUserRequestDto } from '../../../global/dto';
-import { LocalAuthGuard } from '../guard/local-auth.guard';
-import { NaverAuthGuard } from '../guard/naver-auth.guard';
+import { LocalAuthGuard } from '../../../global/guard/local-auth.guard';
+import { NaverAuthGuard } from '../../../global/guard/naver-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
