@@ -4,6 +4,7 @@ plugins {
 	kotlin("plugin.jpa") version "1.9.24"
 	kotlin("jvm") version "1.9.24"
 	kotlin("plugin.spring") version "1.9.24"
+	kotlin("kapt") version "1.8.22"
 }
 
 noArg {
@@ -31,6 +32,9 @@ java {
 repositories {
 	mavenCentral()
 }
+
+val queryDslVersion = "5.0.0"
+
 
 dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
@@ -67,6 +71,10 @@ dependencies {
 	// aws-s3
 	implementation ("org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE")
 	implementation ("javax.xml.bind:jaxb-api:2.3.0")
+
+	//queryDSL
+	implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
+	kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
