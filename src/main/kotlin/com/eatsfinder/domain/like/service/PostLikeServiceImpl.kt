@@ -11,7 +11,6 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
 import com.eatsfinder.global.exception.profile.MyProfileException
-import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -29,7 +28,7 @@ class PostLikeServiceImpl(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
-        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException(
+        val post = postRepository.findByIdAndDeletedAt(postId, null) ?: throw ModelNotFoundException(
             "post",
             "이 게시물 아이디: (${postId})는 존재하지 않습니다."
         )
@@ -64,7 +63,7 @@ class PostLikeServiceImpl(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
-        val post = postRepository.findByIdOrNull(postId) ?: throw ModelNotFoundException(
+        val post = postRepository.findByIdAndDeletedAt(postId, null) ?: throw ModelNotFoundException(
             "post",
             "이 게시물 아이디: (${postId})는 존재하지 않습니다."
         )
