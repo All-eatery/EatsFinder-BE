@@ -4,7 +4,7 @@ plugins {
 	kotlin("plugin.jpa") version "1.9.24"
 	kotlin("jvm") version "1.9.24"
 	kotlin("plugin.spring") version "1.9.24"
-	kotlin("kapt") version "1.8.22"
+	kotlin("kapt") version "1.9.22"
 }
 
 noArg {
@@ -33,7 +33,6 @@ repositories {
 	mavenCentral()
 }
 
-val queryDslVersion = "5.0.0"
 
 
 dependencies {
@@ -73,8 +72,8 @@ dependencies {
 	implementation ("javax.xml.bind:jaxb-api:2.3.0")
 
 	//queryDSL
-	implementation("com.querydsl:querydsl-jpa:$queryDslVersion:jakarta")
-	kapt("com.querydsl:querydsl-apt:$queryDslVersion:jakarta")
+	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
+	kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")

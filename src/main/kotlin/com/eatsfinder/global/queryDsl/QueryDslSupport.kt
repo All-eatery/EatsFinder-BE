@@ -3,13 +3,14 @@ package com.eatsfinder.global.queryDsl
 import com.querydsl.jpa.impl.JPAQueryFactory
 import jakarta.persistence.EntityManager
 import jakarta.persistence.PersistenceContext
+import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Configuration
 
-abstract class QueryDslSupport {
+@Configuration
+class QueryDslSupport (
     @PersistenceContext
-    protected lateinit var entityManager: EntityManager
-
-    protected val queryFactory: JPAQueryFactory
-        get() {
-            return JPAQueryFactory(entityManager)
-        }
+    private var entityManager: EntityManager
+) {
+    @Bean
+    fun queryFactory() = JPAQueryFactory(entityManager)
 }
