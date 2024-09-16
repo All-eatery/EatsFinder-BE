@@ -1,6 +1,6 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { PrismaService } from '../../../../global/prisma/prisma.service';
-import { CreateMenuRequestDto } from '../../../../global/dto';
+import { PrismaService } from '../../../global/prisma/prisma.service';
+import { CreateMenuRequestDto } from '../../../global/dto';
 
 @Injectable()
 export class MenuService {

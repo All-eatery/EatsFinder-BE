@@ -9,7 +9,7 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { CreateMenuRequestDto, CreateMenuResponseDto, FindMenuResponseDto } from '../../../../global/dto';
+import { CreateMenuRequestDto, CreateMenuResponseDto, FindMenuResponseDto } from '../../../global/dto';
 
 @ApiTags('Menu')
 @Controller('menus')
