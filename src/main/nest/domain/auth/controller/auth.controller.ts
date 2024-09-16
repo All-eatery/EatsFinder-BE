@@ -1,8 +1,8 @@
 import { Controller, UseGuards, Body, Req, Get, Post } from '@nestjs/common';
-import { ApiTags, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiOperation, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
 import { UsersSocialType } from '@prisma/client';
 import { AuthService } from '../service/auth.service';
-import { CreateUserRequestDto, LoginUserRequestDto } from '../../../global/dto';
+import { AccessTokenResponseDto, CreateUserRequestDto, LoginUserRequestDto } from '../../../global/dto';
 import { LocalAuthGuard } from '../../../global/guard/local-auth.guard';
 import { NaverAuthGuard } from '../../../global/guard/naver-auth.guard';
 
@@ -14,7 +14,7 @@ export class AuthController {
   @Post('signup')
   @ApiOperation({ summary: '로컬 회원 가입' })
   @ApiBody({ type: CreateUserRequestDto })
-  @ApiResponse({ status: 201, description: '회원 가입 성공' })
+  @ApiCreatedResponse({ description: '회원 가입 성공' })
   async createUser(@Body() dto: CreateUserRequestDto) {
     const socialType: UsersSocialType = 'LOCAL';
     return await this.authService.createUser(dto, socialType);
@@ -23,7 +23,7 @@ export class AuthController {
   @Post('login')
   @ApiOperation({ summary: '로컬 로그인' })
   @ApiBody({ type: LoginUserRequestDto })
-  @ApiResponse({ status: 200, description: '로그인 성공' })
+  @ApiCreatedResponse({ description: '로그인 성공', type: AccessTokenResponseDto })
   @UseGuards(LocalAuthGuard)
   async login(@Req() req: any) {
     return this.authService.login(req.user);
@@ -36,6 +36,7 @@ export class AuthController {
 
   @Get('callback/naver')
   @ApiOperation({ summary: '네이버 로그인 callback' })
+  @ApiOkResponse({ description: '지정된 redirect_url로 이동합니다.' })
   @UseGuards(NaverAuthGuard)
   async naverAuthCallback(@Req() req: any) {
     return this.authService.login(req.user);
