@@ -24,16 +24,20 @@ export class MenuService {
   async findMenu(placeId: number) {
     const findManyMenu = await this.prismaService.placeMenus.findMany({ where: { placeId } });
 
-    for (let i = findManyMenu.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [findManyMenu[i], findManyMenu[j]] = [findManyMenu[j], findManyMenu[i]];
-    }
+    const allMenus = findManyMenu.map((menu) => ({
+      id: Number(menu.id),
+      menu: menu.menu,
+    }));
 
-    return findManyMenu
-      .map((menu) => ({
-        id: Number(menu.id),
-        menu: menu.menu,
-      }))
-      .slice(0, 10);
+    const randomMenus = (menus: any[]) => {
+      for (let i = menus.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [menus[i], menus[j]] = [menus[j], menus[i]];
+      }
+      return menus.slice(0, 10);
+    };
+    const recommendMenus = randomMenus([...allMenus]);
+
+    return { allMenus, recommendMenus };
   }
 }
