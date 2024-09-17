@@ -65,6 +65,7 @@ export class PostService {
         menuTag: true,
         keywordTag: true,
         likeCount: true,
+        viewCount: true,
         createdAt: true,
         users: {
           select: {
