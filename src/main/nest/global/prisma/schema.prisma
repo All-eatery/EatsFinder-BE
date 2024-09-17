@@ -136,6 +136,7 @@ model Users {
   likesByPosts                         PostLikes[]
   posts                                Posts[]
   userLogs                             UserLogs[]
+  userWithdrawalData                   UserWithdrawalData[]
 
   @@map("users")
 }
@@ -207,6 +208,23 @@ model UserLogs {
   @@index([commentLikeId], map: "FKqdyfcp3yudfwxs9nubuncf8x8")
   @@index([userId], map: "FKs5vt3b9fw02oqjm290njxumxq")
   @@map("user_logs")
+}
+
+model UserWithdrawalData {
+  id             BigInt   @id @default(autoincrement())
+  userEmail      String?  @map("user_email") @db.VarChar(255)
+  inconvenience  Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
+  infrequent     Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
+  others         Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
+  privacy        Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
+  reason         String?  @db.VarChar(255)
+  switching      Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
+  unavailability Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
+  userId         BigInt   @map("user_id")
+  users          Users    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8kfi6fbi97y698yq2f1opa7v0")
+
+  @@index([userId], map: "FK8kfi6fbi97y698yq2f1opa7v0")
+  @@map("user_withdrawal_data")
 }
 
 enum UsersSocialType {
