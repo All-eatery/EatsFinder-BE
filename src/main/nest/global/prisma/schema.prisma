@@ -39,7 +39,7 @@ model Comments {
 
 model EmailVerifications {
   id        BigInt   @id @default(autoincrement())
-  email     String   @db.VarChar(30) @unique
+  email     String   @unique(map: "email") @db.VarChar(30)
   code      String   @db.VarChar(10)
   complete  Boolean
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(6)
@@ -114,25 +114,25 @@ model StarRatings {
 }
 
 model Users {
-  id                                   BigInt          @id @default(autoincrement())
-  email                                String          @db.VarChar(30)
-  password                             String          @db.Text
-  name                                 String?         @db.VarChar(10)
-  nickname                             String          @unique(map: "UK2ty1xmrrgtn89xt7kyxx6ta7h") @db.VarChar(10)
-  phoneNumber                          String?         @map("phone_number") @db.VarChar(15)
-  profileImage                         String?         @map("profile_image") @db.Text
-  followerCount                        Int             @default(0) @map("follower_count")
-  followingCount                       Int             @default(0) @map("following_count")
+  id                                   BigInt               @id @default(autoincrement())
+  email                                String               @db.VarChar(30)
+  password                             String               @db.Text
+  name                                 String?              @db.VarChar(10)
+  nickname                             String               @unique(map: "UK2ty1xmrrgtn89xt7kyxx6ta7h") @db.VarChar(10)
+  phoneNumber                          String?              @map("phone_number") @db.VarChar(15)
+  profileImage                         String?              @map("profile_image") @db.Text
+  followerCount                        Int                  @default(0) @map("follower_count")
+  followingCount                       Int                  @default(0) @map("following_count")
   role                                 UsersRole
-  socialType                           UsersSocialType @map("social_type")
+  socialType                           UsersSocialType      @map("social_type")
   status                               UsersStatus
-  createdAt                            DateTime        @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt                            DateTime        @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt                            DateTime?       @map("deleted_at") @db.Timestamp(6)
+  createdAt                            DateTime             @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                            DateTime             @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt                            DateTime?            @map("deleted_at") @db.Timestamp(6)
   commentLikes                         CommentLikes[]
   comments                             Comments[]
-  followsFollowsFollowedUserIdTousers  Follows[]       @relation("follows_followed_user_idTousers")
-  followsFollowsFollowingUserIdTousers Follows[]       @relation("follows_following_user_idTousers")
+  followsFollowsFollowedUserIdTousers  Follows[]            @relation("follows_followed_user_idTousers")
+  followsFollowsFollowingUserIdTousers Follows[]            @relation("follows_following_user_idTousers")
   likesByPosts                         PostLikes[]
   posts                                Posts[]
   userLogs                             UserLogs[]
@@ -148,10 +148,10 @@ model Places {
   telephone   String?       @db.VarChar(15)
   x           Float         @db.Double
   y           Float         @db.Double
-  depth1     String         @map("depth_1") @db.VarChar(10)
-  depth2     String         @map("depth_2") @db.VarChar(10)
-  depth3     String?        @map("depth_3") @db.VarChar(10)
-  depth4     String?        @map("depth_4") @db.VarChar(10)
+  depth1      String        @map("depth_1") @db.VarChar(10)
+  depth2      String        @map("depth_2") @db.VarChar(10)
+  depth3      String?       @map("depth_3") @db.VarChar(10)
+  depth4      String?       @map("depth_4") @db.VarChar(10)
   categoryId  BigInt        @map("category_id")
   createdAt   DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt   DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
