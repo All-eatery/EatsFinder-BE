@@ -44,6 +44,8 @@ export class AuthService {
     const currentTime = new Date();
     const hashPassword = await bcrypt.hash(dto.password, 11);
 
+    await this.prismaService.emailVerifications.delete({ where: { email: dto.email } });
+
     return await this.prismaService.users.create({
       data: {
         email: dto.email,
