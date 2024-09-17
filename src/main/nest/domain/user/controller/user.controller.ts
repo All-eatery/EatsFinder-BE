@@ -2,7 +2,7 @@ import { Controller, Body, Post, Get, Param } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { UserService } from '../service/user.service';
 import { GetUserId } from '../../../global/decorator';
-import { ApiOptionGuard } from '../../../global/decorator/api-guard-optional.decorator';
+import { ApiOptionGuard } from '../../../global/decorator';
 import { FindPasswordRequestDto, FindSimilarResponseDto } from '../../../global/dto';
 
 @ApiTags('User')

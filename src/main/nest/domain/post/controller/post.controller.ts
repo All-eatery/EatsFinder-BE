@@ -24,7 +24,7 @@ import {
 } from '@nestjs/swagger';
 import { PostService } from '../service/post.service';
 import { CreatePostRequestDto, FindOnePostResponseDto, UpdatePostRequestDto } from '../../../global/dto';
-import { GetUserId, ApiGuard, ApiCreatePost, ApiUpdatePost } from '../../../global/decorator';
+import { GetUserId, ApiGuard, ApiCreatePost, ApiUpdatePost, ApiOptionGuard } from '../../../global/decorator';
 
 @ApiTags('Post')
 @Controller('posts')
