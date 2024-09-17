@@ -116,6 +116,15 @@ export class PostService {
     return result;
   }
 
+  async countPost(id: number, userId: number) {
+    const findPost = await this.prismaService.posts.findFirst({ where: { id, deletedAt: null } });
+    if (!findPost) {
+      throw new NotFoundException('해당 게시물은 존재하지 않습니다.');
+    } else if (userId !== undefined && findPost.userId === BigInt(userId))
+      throw { statusCode: 200, message: '작성자는 조회수가 증가하지 않습니다.' };
+    return await this.prismaService.posts.update({ where: { id }, data: { viewCount: { increment: 1 } } });
+  }
+
   async checkPost(id: number) {
     const postData = await this.prismaService.posts.findFirst({
       where: { id, deletedAt: null },

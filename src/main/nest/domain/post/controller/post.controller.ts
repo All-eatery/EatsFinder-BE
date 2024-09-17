@@ -55,6 +55,16 @@ export class PostController {
     return await this.postService.findOnePost(id);
   }
 
+  @Post(':id/count')
+  @ApiOptionGuard()
+  @ApiOperation({ summary: '유저 게시물 조회수 증가' })
+  @ApiOkResponse({ description: '작성자는 조회수가 증가하지 않습니다.' })
+  @ApiCreatedResponse({ description: '게시물 조회수 증가' })
+  @ApiNotFoundResponse({ description: '해당 게시물은 존재하지 않습니다.' })
+  async countPost(@Param('id', ParseIntPipe) id: number, @GetUserId() userId: number) {
+    return await this.postService.countPost(id, userId);
+  }
+
   @Get(':id/check')
   @ApiOperation({ summary: '유저 게시물 수정 체크' })
   @ApiOkResponse({ description: '수정가능 합니다' })
