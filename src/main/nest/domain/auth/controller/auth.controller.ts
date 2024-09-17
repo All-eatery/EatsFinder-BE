@@ -1,11 +1,10 @@
 import { Controller, UseGuards, Body, Req, Get, Post } from '@nestjs/common';
-import { ApiTags, ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiOperation, ApiOkResponse, ApiCreatedResponse } from '@nestjs/swagger';
 import { UsersSocialType } from '@prisma/client';
 import { AuthService } from '../service/auth.service';
-import { CreateUserDto } from '../dto/create-user.dto';
-import { LoginUserDto } from '../dto/login-user.dto';
-import { LocalAuthGuard } from '../guard/local-auth.guard';
-import { NaverAuthGuard } from '../guard/naver-auth.guard';
+import { AccessTokenResponseDto, CreateUserRequestDto, LoginUserRequestDto } from '../../../global/dto';
+import { LocalAuthGuard } from '../../../global/guard/local-auth.guard';
+import { NaverAuthGuard } from '../../../global/guard/naver-auth.guard';
 
 @ApiTags('Auth')
 @Controller('auth')
@@ -14,17 +13,17 @@ export class AuthController {
 
   @Post('signup')
   @ApiOperation({ summary: '로컬 회원 가입' })
-  @ApiBody({ type: CreateUserDto })
-  @ApiResponse({ status: 201, description: '회원 가입 성공' })
-  async createUser(@Body() dto: CreateUserDto) {
+  @ApiBody({ type: CreateUserRequestDto })
+  @ApiCreatedResponse({ description: '회원 가입 성공' })
+  async createUser(@Body() dto: CreateUserRequestDto) {
     const socialType: UsersSocialType = 'LOCAL';
     return await this.authService.createUser(dto, socialType);
   }
 
   @Post('login')
   @ApiOperation({ summary: '로컬 로그인' })
-  @ApiBody({ type: LoginUserDto })
-  @ApiResponse({ status: 200, description: '로그인 성공' })
+  @ApiBody({ type: LoginUserRequestDto })
+  @ApiCreatedResponse({ description: '로그인 성공', type: AccessTokenResponseDto })
   @UseGuards(LocalAuthGuard)
   async login(@Req() req: any) {
     return this.authService.login(req.user);
@@ -37,6 +36,7 @@ export class AuthController {
 
   @Get('callback/naver')
   @ApiOperation({ summary: '네이버 로그인 callback' })
+  @ApiOkResponse({ description: '지정된 redirect_url로 이동합니다.' })
   @UseGuards(NaverAuthGuard)
   async naverAuthCallback(@Req() req: any) {
     return this.authService.login(req.user);

@@ -3,11 +3,11 @@ import { AuthController } from './controller/auth.controller';
 import { AuthService } from './service/auth.service';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
-import { LocalStrategy } from './strategy/local.strategy';
-import { JwtStrategy } from './strategy/jwt.strategy';
+import { LocalStrategy } from '../../global/strategy/local.strategy';
+import { JwtStrategy } from '../../global/strategy/jwt.strategy';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { NaverStrategy } from './strategy/naver.strategy';
-import { NaverAuthGuard } from './guard/naver-auth.guard';
+import { NaverStrategy } from '../../global/strategy/naver.strategy';
+import { NaverAuthGuard } from '../../global/guard/naver-auth.guard';
 
 @Module({
   imports: [

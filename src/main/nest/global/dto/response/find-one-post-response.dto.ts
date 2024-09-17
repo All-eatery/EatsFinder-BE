@@ -55,11 +55,14 @@ export class FindOnePostResponseDto {
   @ApiProperty({ example: ['항아리모듬물회', '오징어회'] })
   menuTag: string[];
 
-  @ApiProperty({ example: '2,8,15' })
+  @ApiProperty({ example: 'FR01, FR02, FR03, FR04, FR05' })
   keywordTag: string;
 
   @ApiProperty({ example: 0 })
   likeCount: number;
+
+  @ApiProperty({ example: 0 })
+  viewCount: number;
 
   @ApiProperty({ example: '2024-07-14T04:07:01.992Z' })
   createdAt: Date;

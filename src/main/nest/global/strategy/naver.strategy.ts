@@ -1,7 +1,7 @@
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'n-passport-naver';
 import { Injectable } from '@nestjs/common';
-import { AuthService } from '../service/auth.service';
+import { AuthService } from '../../domain/auth/service/auth.service';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()

@@ -8,6 +8,7 @@ import { UserModule } from '../domain/user/user.module';
 import { MailModule } from '../global/mail/mail.module';
 import { PostModule } from '../domain/post/post.module';
 import { PlaceModule } from '../domain/place/place.module';
+import { MenuModule } from '../domain/menu/menu.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { PlaceModule } from '../domain/place/place.module';
     UserModule,
     PostModule,
     PlaceModule,
+    MenuModule,
   ],
   controllers: [AppController],
   providers: [AppService],

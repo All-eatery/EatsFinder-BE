@@ -1,6 +1,6 @@
 import { ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { PrismaService } from '../../../global/prisma/prisma.service';
-import { CreateUserDto } from '../dto/create-user.dto';
+import { CreateUserRequestDto } from '../../../global/dto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { UsersSocialType } from '@prisma/client';
@@ -12,7 +12,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async createUser(dto: CreateUserDto, socialType: UsersSocialType) {
+  async createUser(dto: CreateUserRequestDto, socialType: UsersSocialType) {
     console.log('🚀  dto: ', dto);
     const nicknameCheck = await this.prismaService.users.findFirst({ where: { nickname: dto.nickname } });
     switch (socialType) {
@@ -43,6 +43,8 @@ export class AuthService {
 
     const currentTime = new Date();
     const hashPassword = await bcrypt.hash(dto.password, 11);
+
+    await this.prismaService.emailVerifications.delete({ where: { email: dto.email } });
 
     return await this.prismaService.users.create({
       data: {
