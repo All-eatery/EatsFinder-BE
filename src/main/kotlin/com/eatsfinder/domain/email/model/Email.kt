@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 @Table(name = "email_verifications")
 class Email(
 
-    @Column(name = "email", length = 30, nullable = false)
+    @Column(name = "email", length = 30, nullable = false, unique = true)
     val email: String,
 
     @Column(name = "code", length = 10, nullable = false)

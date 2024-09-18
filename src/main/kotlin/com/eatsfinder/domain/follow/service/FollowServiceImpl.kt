@@ -101,12 +101,12 @@ class FollowServiceImpl(
 
     @Transactional(readOnly = true)
     override fun getFollowingList(userId: Long): List<FollowingListResponse> {
-        return followRepository.findAll().filter { it.followingUserId.id == userId }.map { FollowingListResponse.from(it) }
+        return followRepository.findAll().filter { it.followedUserId.id == userId && it.followingUserId.deletedAt == null }.map { FollowingListResponse.from(it) }
     }
 
     @Transactional(readOnly = true)
     override fun getFollowerList(userId: Long): List<FollowerListResponse> {
-        return followRepository.findAll().filter { it.followedUserId.id == userId }.map { FollowerListResponse.from(it) }
+        return followRepository.findAll().filter { it.followingUserId.id == userId && it.followedUserId.deletedAt == null }.map { FollowerListResponse.from(it) }
     }
 
 }
