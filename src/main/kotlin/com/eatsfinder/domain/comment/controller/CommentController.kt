@@ -3,6 +3,8 @@ package com.eatsfinder.domain.comment.controller
 import com.eatsfinder.domain.comment.dto.CommentRequest
 import com.eatsfinder.domain.comment.dto.CommentsResponse
 import com.eatsfinder.domain.comment.service.CommentService
+import com.eatsfinder.domain.post.dto.NewPostByNeighborResponse
+import com.eatsfinder.domain.post.dto.PaginationNeighborPostResponse
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
@@ -19,7 +21,8 @@ class CommentController(
     @Operation(summary = "댓글 전체 조회")
     @GetMapping("/posts/{postId}/comments")
     fun getCommentList(@PathVariable postId: Long, @AuthenticationPrincipal userPrincipal: UserPrincipal?): ResponseEntity<CommentsResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentList(postId, userPrincipal))
+        val userId = userPrincipal?.id
+        return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentList(postId, userPrincipal, userId))
     }
 
     @Operation(summary = "댓글 작성")
