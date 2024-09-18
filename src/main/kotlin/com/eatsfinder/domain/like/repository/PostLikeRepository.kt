@@ -5,7 +5,6 @@ import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.user.model.User
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import java.time.LocalDateTime
 
 interface PostLikeRepository : JpaRepository<PostLikes, Long> {
     fun findByUserIdAndPostId(userId: User, postId: Post): PostLikes?

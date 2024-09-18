@@ -6,7 +6,7 @@ import com.eatsfinder.global.security.jwt.UserPrincipal
 
 interface CommentService {
 
-    fun getCommentList(postId: Long, userId: UserPrincipal?): CommentsResponse
+    fun getCommentList(postId: Long, userPrincipal: UserPrincipal?, userId: Long?): CommentsResponse
 
     fun createComment(postId: Long, req: CommentRequest, userId: Long): String
 
