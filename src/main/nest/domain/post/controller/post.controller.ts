@@ -48,11 +48,12 @@ export class PostController {
   }
 
   @Get(':id/details')
+  @ApiOptionGuard()
   @ApiOperation({ summary: '유저 게시물 단건 조회' })
   @ApiOkResponse({ type: FindOnePostResponseDto })
   @ApiNotFoundResponse({ description: '해당 게시물은 존재하지 않습니다.' })
-  async findOnePost(@Param('id', ParseIntPipe) id: number) {
-    return await this.postService.findOnePost(id);
+  async findOnePost(@Param('id', ParseIntPipe) id: number, @GetUserId() userId: number) {
+    return await this.postService.findOnePost(id, userId);
   }
 
   @Post(':id/count')

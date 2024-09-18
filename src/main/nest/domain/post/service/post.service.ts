@@ -54,7 +54,7 @@ export class PostService {
     });
   }
 
-  async findOnePost(id: number) {
+  async findOnePost(id: number, userId: number) {
     const postData = await this.prismaService.posts.findFirst({
       where: { id, deletedAt: null },
       select: {
@@ -88,12 +88,14 @@ export class PostService {
         starRatings: {
           select: { star: true },
         },
+        postLikes: userId ? { where: { userId } } : { where: { id: -1 } },
       },
     });
 
+    const likeStatus = postData.postLikes.length > 0;
     if (!postData) {
       throw new NotFoundException('해당 게시물은 존재하지 않습니다.');
-    }
+    } else delete postData.postLikes;
 
     const menuTagIds = postData.menuTag.split(',').map(Number);
     const menus = (
@@ -113,6 +115,7 @@ export class PostService {
       ...postData,
       menuTag: menus,
       starRatings: postData.starRatings.star,
+      likeStatus,
     };
     return result;
   }

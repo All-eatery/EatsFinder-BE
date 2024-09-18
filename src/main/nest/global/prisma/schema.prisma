@@ -91,7 +91,7 @@ model Posts {
   updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt    DateTime?   @map("deleted_at") @db.Timestamp(6)
   comments     Comments[]
-  likesByPosts PostLikes[]
+  postLikes    PostLikes[]
   users        Users       @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK5lidm6cqbc7u4xhqpxm898qme")
   starRatings  StarRatings @relation("posts_rating_idTostar_ratings", fields: [ratingId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKonikjcopg9sp7kb852mjrxioj")
   places       Places      @relation(fields: [placeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKt38bd81etfla6c1ilk3s0wm45")
