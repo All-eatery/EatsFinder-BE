@@ -5,7 +5,6 @@ import jakarta.persistence.*
 import org.hibernate.annotations.ColumnDefault
 import org.hibernate.annotations.SQLDelete
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Entity
 @SQLDelete(sql = "UPDATE users SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")

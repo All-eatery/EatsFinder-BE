@@ -2,7 +2,6 @@ package com.eatsfinder.domain.comment.service
 
 import com.eatsfinder.domain.comment.dto.CommentRequest
 import com.eatsfinder.domain.comment.dto.CommentsResponse
-import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.security.jwt.UserPrincipal
 
 interface CommentService {

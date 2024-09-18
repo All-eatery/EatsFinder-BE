@@ -8,14 +8,12 @@ import com.eatsfinder.domain.comment.repository.CommentRepository
 import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.user.model.MyActiveType
-import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.domain.user.model.UserLog
 import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.profile.ImmutableUserException
 import com.eatsfinder.global.security.jwt.UserPrincipal
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

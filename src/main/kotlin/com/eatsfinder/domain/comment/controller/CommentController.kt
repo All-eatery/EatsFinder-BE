@@ -3,8 +3,6 @@ package com.eatsfinder.domain.comment.controller
 import com.eatsfinder.domain.comment.dto.CommentRequest
 import com.eatsfinder.domain.comment.dto.CommentsResponse
 import com.eatsfinder.domain.comment.service.CommentService
-import com.eatsfinder.domain.post.dto.NewPostByNeighborResponse
-import com.eatsfinder.domain.post.dto.PaginationNeighborPostResponse
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
