@@ -119,7 +119,7 @@ class UserServiceImpl(
         )
 
         when {
-            profile.provider != SocialType.LOCAL -> throw ImmutableUserException("비밀번호를 변경할 수 없는 소셜 유저입니다.")
+            profile.provider != SocialType.LOCAL -> throw ImmutableUserOrUnauthorizedUserException("비밀번호를 변경할 수 없는 소셜 유저입니다.")
             passwordEncoder.matches(
                 req.newPassword,
                 profile.password

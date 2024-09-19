@@ -1,6 +1,6 @@
 package com.eatsfinder.global.exception.profile
 
-class ImmutableUserException(
+class ImmutableUserOrUnauthorizedUserException(
     val fieldName: String,
-    message: String = "ImmutableUser"
+    message: String = "ImmutableUserOrUnauthorizedUser"
 ) : RuntimeException(message)

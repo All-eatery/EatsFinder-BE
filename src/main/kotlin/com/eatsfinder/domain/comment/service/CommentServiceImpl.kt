@@ -12,7 +12,7 @@ import com.eatsfinder.domain.user.model.UserLog
 import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
-import com.eatsfinder.global.exception.profile.ImmutableUserException
+import com.eatsfinder.global.exception.profile.ImmutableUserOrUnauthorizedUserException
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -83,7 +83,7 @@ class CommentServiceImpl(
         )
 
         if (comment.userId.id != userId) {
-            throw ImmutableUserException("이 댓글을 수정할 권한이 없습니다.")
+            throw ImmutableUserOrUnauthorizedUserException("이 댓글을 수정할 권한이 없습니다.")
         }
 
         comment.content = req.content
@@ -98,7 +98,7 @@ class CommentServiceImpl(
             "이 댓글(${commentId})은 존재하지 않습니다."
         )
         if (comment.userId.id != userId) {
-            throw ImmutableUserException("이 댓글을 삭제할 권한이 없습니다.")
+            throw ImmutableUserOrUnauthorizedUserException("이 댓글을 삭제할 권한이 없습니다.")
         }
 
         commentRepository.delete(comment)
