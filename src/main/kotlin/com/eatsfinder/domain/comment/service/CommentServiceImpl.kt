@@ -72,7 +72,7 @@ class CommentServiceImpl(
                 myActiveType = MyActiveType.COMMENT
             )
         )
-        return "댓글이 작성되었습니다!"
+        return "댓글이 작성되었습니다."
     }
 
     @Transactional
@@ -88,7 +88,7 @@ class CommentServiceImpl(
 
         comment.content = req.content
         commentRepository.save(comment)
-        return "댓글이 수정되었습니다!"
+        return "댓글이 수정되었습니다."
     }
 
     @Transactional

@@ -19,14 +19,14 @@ class EmailController(
     @PostMapping("/email")
     fun sendCodeToEmail(@RequestBody @Valid req: EmailRequest): BaseResponse<Unit> {
         mailService.sendCodeToEmail(req)
-        return BaseResponse(message = "인증번호가 발송되었습니다!")
+        return BaseResponse(message = "인증번호가 발송되었습니다.")
     }
 
     @Operation(summary = "인증번호 확인하기")
     @GetMapping("/email/verify-code")
     fun checkVerifyCode(@RequestParam email: String, @RequestParam code: String): BaseResponse<Unit> {
         mailService.checkVerifyCode(email, code)
-        return BaseResponse(message = "입력하신 코드는 맞는 코드입니다!")
+        return BaseResponse(message = "입력하신 코드는 맞는 코드입니다.")
     }
 
     @Operation(summary = "이메일 중복확인하기")
