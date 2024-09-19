@@ -46,7 +46,7 @@ class UserController(
     fun defaultProfileImage(@AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
         profileService.defaultProfileImage(myProfileId)
-        return BaseResponse(message = "프로필이 삭제되었습니다.")
+        return BaseResponse(message = "프로필 이미지가 기본 프로필로 전환되었습니다.")
     }
 
     @Operation(summary = "비밀번호 재설정")
