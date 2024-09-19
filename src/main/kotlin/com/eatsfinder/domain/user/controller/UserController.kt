@@ -7,6 +7,8 @@ import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
 import jakarta.validation.Valid
+import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -82,21 +84,31 @@ class UserController(
 
     @Operation(summary = "내 피드 조회하기")
     @GetMapping("/feeds")
-    fun getMyFeed(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyFeedResponse>> {
+    fun getMyFeed(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal,
+        @PageableDefault(size = 10, sort = ["updatedAt"]) pageable: Pageable
+    ): ResponseEntity<MyFeedsResponse> {
         val myProfileId = userPrincipal.id
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyFeed(myProfileId))
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyFeed(myProfileId, pageable))
     }
 
     @Operation(summary = "다른 사람 피드 조회하기")
     @GetMapping("/feeds/{otherProfileId}")
-    fun getMyFeed(@PathVariable otherProfileId: Long): ResponseEntity<List<OtherPeopleFeedResponse>> {
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.getOtherPeopleFeed(otherProfileId))
+    fun getMyFeed(
+        @PathVariable otherProfileId: Long,
+        @PageableDefault(size = 10, sort = ["updatedAt"]) pageable: Pageable
+    ): ResponseEntity<OtherPeopleFeedsResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getOtherPeopleFeed(otherProfileId, pageable))
     }
 
     @Operation(summary = "내 활동 조회하기")
     @GetMapping("/actives")
-    fun getMyActive(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<List<MyActiveResponse>> {
+    fun getMyActive(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal,
+        @PageableDefault(size = 10, sort = ["createdAt"]) pageable: Pageable
+        ): ResponseEntity<List<MyActiveResponse>> {
+
         val myProfileId = userPrincipal.id
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyActive(myProfileId))
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyActive(myProfileId, pageable))
     }
 }

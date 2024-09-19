@@ -16,6 +16,7 @@ import com.eatsfinder.global.exception.email.NoMatchEmailException
 import com.eatsfinder.global.exception.email.NotCheckCompleteException
 import com.eatsfinder.global.exception.profile.*
 import com.eatsfinder.global.security.jwt.UserPrincipal
+import org.springframework.data.domain.Pageable
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.crypto.password.PasswordEncoder
@@ -201,15 +202,16 @@ class UserServiceImpl(
 
     }
 
-    override fun getMyFeed(myProfileId: Long): List<MyFeedResponse> {
+    override fun getMyFeed(myProfileId: Long, pageable: Pageable): MyFeedsResponse {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
-        return postRepository.findByUserId(profile)!!.map { MyFeedResponse.from(it) }
+        val post = postRepository.findByUserId(profile)
+        return MyFeedsResponse.from(post!!, pageable)
     }
 
-    override fun getOtherPeopleFeed(otherProfileId: Long): List<OtherPeopleFeedResponse> {
+    override fun getOtherPeopleFeed(otherProfileId: Long, pageable: Pageable): OtherPeopleFeedsResponse {
         val profile = userRepository.findByIdAndDeletedAt(otherProfileId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필은(id: ${otherProfileId})은 존재하지 않습니다."
@@ -221,17 +223,19 @@ class UserServiceImpl(
             throw MyProfileException("본인 피드이므로 조회할 수 없습니다.")
         }
 
-        return postRepository.findByUserId(profile)!!.map { OtherPeopleFeedResponse.from(it) }
+        val otherPost = postRepository.findByUserId(profile)
+
+        return OtherPeopleFeedsResponse.from(otherPost!!, pageable)
     }
 
-    override fun getMyActive(myProfileId: Long): List<MyActiveResponse> {
+    override fun getMyActive(myProfileId: Long, pageable: Pageable): List<MyActiveResponse> {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
         val logs = userLogRepository.findByUserId(profile)?.distinct() ?: emptyList()
         return if (logs.isNotEmpty()) {
-            listOf(MyActiveResponse.from(logs))
+            listOf(MyActiveResponse.from(logs, pageable))
         } else {
             emptyList()
         }
