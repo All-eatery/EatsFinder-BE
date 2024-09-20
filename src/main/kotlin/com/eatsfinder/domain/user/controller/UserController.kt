@@ -68,10 +68,10 @@ class UserController(
                       @RequestParam (required = false) switching : Boolean,
                       @RequestParam (required = false) others : Boolean,
                       @RequestParam reason : String?,
-    ): ResponseEntity<Unit> {
+    ): BaseResponse<Unit>  {
         val myProfileId = userPrincipal.id
         profileService.deleteProfile(myProfileId, email, unavailability, infrequent, privacy, inconvenience, switching, others, reason)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+        return BaseResponse(message = "탈퇴가 완료되었습니다.")
     }
 
     @Operation(summary = "탈퇴 철회하기")

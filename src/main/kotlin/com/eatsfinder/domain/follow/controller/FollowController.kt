@@ -44,7 +44,7 @@ class FollowController(
     fun deleteUserFollow(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam unfollowUserId: Long
-    ): BaseResponse<FollowResponse> {
+    ): BaseResponse<Unit> {
         val userId = userPrincipal.id
         followService.deleteUserFollow(userId, unfollowUserId)
         return BaseResponse(message = "언팔로우를 하였습니다.")

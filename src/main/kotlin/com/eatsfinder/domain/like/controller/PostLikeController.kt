@@ -42,7 +42,7 @@ class PostLikeController(
     fun deletePostLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam postId: Long
-    ): BaseResponse<PostLikesResponse> {
+    ): BaseResponse<Unit> {
         val userId = userPrincipal.id
         postLikeService.deletePostLikes(userId, postId)
         return BaseResponse(message = "좋아요가 취소됐습니다.")

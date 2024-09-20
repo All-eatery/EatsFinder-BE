@@ -52,9 +52,9 @@ class CommentController(
     fun deleteComment(
         @PathVariable commentId: Long,
         @AuthenticationPrincipal userPrincipal: UserPrincipal
-    ): ResponseEntity<Unit> {
+    ): BaseResponse<Unit> {
         val userId = userPrincipal.id
         commentService.deleteComment(commentId, userId)
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build()
+        return BaseResponse(message = "댓글이 삭제되었습니다.")
     }
 }

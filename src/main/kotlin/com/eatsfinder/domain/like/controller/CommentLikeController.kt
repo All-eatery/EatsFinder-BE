@@ -29,7 +29,7 @@ class CommentLikeController(
     fun deleteCommentLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam commentId: Long
-    ): BaseResponse<CommentLikeResponse> {
+    ): BaseResponse<Unit> {
         val userId = userPrincipal.id
         commentLikeService.deleteCommentLikes(userId, commentId)
         return BaseResponse(message = "좋아요가 취소됐습니다.")
