@@ -172,6 +172,7 @@ class UserServiceImpl(
             UserWithdrawalData(
                 userId = profile,
                 userEmail = profile.email,
+                userNickname = profile.nickname,
                 unavailability = unavailability,
                 infrequent = infrequent,
                 privacy = privacy,

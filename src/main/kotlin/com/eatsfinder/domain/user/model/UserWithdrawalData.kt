@@ -7,11 +7,14 @@ import org.hibernate.annotations.ColumnDefault
 @Table(name = "user_withdrawal_data")
 class UserWithdrawalData(
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     val userId: User,
 
     @Column(name = "user_email")
     val userEmail: String,
+
+    @Column(name = "user_nickname")
+    val userNickname: String,
 
     @ColumnDefault("false")
     @Column(name = "unavailability")
