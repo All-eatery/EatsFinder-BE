@@ -45,7 +45,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(ImmutableUserOrUnauthorizedUserException::class)
     protected fun immutableUserOrUnauthorizedUserException(ex: ImmutableUserOrUnauthorizedUserException): ResponseEntity<BaseResponse<Map<String, String>>> {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
-        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.FORBIDDEN)
     }
 
 

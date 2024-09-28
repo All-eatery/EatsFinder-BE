@@ -5,6 +5,7 @@ import com.eatsfinder.domain.like.service.PostLikeService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -27,6 +28,7 @@ class PostLikeController(
     }
 
     @Operation(summary = "게시물 좋아요 하기")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @PostMapping("/post-likes")
     fun createPostLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
@@ -38,6 +40,7 @@ class PostLikeController(
     }
 
     @Operation(summary = "게시물 좋아요 취소")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @DeleteMapping("/post-likes")
     fun deletePostLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,

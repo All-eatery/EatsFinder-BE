@@ -6,6 +6,7 @@ import com.eatsfinder.domain.comment.service.CommentService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -36,6 +37,7 @@ class CommentController(
     }
 
     @Operation(summary = "댓글 수정")
+    @ApiResponse(responseCode = "403", description = "이 댓글을 수정할 권한이 없습니다.")
     @PutMapping("/comments/{commentId}")
     fun updateComment(
         @PathVariable commentId: Long,
@@ -48,6 +50,7 @@ class CommentController(
     }
 
     @Operation(summary = "댓글 삭제")
+    @ApiResponse(responseCode = "403", description = "이 댓글을 삭제할 권한이 없습니다.")
     @DeleteMapping("/comments/{commentId}")
     fun deleteComment(
         @PathVariable commentId: Long,

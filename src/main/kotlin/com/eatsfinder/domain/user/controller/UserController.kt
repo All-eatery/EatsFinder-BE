@@ -6,6 +6,7 @@ import com.eatsfinder.domain.user.service.UserService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.web.PageableDefault
@@ -28,12 +29,14 @@ class UserController(
     }
 
     @Operation(summary = "다른 유저 프로필 조회하기")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @GetMapping("/{otherProfileId}")
     fun profileViewedByOthers(@PathVariable otherProfileId: Long): ResponseEntity<ProfileViewedByOthersResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(profileService.profileViewedByOthers(otherProfileId))
     }
 
     @Operation(summary = "본인 프로필 수정하기")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @PatchMapping(consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
     fun updateProfile(@ModelAttribute req: UpdateProfileRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
@@ -42,6 +45,7 @@ class UserController(
     }
 
     @Operation(summary = "프로필 이미지 삭제하기 : 기본 프로필로 전환")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @PutMapping("/default-image")
     fun defaultProfileImage(@AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
@@ -50,6 +54,8 @@ class UserController(
     }
 
     @Operation(summary = "비밀번호 재설정")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
+    @ApiResponse(responseCode = "403", description = "비밀번호를 변경할 수 없는 소셜 유저입니다.")
     @PutMapping("/new-password")
     fun changePassword(@RequestBody @Valid req: ChangePasswordRequest, @AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
@@ -58,6 +64,7 @@ class UserController(
     }
 
     @Operation(summary = "탈퇴하기")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @DeleteMapping
     fun deleteProfile(@AuthenticationPrincipal userPrincipal: UserPrincipal,
                       @RequestParam email : String,
@@ -75,6 +82,7 @@ class UserController(
     }
 
     @Operation(summary = "탈퇴 철회하기")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @PutMapping
     fun cancelWithdrawal(@AuthenticationPrincipal userPrincipal: UserPrincipal): BaseResponse<Unit> {
         val myProfileId = userPrincipal.id
@@ -93,6 +101,7 @@ class UserController(
     }
 
     @Operation(summary = "다른 사람 피드 조회하기")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @GetMapping("/feeds/{otherProfileId}")
     fun getMyFeed(
         @PathVariable otherProfileId: Long,
