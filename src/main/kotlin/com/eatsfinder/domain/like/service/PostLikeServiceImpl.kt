@@ -49,6 +49,7 @@ class PostLikeServiceImpl(
                     postLikeId =  PostLikes(userId = user, postId = post),
                     commentLikeId = null,
                     commentId = null,
+                    replyId = null,
                     myActiveType = MyActiveType.POST_LIKES
                 )
             )

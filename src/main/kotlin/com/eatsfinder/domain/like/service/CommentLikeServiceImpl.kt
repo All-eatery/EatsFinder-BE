@@ -50,6 +50,7 @@ class CommentLikeServiceImpl(
                     postLikeId = null,
                     commentLikeId = CommentLikes(userId = user, commentId = comment),
                     commentId = null,
+                    replyId = null,
                     myActiveType = MyActiveType.COMMENT_LIKES
                 )
             )
