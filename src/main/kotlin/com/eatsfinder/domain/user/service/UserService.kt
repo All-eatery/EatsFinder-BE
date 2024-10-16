@@ -2,6 +2,7 @@ package com.eatsfinder.domain.user.service
 
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
+import org.springframework.data.domain.Pageable
 
 interface UserService {
 
@@ -29,10 +30,10 @@ interface UserService {
 
     fun cancelWithdrawal(myProfileId: Long)
 
-    fun getMyFeed(myProfileId: Long) : List<MyFeedResponse>
+    fun getMyFeed(myProfileId: Long, pageable: Pageable) : MyFeedsResponse
 
 
-    fun getOtherPeopleFeed(otherProfileId: Long) : List<OtherPeopleFeedResponse>
+    fun getOtherPeopleFeed(otherProfileId: Long, pageable: Pageable) : OtherPeopleFeedsResponse
 
-    fun getMyActive(myProfileId: Long): List<MyActiveResponse>
+    fun getMyActive(myProfileId: Long, pageable: Pageable): List<MyActiveResponse>
 }

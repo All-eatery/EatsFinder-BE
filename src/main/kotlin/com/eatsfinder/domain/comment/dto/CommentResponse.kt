@@ -10,5 +10,6 @@ data class CommentResponse(
     val likeCount: Int,
     val isMyComment: Boolean,
     val likeStatus: Boolean,
+    val authorStatus: Boolean,
     val createdAt: LocalDateTime
 )

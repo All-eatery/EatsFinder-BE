@@ -12,7 +12,7 @@ import com.eatsfinder.domain.user.model.UserLog
 import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
-import com.eatsfinder.global.exception.profile.ImmutableUserException
+import com.eatsfinder.global.exception.profile.ImmutableUserOrUnauthorizedUserException
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -46,7 +46,7 @@ class CommentServiceImpl(
         val comments = commentRepository.findByPostIdAndDeletedAt(post, null)
         val commentLikes = user?.let { commentLikeRepository.findCommentLikesByUserId(it) } ?: emptyList()
 
-        return from(comments, userPrincipal, commentCount, commentLikes)
+        return from(comments, userPrincipal, commentCount, commentLikes, post)
     }
 
     @Transactional
@@ -72,7 +72,7 @@ class CommentServiceImpl(
                 myActiveType = MyActiveType.COMMENT
             )
         )
-        return "댓글이 작성되었습니다!"
+        return "댓글이 작성되었습니다."
     }
 
     @Transactional
@@ -83,12 +83,12 @@ class CommentServiceImpl(
         )
 
         if (comment.userId.id != userId) {
-            throw ImmutableUserException("이 댓글을 수정할 권한이 없습니다.")
+            throw ImmutableUserOrUnauthorizedUserException("이 댓글을 수정할 권한이 없습니다.")
         }
 
         comment.content = req.content
         commentRepository.save(comment)
-        return "댓글이 수정되었습니다!"
+        return "댓글이 수정되었습니다."
     }
 
     @Transactional
@@ -98,7 +98,7 @@ class CommentServiceImpl(
             "이 댓글(${commentId})은 존재하지 않습니다."
         )
         if (comment.userId.id != userId) {
-            throw ImmutableUserException("이 댓글을 삭제할 권한이 없습니다.")
+            throw ImmutableUserOrUnauthorizedUserException("이 댓글을 삭제할 권한이 없습니다.")
         }
 
         commentRepository.delete(comment)

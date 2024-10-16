@@ -7,6 +7,7 @@ import com.eatsfinder.domain.follow.service.FollowService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -29,6 +30,7 @@ class FollowController(
     }
 
     @Operation(summary = "유저 팔로우 하기")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @PostMapping("/follows")
     fun createUserFollow(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
@@ -40,11 +42,12 @@ class FollowController(
     }
 
     @Operation(summary = "유저 언팔로우 하기")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @DeleteMapping("/follows")
     fun deleteUserFollow(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam unfollowUserId: Long
-    ): BaseResponse<FollowResponse> {
+    ): BaseResponse<Unit> {
         val userId = userPrincipal.id
         followService.deleteUserFollow(userId, unfollowUserId)
         return BaseResponse(message = "언팔로우를 하였습니다.")

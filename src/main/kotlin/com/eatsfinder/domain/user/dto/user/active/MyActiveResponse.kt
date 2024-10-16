@@ -2,15 +2,18 @@ package com.eatsfinder.domain.user.dto.user.active
 
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
+import org.springframework.data.domain.Pageable
 import java.time.format.DateTimeFormatter
 
 
 data class MyActiveResponse(
+    val pagination: PaginationActiveResponse,
     val data: List<MyActiveDataResponse>
 ) {
     companion object {
-        fun from(log: List<UserLog>): MyActiveResponse {
+        fun from(log: List<UserLog>, pageable: Pageable): MyActiveResponse {
             val createdDate = DateTimeFormatter.ofPattern("yyyy.MM.dd")
+
             val data = log.map { logs ->
                 when (logs.myActiveType) {
                     MyActiveType.POST_LIKES ->
@@ -72,7 +75,31 @@ data class MyActiveResponse(
                         }
                 }
             }.filterNotNull()
-            return MyActiveResponse(data = data)
+
+            val totalActive = data.size.toLong()
+            val pagedActives = data.drop(pageable.pageNumber * pageable.pageSize)
+                .take(pageable.pageSize)
+
+            val totalPage = if (totalActive == 0L) {
+                0L
+            } else {
+                (totalActive + pageable.pageSize - 1) / pageable.pageSize
+            }
+
+            val isLastPage = (pageable.pageNumber + 1) * pageable.pageSize >= totalActive
+
+            val pagination = PaginationActiveResponse(
+                totalActive = totalActive,
+                activesPerPage = pageable.pageSize,
+                totalPage = totalPage,
+                currentPage = pageable.pageNumber,
+                isLastPage = isLastPage
+            )
+
+            return MyActiveResponse(
+                pagination = pagination,
+                data = pagedActives
+            )
         }
     }
 }
