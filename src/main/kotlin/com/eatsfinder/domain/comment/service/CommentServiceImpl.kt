@@ -46,7 +46,7 @@ class CommentServiceImpl(
         val comments = commentRepository.findByPostIdAndDeletedAt(post, null)
         val commentLikes = user?.let { commentLikeRepository.findCommentLikesByUserId(it) } ?: emptyList()
 
-        return from(comments, userPrincipal, commentCount, commentLikes)
+        return from(comments, userPrincipal, commentCount, commentLikes, post)
     }
 
     @Transactional
