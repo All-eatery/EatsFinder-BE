@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.comment.model
 
 import com.eatsfinder.domain.post.model.Post
+import com.eatsfinder.domain.reply.model.Reply
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
@@ -25,10 +26,13 @@ class Comment(
 
     @ColumnDefault("0")
     @Column(name = "like_count", nullable = false)
-    var likeCount: Int = 0
+    var likeCount: Int = 0,
+
+    @OneToMany(mappedBy = "commentId", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    val replies: MutableList<Reply> = mutableListOf(),
 
 
-) : BaseTimeEntity() {
+    ) : BaseTimeEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
