@@ -30,7 +30,9 @@ data class MyActiveResponse(
                                 ),
                                 commentLike = null,
                                 comment = null,
-                                createdAt = logs.createdAt.toLocalDate().format(createdDate)
+                                reply = null,
+                                replyLike = null,
+                                createdAt = logs.createdAt.toLocalDate().format(createdDate),
                             )
                         } else {
                             null
@@ -50,7 +52,9 @@ data class MyActiveResponse(
                             ),
                             content = logs.commentId?.content
                         ),
-                        createdAt = logs.createdAt.toLocalDate().format(createdDate)
+                        reply = null,
+                        replyLike = null,
+                        createdAt = logs.createdAt.toLocalDate().format(createdDate),
                     )
 
                     MyActiveType.COMMENT_LIKES ->
@@ -68,11 +72,34 @@ data class MyActiveResponse(
                                     commentContent = logs.commentLikeId?.commentId?.content
                                 ),
                                 comment = null,
-                                createdAt = logs.createdAt.toLocalDate().format(createdDate)
+                                reply = null,
+                                replyLike = null,
+                                createdAt = logs.createdAt.toLocalDate().format(createdDate),
                             )
                         } else {
                             null
                         }
+
+                    MyActiveType.REPLY -> MyActiveDataResponse(
+                        type = "REPLY",
+                        postLike = null,
+                        commentLike = null,
+                        comment = null,
+                        reply = MyActiveReplyResponse(
+                            id = logs.replyId?.id,
+                            commentId = logs.replyId?.commentId?.id,
+                            commentDeletedAt = logs.replyId?.commentId?.deletedAt,
+                            createdBy = MyActiveReplyUserResponse(
+                                replyUserNickname = logs.replyId?.userId?.nickname,
+                                replyImageUrl = logs.replyId?.userId?.profileImage
+                            ),
+                            content = logs.replyId?.content
+                        ),
+                        replyLike = null,
+                        createdAt = logs.createdAt.toLocalDate().format(createdDate),
+                    )
+
+                    MyActiveType.REPLY_LIKES -> TODO()
                 }
             }.filterNotNull()
 
