@@ -3,6 +3,7 @@ package com.eatsfinder.domain.user.model
 import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.like.model.CommentLikes
 import com.eatsfinder.domain.like.model.PostLikes
+import com.eatsfinder.domain.like.model.ReplyLikes
 import com.eatsfinder.domain.reply.model.Reply
 import jakarta.persistence.*
 import org.springframework.data.annotation.CreatedDate
@@ -31,13 +32,13 @@ class UserLog(
     @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
     @JoinColumn(name = "reply_id", nullable = true)
     val replyId: Reply?,
-//
-//    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
-//    @JoinColumn(name = "reply_like_id", nullable = true)
-//    val replyLikeId: ReplyLikes?,
+
+    @ManyToOne(fetch = FetchType.LAZY, cascade = [CascadeType.PERSIST])
+    @JoinColumn(name = "reply_like_id", nullable = true)
+    val replyLikeId: ReplyLikes?,
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "myActive_type", nullable = false)
+    @Column(name = "myActive_type", nullable = false, length = 20)
     val myActiveType: MyActiveType
 
 ) {
