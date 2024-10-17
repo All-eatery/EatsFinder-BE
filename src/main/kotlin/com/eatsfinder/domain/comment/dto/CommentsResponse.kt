@@ -23,7 +23,8 @@ data class CommentsResponse(
                     likeStatus = (commentLikes?.any { it.commentId.id == comment.id && it.userId.id == userPrincipal?.id } == true),
                     authorStatus = (post.userId.id == comment.userId.id),
                     createdAt = comment.createdAt,
-                    replyList = comment.replies.map { reply ->
+                    totalReplyCount = comment.replies.size,
+                    replies = comment.replies.map { reply ->
                         ReplyResponse(
                             id = reply.id!!,
                             nickname = reply.userId.nickname,
