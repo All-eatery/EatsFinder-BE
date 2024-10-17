@@ -33,7 +33,7 @@ class PostLikeController(
     fun createPostLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam postId: Long
-    ): BaseResponse<PostLikesResponse> {
+    ): BaseResponse<String> {
         val userId = userPrincipal.id
         postLikeService.createPostLikes(userId, postId)
         return BaseResponse(message = "좋아요를 눌렸습니다.")
