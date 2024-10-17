@@ -70,6 +70,7 @@ class CommentServiceImpl(
                     postId = post
                 ),
                 replyId = null,
+                replyLikeId = null,
                 myActiveType = MyActiveType.COMMENT
             )
         )

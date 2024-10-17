@@ -41,7 +41,8 @@ class ReplyServiceImpl(
                     userId = user,
                     commentId = comment
                 ),
-                myActiveType = MyActiveType.COMMENT
+                replyLikeId = null,
+                myActiveType = MyActiveType.REPLY
             )
         )
         return "대댓글이 작성되었습니다."
