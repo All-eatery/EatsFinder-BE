@@ -99,7 +99,27 @@ data class MyActiveResponse(
                         createdAt = logs.createdAt.toLocalDate().format(createdDate),
                     )
 
-                    MyActiveType.REPLY_LIKES -> TODO()
+                    MyActiveType.REPLY_LIKES ->
+                        if (logs.replyLikeId?.replyId?.deletedAt == null) {
+                            MyActiveDataResponse(
+                                type = "REPLY_LIKES",
+                                postLike = null,
+                                commentLike = null,
+                                comment = null,
+                                reply = null,
+                                replyLike = MyActiveReplyLikeResponse(
+                                    replyId = logs.replyLikeId?.replyId?.id,
+                                    createdBy = MyActiveReplyUserResponse(
+                                        replyUserNickname = logs.replyId?.userId?.nickname,
+                                        replyImageUrl = logs.replyId?.userId?.profileImage
+                                    ),
+                                    replyContent = logs.replyLikeId?.replyId?.content
+                                ),
+                                createdAt = logs.createdAt.toLocalDate().format(createdDate),
+                            )
+                        } else {
+                            null
+                        }
                 }
             }.filterNotNull()
 
