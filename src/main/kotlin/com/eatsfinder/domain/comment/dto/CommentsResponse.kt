@@ -2,6 +2,7 @@ package com.eatsfinder.domain.comment.dto
 
 import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.like.model.CommentLikes
+import com.eatsfinder.domain.like.model.ReplyLikes
 import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.reply.dto.ReplyResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -11,7 +12,7 @@ data class CommentsResponse(
     val comments: List<CommentResponse>
 ) {
     companion object {
-        fun from(comments: List<Comment>, userPrincipal: UserPrincipal?, commentCount: Int, commentLikes: List<CommentLikes>?, post: Post): CommentsResponse {
+        fun from(comments: List<Comment>, userPrincipal: UserPrincipal?, commentCount: Int, commentLikes: List<CommentLikes>?, replyLikes: List<ReplyLikes>?, post: Post): CommentsResponse {
             val res = comments.map { comment ->
                 CommentResponse(
                     id = comment.id!!,
@@ -32,7 +33,7 @@ data class CommentsResponse(
                             content = reply.content,
                             likeCount = reply.likeCount,
                             isMyComment = (userPrincipal != null && reply.userId.id == userPrincipal.id),
-                            likeStatus = false,
+                            likeStatus = (replyLikes?.any { it.replyId.id == reply.id && it.userId.id == userPrincipal?.id } == true),
                             authorStatus = (post.userId.id == reply.userId.id),
                             createdAt = reply.createdAt
                         )

@@ -9,4 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 interface ReplyLikeRepository : JpaRepository<ReplyLikes, Long> {
 
     fun findByUserIdAndReplyId(userId: User, replyId: Reply): ReplyLikes?
+
+    fun findReplyLikesByUserId(userId: User): List<ReplyLikes>?
+
 }
