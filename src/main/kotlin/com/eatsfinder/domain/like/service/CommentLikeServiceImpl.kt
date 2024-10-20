@@ -42,8 +42,9 @@ class CommentLikeServiceImpl(
         if (comment.likeCount < 0) throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
 
         if (commentLike == null) {
-            comment.likeCount++
-            commentRepository.save(comment)
+            val nowLikeCount = commentRepository.getLikeCountById(commentId)
+            val newLikeCount = nowLikeCount + 1
+            commentRepository.updateLikeCount(commentId, newLikeCount)
             userLogRepository.save(
                 UserLog(
                     userId = user,
@@ -78,9 +79,12 @@ class CommentLikeServiceImpl(
 
         if (commentLike != null) {
             if (comment.likeCount > 0) {
+                val nowLikeCount = commentRepository.getLikeCountById(commentId)
+                val newLikeCount = nowLikeCount + 1
+                commentRepository.updateLikeCount(commentId, newLikeCount)
+
                 commentLikeRepository.delete(commentLike)
-                comment.likeCount--
-                commentRepository.save(comment)
+                commentRepository.deleteUserLogCommentLikeId(commentId)
 
                 val userLog =
                     userLogRepository.findUserLogByCommentLikeIdAndMyActiveType(commentLike, MyActiveType.COMMENT_LIKES)

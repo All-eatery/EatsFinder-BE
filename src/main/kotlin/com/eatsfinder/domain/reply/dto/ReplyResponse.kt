@@ -11,5 +11,6 @@ data class ReplyResponse (
     val isMyComment: Boolean,
     val likeStatus: Boolean,
     val authorStatus: Boolean,
+    val isUpdated: Boolean,
     val createdAt: LocalDateTime
 )

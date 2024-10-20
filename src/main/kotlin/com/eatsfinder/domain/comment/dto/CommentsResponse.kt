@@ -6,6 +6,7 @@ import com.eatsfinder.domain.like.model.ReplyLikes
 import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.reply.dto.ReplyResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
+import java.time.LocalDateTime
 
 data class CommentsResponse(
     val totalCommentCount: Int = 0,
@@ -24,6 +25,7 @@ data class CommentsResponse(
                     likeStatus = (commentLikes?.any { it.commentId.id == comment.id && it.userId.id == userPrincipal?.id } == true),
                     authorStatus = (post.userId.id == comment.userId.id),
                     createdAt = comment.createdAt,
+                    isUpdated = (comment.updatedAt != comment.createdAt),
                     totalReplyCount = comment.replies.size,
                     replies = comment.replies.map { reply ->
                         ReplyResponse(
@@ -35,7 +37,8 @@ data class CommentsResponse(
                             isMyComment = (userPrincipal != null && reply.userId.id == userPrincipal.id),
                             likeStatus = (replyLikes?.any { it.replyId.id == reply.id && it.userId.id == userPrincipal?.id } == true),
                             authorStatus = (post.userId.id == reply.userId.id),
-                            createdAt = reply.createdAt
+                            createdAt = reply.createdAt,
+                            isUpdated = (reply.updatedAt != reply.createdAt)
                         )
                     }
                 )

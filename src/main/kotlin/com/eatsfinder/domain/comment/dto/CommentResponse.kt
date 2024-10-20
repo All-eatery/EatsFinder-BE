@@ -13,6 +13,7 @@ data class CommentResponse(
     val likeStatus: Boolean,
     val authorStatus: Boolean,
     val createdAt: LocalDateTime,
+    val isUpdated: Boolean,
     val totalReplyCount: Int,
     val replies: List<ReplyResponse>,
 )

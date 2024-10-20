@@ -37,8 +37,9 @@ class ReplyLikeServiceImpl(
         if (reply.likeCount < 0) throw DefaultZeroException("좋아요 수의 기본값은 0입니다.")
 
         if (replyLike == null) {
-            reply.likeCount++
-            replyRepository.save(reply)
+            val nowLikeCount = replyRepository.getLikeCountById(replyId)
+            val newLikeCount = nowLikeCount + 1
+            replyRepository.updateLikeCount(replyId, newLikeCount)
             userLogRepository.save(
                 UserLog(
                     userId = user,
@@ -72,9 +73,12 @@ class ReplyLikeServiceImpl(
 
         if (replyLike != null) {
             if (reply.likeCount > 0) {
+                val nowLikeCount = replyRepository.getLikeCountById(replyId)
+                val newLikeCount = nowLikeCount - 1
+                replyRepository.updateLikeCount(replyId, newLikeCount)
+
                 replyLikesRepository.delete(replyLike)
-                reply.likeCount--
-                replyRepository.save(reply)
+                replyRepository.deleteUserLogReplyLikeId(replyId)
 
                 val userLog =
                     userLogRepository.findUserLogByReplyLikeIdAndMyActiveType(replyLike, MyActiveType.REPLY_LIKES)
