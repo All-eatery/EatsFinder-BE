@@ -24,6 +24,7 @@ class Reply(
     @ColumnDefault("0")
     @Column(name = "like_count", nullable = false)
     var likeCount: Int = 0
+
 ) : BaseTimeEntity() {
 
     @Id
