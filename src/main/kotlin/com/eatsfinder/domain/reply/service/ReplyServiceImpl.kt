@@ -55,7 +55,7 @@ class ReplyServiceImpl(
         )
 
         if (reply.userId.id != userId) {
-            throw ImmutableUserOrUnauthorizedUserException("이 댓글을 수정할 권한이 없습니다.")
+            throw ImmutableUserOrUnauthorizedUserException("이 대댓글을 수정할 권한이 없습니다.")
         }
 
         reply.content = req.content
@@ -70,7 +70,7 @@ class ReplyServiceImpl(
         )
 
         if (reply.userId.id != userId) {
-            throw ImmutableUserOrUnauthorizedUserException("이 댓글을 수정할 권한이 없습니다.")
+            throw ImmutableUserOrUnauthorizedUserException("이 대댓글을 삭제할 권한이 없습니다.")
         }
         replyRepository.delete(reply)
     }
