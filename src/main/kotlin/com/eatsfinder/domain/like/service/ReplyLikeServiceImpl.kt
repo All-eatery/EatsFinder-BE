@@ -29,7 +29,7 @@ class ReplyLikeServiceImpl(
 
         val reply = replyRepository.findByIdAndDeletedAt(replyId, null) ?: throw ModelNotFoundException(
             "reply",
-            "이 유저 아이디(${userId})는 존재하지 않습니다."
+            "이 유저 아이디(${replyId})는 존재하지 않습니다."
         )
 
         val replyLike = replyLikesRepository.findByUserIdAndReplyId(user, reply)
@@ -64,7 +64,7 @@ class ReplyLikeServiceImpl(
 
         val reply = replyRepository.findByIdAndDeletedAt(replyId, null) ?: throw ModelNotFoundException(
             "reply",
-            "이 유저 아이디(${userId})는 존재하지 않습니다."
+            "이 대댓글 아이디(${replyId})는 존재하지 않습니다."
         )
 
         val replyLike = replyLikesRepository.findByUserIdAndReplyId(user, reply)

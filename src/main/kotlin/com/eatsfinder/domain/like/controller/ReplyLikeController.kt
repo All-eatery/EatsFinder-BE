@@ -21,10 +21,10 @@ class ReplyLikeController(
     @PostMapping("/reply-likes")
     fun createCommentLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
-        @RequestParam commentId: Long
+        @RequestParam replyId: Long
     ): BaseResponse<String> {
         val userId = userPrincipal.id
-        replyLikeService.createReplyLikes(userId, commentId)
+        replyLikeService.createReplyLikes(userId, replyId)
         return BaseResponse(message = "좋아요를 눌렸습니다.")
     }
 
@@ -33,10 +33,10 @@ class ReplyLikeController(
     @DeleteMapping("/reply-likes")
     fun deleteCommentLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
-        @RequestParam commentId: Long
+        @RequestParam replyId: Long
     ): BaseResponse<Unit> {
         val userId = userPrincipal.id
-        replyLikeService.deleteReplyLikes(userId, commentId)
+        replyLikeService.deleteReplyLikes(userId, replyId)
         return BaseResponse(message = "좋아요가 취소됐습니다.")
     }
 }
