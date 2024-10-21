@@ -1,53 +1,42 @@
 package com.eatsfinder.domain.like.controller
 
-import com.eatsfinder.domain.like.dto.PostLikesResponse
-import com.eatsfinder.domain.like.service.PostLikeService
+import com.eatsfinder.domain.like.service.ReplyLikeService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
-import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
-class PostLikeController(
-    private val postLikeService: PostLikeService
+class ReplyLikeController(
+    private val replyLikeService: ReplyLikeService
 ) {
 
-    @Operation(summary = "좋아요한 게시물 조회하기")
-    @GetMapping("/post-likes")
-    fun getPostLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<PostLikesResponse> {
-        val userId = userPrincipal.id
-        return ResponseEntity.status(HttpStatus.OK).body(postLikeService.getPostLikes(userId))
-    }
-
-    @Operation(summary = "게시물 좋아요 하기")
+    @Operation(summary = "대댓글 좋아요 하기")
     @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
-    @PostMapping("/post-likes")
-    fun createPostLikes(
+    @PostMapping("/reply-likes")
+    fun createCommentLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
-        @RequestParam postId: Long
+        @RequestParam replyId: Long
     ): BaseResponse<String> {
         val userId = userPrincipal.id
-        postLikeService.createPostLikes(userId, postId)
+        replyLikeService.createReplyLikes(userId, replyId)
         return BaseResponse(message = "좋아요를 눌렸습니다.")
     }
 
-    @Operation(summary = "게시물 좋아요 취소")
+    @Operation(summary = "대댓글 좋아요 취소")
     @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
-    @DeleteMapping("/post-likes")
-    fun deletePostLikes(
+    @DeleteMapping("/reply-likes")
+    fun deleteCommentLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
-        @RequestParam postId: Long
+        @RequestParam replyId: Long
     ): BaseResponse<Unit> {
         val userId = userPrincipal.id
-        postLikeService.deletePostLikes(userId, postId)
+        replyLikeService.deleteReplyLikes(userId, replyId)
         return BaseResponse(message = "좋아요가 취소됐습니다.")
     }
 }

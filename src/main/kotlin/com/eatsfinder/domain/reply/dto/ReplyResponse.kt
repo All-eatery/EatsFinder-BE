@@ -1,9 +1,8 @@
-package com.eatsfinder.domain.comment.dto
+package com.eatsfinder.domain.reply.dto
 
-import com.eatsfinder.domain.reply.dto.ReplyResponse
 import java.time.LocalDateTime
 
-data class CommentResponse(
+data class ReplyResponse (
     val id: Long,
     val nickname: String,
     val profileImage: String?,
@@ -12,8 +11,6 @@ data class CommentResponse(
     val isMyComment: Boolean,
     val likeStatus: Boolean,
     val authorStatus: Boolean,
-    val createdAt: LocalDateTime,
     val isUpdated: Boolean,
-    val totalReplyCount: Int,
-    val replies: List<ReplyResponse>,
+    val createdAt: LocalDateTime
 )

@@ -1,6 +1,5 @@
 package com.eatsfinder.domain.like.controller
 
-import com.eatsfinder.domain.like.dto.CommentLikeResponse
 import com.eatsfinder.domain.like.service.CommentLikeService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -20,7 +19,7 @@ class CommentLikeController(
     fun createCommentLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam commentId: Long
-    ): BaseResponse<CommentLikeResponse> {
+    ): BaseResponse<String> {
         val userId = userPrincipal.id
         commentLikeService.createCommentLikes(userId, commentId)
         return BaseResponse(message = "좋아요를 눌렸습니다.")

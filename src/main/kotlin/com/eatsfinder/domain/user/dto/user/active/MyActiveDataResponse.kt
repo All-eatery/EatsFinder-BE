@@ -5,5 +5,7 @@ data class MyActiveDataResponse(
     val postLike: MyActivePostLikeResponse?,
     val commentLike: MyActiveCommentLikeResponse?,
     val comment: MyActiveCommentResponse?,
+    val reply:MyActiveReplyResponse?,
+    val replyLike: MyActiveReplyLikeResponse?,
     val createdAt: String
 )

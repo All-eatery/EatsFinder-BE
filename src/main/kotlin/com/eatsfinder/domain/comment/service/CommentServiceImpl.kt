@@ -6,7 +6,9 @@ import com.eatsfinder.domain.comment.dto.CommentsResponse.Companion.from
 import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.comment.repository.CommentRepository
 import com.eatsfinder.domain.like.repository.CommentLikeRepository
+import com.eatsfinder.domain.like.repository.ReplyLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
+import com.eatsfinder.domain.reply.repository.ReplyRepository
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
 import com.eatsfinder.domain.user.repository.UserLogRepository
@@ -23,7 +25,9 @@ class CommentServiceImpl(
     private val postRepository: PostRepository,
     private val commentRepository: CommentRepository,
     private val commentLikeRepository: CommentLikeRepository,
-    private val userLogRepository: UserLogRepository
+    private val userLogRepository: UserLogRepository,
+    private val replyRepository: ReplyRepository,
+    private val replyLikeRepository: ReplyLikeRepository
 ) : CommentService {
 
     @Transactional(readOnly = true)
@@ -45,8 +49,9 @@ class CommentServiceImpl(
         val commentCount = commentRepository.countByPostIdAndDeletedAt(post, null) ?: 0
         val comments = commentRepository.findByPostIdAndDeletedAt(post, null)
         val commentLikes = user?.let { commentLikeRepository.findCommentLikesByUserId(it) } ?: emptyList()
+        val replyLikes = user?.let { replyLikeRepository.findReplyLikesByUserId(it) } ?: emptyList()
 
-        return from(comments, userPrincipal, commentCount, commentLikes, post)
+        return from(comments, userPrincipal, commentCount, commentLikes, replyLikes, post)
     }
 
     @Transactional
@@ -69,6 +74,8 @@ class CommentServiceImpl(
                     userId = user,
                     postId = post
                 ),
+                replyId = null,
+                replyLikeId = null,
                 myActiveType = MyActiveType.COMMENT
             )
         )
