@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface ReportPostRepository : JpaRepository<ReportPost, Long> {
 
-    fun existsByIdAndReportedUserId(postId: Long?, reportedUserId: User?): Boolean
+    fun existsByPostIdAndUserId(postId: Post, userId: User?): Boolean
 
     fun findByPostIdAndReportedUserId(postId: Post, reportedUserId: User): ReportPost?
 

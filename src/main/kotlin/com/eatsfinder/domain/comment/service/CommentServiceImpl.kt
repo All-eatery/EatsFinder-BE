@@ -9,6 +9,8 @@ import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.like.repository.ReplyLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.reply.repository.ReplyRepository
+import com.eatsfinder.domain.report.repository.ReportCommentRepository
+import com.eatsfinder.domain.report.repository.ReportPostRepository
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
 import com.eatsfinder.domain.user.repository.UserLogRepository
@@ -27,7 +29,9 @@ class CommentServiceImpl(
     private val commentLikeRepository: CommentLikeRepository,
     private val userLogRepository: UserLogRepository,
     private val replyRepository: ReplyRepository,
-    private val replyLikeRepository: ReplyLikeRepository
+    private val replyLikeRepository: ReplyLikeRepository,
+    private val reportCommentRepository: ReportCommentRepository,
+    private val reportPostRepository: ReportPostRepository
 ) : CommentService {
 
     @Transactional(readOnly = true)
@@ -46,8 +50,19 @@ class CommentServiceImpl(
             "이 게시물 아이디: (${postId})는 존재하지 않습니다."
         )
 
+        val reportedPost = reportPostRepository.findByPostIdAndReportedUserId(post, post.userId)
+        if (reportedPost != null && reportedPost.userId.id == loginUser) return CommentsResponse(0, emptyList())
+
+
         val commentCount = commentRepository.countByPostIdAndDeletedAt(post, null) ?: 0
-        val comments = commentRepository.findByPostIdAndDeletedAt(post, null)
+        val comments = commentRepository.findByPostIdAndDeletedAt(post, null).filterNot {
+            reportCommentRepository.existsByCommentIdAndUserId(it, user)
+        }
+        comments.forEach { comment ->
+            comment.replies =
+                comment.replies.filterNot { reportCommentRepository.existsByReplyIdAndUserId(it, user) }.toMutableList()
+        }
+
         val commentLikes = user?.let { commentLikeRepository.findCommentLikesByUserId(it) } ?: emptyList()
         val replyLikes = user?.let { replyLikeRepository.findReplyLikesByUserId(it) } ?: emptyList()
 
