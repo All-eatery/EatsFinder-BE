@@ -4,6 +4,7 @@ import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.exception.email.*
 import com.eatsfinder.global.exception.like.DefaultZeroException
 import com.eatsfinder.global.exception.profile.*
+import com.eatsfinder.global.exception.report.ReportReasonException
 import com.eatsfinder.global.exception.status.StatusCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -111,6 +112,12 @@ class GlobalExceptionHandler {
 
     @ExceptionHandler(NoCancelWithdrawalException::class)
     protected fun noCancelWithdrawalException(ex: NoCancelWithdrawalException): ResponseEntity<BaseResponse<Map<String, String>>> {
+        val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
+        return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
+    }
+
+    @ExceptionHandler(ReportReasonException::class)
+    protected fun reportReasonException(ex: ReportReasonException): ResponseEntity<BaseResponse<Map<String, String>>> {
         val errors = mapOf(ex.fieldName to (ex.message ?: "Not Exception Message"))
         return ResponseEntity(BaseResponse(StatusCode.ERROR.name, errors, StatusCode.ERROR.message), HttpStatus.BAD_REQUEST)
     }
