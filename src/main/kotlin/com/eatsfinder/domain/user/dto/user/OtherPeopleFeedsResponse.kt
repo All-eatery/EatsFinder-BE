@@ -34,6 +34,7 @@ data class OtherPeopleFeedsResponse(
 
             val otherPersonFeedResponses = pagedFeeds.map { post ->
                 OtherPeopleFeedResponse(
+                    postId = post.id,
                     thumbnailUrl = post.thumbnailUrl,
                     placeName = post.placeId.name,
                     content = post.content,
