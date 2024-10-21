@@ -9,7 +9,7 @@ interface ReportPostRepository : JpaRepository<ReportPost, Long> {
 
     fun existsByPostIdAndUserId(postId: Post, userId: User?): Boolean
 
-    fun findByPostIdAndReportedUserId(postId: Post, reportedUserId: User): ReportPost?
+    fun findByPostIdAndReportedUserId(postId: Post?, reportedUserId: User): ReportPost?
 
     fun existsByPostIdAndReportedUserIdAndUserId(postId: Post, reportedUserId: User, userId: User?): Boolean
 

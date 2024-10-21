@@ -4,6 +4,7 @@ import com.eatsfinder.domain.like.dto.PostLikesResponse
 import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.like.repository.PostLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
+import com.eatsfinder.domain.report.repository.ReportPostRepository
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
 import com.eatsfinder.domain.user.repository.UserLogRepository
@@ -19,7 +20,8 @@ class PostLikeServiceImpl(
     private val userRepository: UserRepository,
     private val postRepository: PostRepository,
     private val postLikeRepository: PostLikeRepository,
-    private val userLogRepository: UserLogRepository
+    private val userLogRepository: UserLogRepository,
+    private val reportPostRepository: ReportPostRepository
 ) : PostLikeService {
 
     @Transactional
@@ -99,7 +101,9 @@ class PostLikeServiceImpl(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
-        val postLikes = postLikeRepository.findByUserId(user)
+        val postLikes = postLikeRepository.findByUserId(user).filterNot {
+            reportPostRepository.existsByPostIdAndUserId(it.postId, user)
+        }
         val postCount = postLikes.size
 
         return PostLikesResponse.from(postLikes, user, postCount)
