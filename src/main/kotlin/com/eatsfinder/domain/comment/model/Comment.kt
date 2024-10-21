@@ -29,7 +29,7 @@ class Comment(
     var likeCount: Int = 0,
 
     @OneToMany(mappedBy = "commentId", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
-    val replies: MutableList<Reply> = mutableListOf(),
+    var replies: MutableList<Reply> = mutableListOf(),
 
 
     ) : BaseTimeEntity() {
