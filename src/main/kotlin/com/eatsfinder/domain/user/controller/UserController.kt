@@ -2,6 +2,7 @@ package com.eatsfinder.domain.user.controller
 
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
+import com.eatsfinder.domain.user.model.MyActiveFilter
 import com.eatsfinder.domain.user.service.UserService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -114,10 +115,11 @@ class UserController(
     @GetMapping("/actives")
     fun getMyActive(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
+        @RequestParam filter : MyActiveFilter,
         @PageableDefault(size = 10, sort = ["createdAt"]) pageable: Pageable
         ): ResponseEntity<List<MyActiveResponse>> {
 
         val myProfileId = userPrincipal.id
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyActive(myProfileId, pageable))
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getMyActive(myProfileId, pageable, filter))
     }
 }

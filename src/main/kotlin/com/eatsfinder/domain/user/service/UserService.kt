@@ -2,6 +2,7 @@ package com.eatsfinder.domain.user.service
 
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
+import com.eatsfinder.domain.user.model.MyActiveFilter
 import org.springframework.data.domain.Pageable
 
 interface UserService {
@@ -35,5 +36,5 @@ interface UserService {
 
     fun getOtherPeopleFeed(otherProfileId: Long, pageable: Pageable) : OtherPeopleFeedsResponse
 
-    fun getMyActive(myProfileId: Long, pageable: Pageable): List<MyActiveResponse>
+    fun getMyActive(myProfileId: Long, pageable: Pageable, filter : MyActiveFilter): List<MyActiveResponse>
 }
