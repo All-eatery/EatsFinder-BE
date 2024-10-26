@@ -1,8 +1,8 @@
 package com.eatsfinder.domain.post.controller
 
 import com.eatsfinder.domain.post.dto.NewPostByNeighborResponse
-import com.eatsfinder.domain.post.dto.PaginationNeighborPostResponse
 import com.eatsfinder.domain.post.service.PostService
+import com.eatsfinder.global.pagination.PaginationItemsResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
 import org.springframework.data.domain.Pageable
@@ -26,7 +26,7 @@ class PostController(
     ): ResponseEntity<NewPostByNeighborResponse> {
         val response = if (userPrincipal == null) {
             NewPostByNeighborResponse(
-                pagination = PaginationNeighborPostResponse(totalPosts = 0, postsPerPage = 0, totalPage = 0, currentPage = 0, isLastPage = false),
+                pagination = PaginationItemsResponse(totalItems = 0, itemsPerPage = 0, totalPage = 0, currentPage = 0, isLastPage = false),
                 followingCount = 0,
                 neighborPost = emptyList())
         } else {
