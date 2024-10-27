@@ -16,13 +16,13 @@ class PostRepositoryImpl: IPostRepository, QueryDslSupport() {
     private val reportPost = QReportPost.reportPost
     override fun getTopPostList(userId: Long?): List<TopPostResponse> {
         return if (userId == null) {
-            nonLogin()
+            nonLoginStatus()
         } else {
-            login(userId)
+            loginStatus(userId)
         }
     }
 
-    private fun nonLogin(): List<TopPostResponse> {
+    private fun nonLoginStatus(): List<TopPostResponse> {
         return queryFactory.select(
             Projections.constructor(
                 TopPostResponse::class.java,
@@ -42,7 +42,7 @@ class PostRepositoryImpl: IPostRepository, QueryDslSupport() {
             .fetch()
     }
 
-    private fun login(userId: Long): List<TopPostResponse> {
+    private fun loginStatus(userId: Long): List<TopPostResponse> {
         val reportedPost = queryFactory
             .select(reportPost.postId.id)
             .from(reportPost)
