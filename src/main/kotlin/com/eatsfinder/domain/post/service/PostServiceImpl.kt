@@ -42,8 +42,8 @@ class PostServiceImpl(
 
     }
 
-    override fun getTopPost(): List<TopPostResponse> {
-        return postRepository.getTopPost()
+    override fun getTopPost(userId: Long?): List<TopPostResponse> {
+        return postRepository.getTopPost(userId)
     }
 
 }

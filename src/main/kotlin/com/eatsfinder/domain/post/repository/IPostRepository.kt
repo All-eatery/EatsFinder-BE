@@ -4,5 +4,5 @@ import com.eatsfinder.domain.post.dto.TopPostResponse
 
 interface IPostRepository {
 
-    fun getTopPost(): List<TopPostResponse>
+    fun getTopPost(userId: Long?): List<TopPostResponse>
 }

@@ -8,5 +8,5 @@ interface PostService {
 
     fun getNewPostByNeighbor(userId: Long?, pageable: Pageable): NewPostByNeighborResponse
 
-    fun getTopPost(): List<TopPostResponse>
+    fun getTopPost(userId: Long?): List<TopPostResponse>
 }

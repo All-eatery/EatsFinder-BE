@@ -40,7 +40,10 @@ class PostController(
 
     @Operation(summary = "인기 게시물 TOP 20")
     @GetMapping("/posts/popular")
-    fun getTopPostList(): ResponseEntity<List<TopPostResponse>> {
-        return ResponseEntity.status(HttpStatus.OK).body(postService.getTopPost())
+    fun getTopPostList(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal?
+    ): ResponseEntity<List<TopPostResponse>> {
+        val userId = userPrincipal?.id
+        return ResponseEntity.status(HttpStatus.OK).body(postService.getTopPost(userId))
     }
 }
