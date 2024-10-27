@@ -14,7 +14,7 @@ class PostRepositoryImpl: IPostRepository, QueryDslSupport() {
     private val post = QPost.post
     private val postLike = QPostLikes.postLikes
     private val reportPost = QReportPost.reportPost
-    override fun getTopPost(userId: Long?): List<TopPostResponse> {
+    override fun getTopPostList(userId: Long?): List<TopPostResponse> {
         return if (userId == null) {
             nonLogin()
         } else {

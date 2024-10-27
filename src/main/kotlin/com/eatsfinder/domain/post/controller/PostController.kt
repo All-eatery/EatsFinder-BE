@@ -44,6 +44,6 @@ class PostController(
         @AuthenticationPrincipal userPrincipal: UserPrincipal?
     ): ResponseEntity<List<TopPostResponse>> {
         val userId = userPrincipal?.id
-        return ResponseEntity.status(HttpStatus.OK).body(postService.getTopPost(userId))
+        return ResponseEntity.status(HttpStatus.OK).body(postService.getTopPostList(userId))
     }
 }
