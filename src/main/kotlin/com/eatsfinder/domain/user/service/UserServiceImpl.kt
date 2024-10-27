@@ -3,10 +3,10 @@ package com.eatsfinder.domain.user.service
 import com.eatsfinder.domain.email.repository.EmailRepository
 import com.eatsfinder.domain.email.service.EmailUtils
 import com.eatsfinder.domain.post.repository.PostRepository
+import com.eatsfinder.domain.report.repository.ReportPostRepository
 import com.eatsfinder.domain.user.dto.user.*
 import com.eatsfinder.domain.user.dto.user.active.MyActiveResponse
-import com.eatsfinder.domain.user.model.UserWithdrawalData
-import com.eatsfinder.domain.user.model.SocialType
+import com.eatsfinder.domain.user.model.*
 import com.eatsfinder.domain.user.repository.DeleteUserDataRepository
 import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
@@ -33,6 +33,7 @@ class UserServiceImpl(
     private val postRepository: PostRepository,
     private val userLogRepository: UserLogRepository,
     private val deleteUserDataRepository: DeleteUserDataRepository,
+    private val reportPostRepository: ReportPostRepository,
     private val emailUtils: EmailUtils,
     private val awsService: AwsS3Service
 ) : UserService {
@@ -224,21 +225,48 @@ class UserServiceImpl(
             throw MyProfileException("본인 피드이므로 조회할 수 없습니다.")
         }
 
-        val otherPost = postRepository.findByUserId(profile)
+        val user = userRepository.findByIdAndDeletedAt(userPrincipal?.id!!, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 프로필은(id: ${userPrincipal.id})은 존재하지 않습니다."
+        )
 
-        return OtherPeopleFeedsResponse.from(otherPost!!, pageable)
+        val otherPost = postRepository.findByUserId(profile) ?: emptyList()
+
+        val posts = otherPost.filterNot {
+            reportPostRepository.existsByPostIdAndUserId(it, user)
+        }
+
+
+        return OtherPeopleFeedsResponse.from(posts, pageable)
     }
 
-    override fun getMyActive(myProfileId: Long, pageable: Pageable): List<MyActiveResponse> {
+    override fun getMyActive(myProfileId: Long, pageable: Pageable, filter : MyActiveFilter): List<MyActiveResponse> {
         val profile = userRepository.findByIdAndDeletedAt(myProfileId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
         val logs = userLogRepository.findByUserId(profile)?.distinct() ?: emptyList()
+        val filteredLogs = filterLogs(logs, filter)
+
+
         return if (logs.isNotEmpty()) {
-            listOf(MyActiveResponse.from(logs, pageable))
+            listOf(MyActiveResponse.from(filteredLogs, pageable))
         } else {
             emptyList()
+        }
+    }
+
+    private fun filterLogs(logs: List<UserLog>, filter: MyActiveFilter): List<UserLog> {
+        return when (filter) {
+            MyActiveFilter.LIKE -> logs.filter {
+                it.myActiveType == MyActiveType.POST_LIKES || it.myActiveType == MyActiveType.COMMENT_LIKES || it.myActiveType == MyActiveType.REPLY_LIKES
+            }
+
+            MyActiveFilter.COMMENT -> logs.filter {
+                it.myActiveType == MyActiveType.COMMENT || it.myActiveType == MyActiveType.REPLY
+            }
+
+            else -> logs
         }
     }
 }

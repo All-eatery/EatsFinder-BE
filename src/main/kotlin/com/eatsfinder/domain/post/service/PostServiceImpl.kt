@@ -4,6 +4,7 @@ import com.eatsfinder.domain.follow.repository.FollowRepository
 import com.eatsfinder.domain.like.repository.PostLikeRepository
 import com.eatsfinder.domain.post.dto.NewPostByNeighborResponse
 import com.eatsfinder.domain.post.repository.PostRepository
+import com.eatsfinder.domain.report.repository.ReportPostRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import org.springframework.data.domain.Pageable
@@ -15,7 +16,8 @@ class PostServiceImpl(
     private val postRepository: PostRepository,
     private val postLikeRepository: PostLikeRepository,
     private val followRepository: FollowRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val reportPostRepository: ReportPostRepository
 ): PostService {
     override fun getNewPostByNeighbor(userId: Long?, pageable: Pageable): NewPostByNeighborResponse {
         val user = userRepository.findByIdAndDeletedAt(userId!!, null) ?: throw ModelNotFoundException(
@@ -29,7 +31,9 @@ class PostServiceImpl(
 
         val time = LocalDateTime.now().minusHours(72)
 
-        val posts = postRepository.findPostByUserIdInAndOrderByUpdatedAtAfter(followingUserList, time)
+        val posts = postRepository.findPostByUserIdInAndOrderByUpdatedAtAfter(followingUserList, time)?.filterNot {
+            reportPostRepository.existsByPostIdAndUserId(it, user)
+        }
 
         val postLikes = postLikeRepository.findByUserId(user)
 

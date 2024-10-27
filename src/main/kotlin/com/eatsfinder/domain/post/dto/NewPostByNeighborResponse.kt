@@ -3,11 +3,12 @@ package com.eatsfinder.domain.post.dto
 import com.eatsfinder.domain.follow.model.Follow
 import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.post.model.Post
+import com.eatsfinder.global.pagination.PaginationItemsResponse
 import com.eatsfinder.domain.user.model.User
 import org.springframework.data.domain.Pageable
 
 data class NewPostByNeighborResponse(
-    val pagination: PaginationNeighborPostResponse,
+    val pagination: PaginationItemsResponse,
     val followingCount: Int,
     val neighborPost: List<NeighborPostResponse>
 ){
@@ -33,31 +34,30 @@ data class NewPostByNeighborResponse(
                 }
             }
 
-            val totalPost = neighborPosts.size.toLong()
-            val pagedPosts = neighborPosts.drop(pageable.pageNumber * pageable.pageSize)
+            val totalItems = neighborPosts.size.toLong()
+            val pagedItems = neighborPosts.drop(pageable.pageNumber * pageable.pageSize)
                 .take(pageable.pageSize)
 
-            val totalPage = if (totalPost == 0L) {
+            val totalPage = if (totalItems == 0L) {
                 0L
             } else {
-                (totalPost + pageable.pageSize - 1) / pageable.pageSize
+                (totalItems + pageable.pageSize - 1) / pageable.pageSize
             }
 
-            val isLastPage = (pageable.pageNumber + 1) * pageable.pageSize >= totalPost
+            val isLastPage = (pageable.pageNumber + 1) * pageable.pageSize >= totalItems
 
-            val pagination = PaginationNeighborPostResponse(
-                totalPosts = totalPost,
-                postsPerPage = pageable.pageSize,
+            val pagination = PaginationItemsResponse(
+                totalItems = totalItems,
+                itemsPerPage = pageable.pageSize,
                 totalPage = totalPage,
                 currentPage = pageable.pageNumber,
                 isLastPage = isLastPage
             )
 
-
             return NewPostByNeighborResponse(
                 pagination = pagination,
                 followingCount = user.followingCount,
-                neighborPost = pagedPosts,
+                neighborPost = pagedItems,
             )
         }
     }

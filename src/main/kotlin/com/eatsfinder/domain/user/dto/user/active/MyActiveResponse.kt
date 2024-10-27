@@ -1,5 +1,7 @@
 package com.eatsfinder.domain.user.dto.user.active
 
+import com.eatsfinder.global.pagination.PaginationItemsResponse
+import com.eatsfinder.domain.user.model.MyActiveFilter
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
 import org.springframework.data.domain.Pageable
@@ -7,7 +9,7 @@ import java.time.format.DateTimeFormatter
 
 
 data class MyActiveResponse(
-    val pagination: PaginationActiveResponse,
+    val pagination: PaginationItemsResponse,
     val data: List<MyActiveDataResponse>
 ) {
     companion object {
@@ -123,21 +125,21 @@ data class MyActiveResponse(
                 }
             }.filterNotNull()
 
-            val totalActive = data.size.toLong()
-            val pagedActives = data.drop(pageable.pageNumber * pageable.pageSize)
+            val totalItems = data.size.toLong()
+            val pagedItems = data.drop(pageable.pageNumber * pageable.pageSize)
                 .take(pageable.pageSize)
 
-            val totalPage = if (totalActive == 0L) {
+            val totalPage = if (totalItems == 0L) {
                 0L
             } else {
-                (totalActive + pageable.pageSize - 1) / pageable.pageSize
+                (totalItems + pageable.pageSize - 1) / pageable.pageSize
             }
 
-            val isLastPage = (pageable.pageNumber + 1) * pageable.pageSize >= totalActive
+            val isLastPage = (pageable.pageNumber + 1) * pageable.pageSize >= totalItems
 
-            val pagination = PaginationActiveResponse(
-                totalActive = totalActive,
-                activesPerPage = pageable.pageSize,
+            val pagination = PaginationItemsResponse(
+                totalItems = totalItems,
+                itemsPerPage = pageable.pageSize,
                 totalPage = totalPage,
                 currentPage = pageable.pageNumber,
                 isLastPage = isLastPage
@@ -145,7 +147,7 @@ data class MyActiveResponse(
 
             return MyActiveResponse(
                 pagination = pagination,
-                data = pagedActives
+                data = pagedItems
             )
         }
     }
