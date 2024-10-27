@@ -28,7 +28,6 @@ class CommentServiceImpl(
     private val commentRepository: CommentRepository,
     private val commentLikeRepository: CommentLikeRepository,
     private val userLogRepository: UserLogRepository,
-    private val replyRepository: ReplyRepository,
     private val replyLikeRepository: ReplyLikeRepository,
     private val reportCommentRepository: ReportCommentRepository,
     private val reportPostRepository: ReportPostRepository
