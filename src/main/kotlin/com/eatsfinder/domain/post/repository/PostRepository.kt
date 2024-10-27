@@ -6,11 +6,9 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
 import java.time.LocalDateTime
 
-interface PostRepository: JpaRepository<Post, Long> {
+interface PostRepository: JpaRepository<Post, Long>, IPostRepository{
 
     fun findByUserId(userId: User): List<Post>?
-
-    fun findPostByUserId(userId: User): Post?
 
     fun findByIdAndDeletedAt(id: Long, deletedAt: LocalDateTime?): Post?
 
