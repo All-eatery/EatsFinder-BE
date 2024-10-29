@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.post.controller
 
 import com.eatsfinder.domain.post.dto.NewPostByNeighborResponse
+import com.eatsfinder.domain.post.dto.TopPostResponse
 import com.eatsfinder.domain.post.service.PostService
 import com.eatsfinder.global.pagination.PaginationItemsResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -35,5 +36,14 @@ class PostController(
         }
 
         return ResponseEntity.status(HttpStatus.OK).body(response)
+    }
+
+    @Operation(summary = "인기 게시물 TOP 20")
+    @GetMapping("/posts/popular")
+    fun getTopPostList(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal?
+    ): ResponseEntity<List<TopPostResponse>> {
+        val userId = userPrincipal?.id
+        return ResponseEntity.status(HttpStatus.OK).body(postService.getTopPostList(userId))
     }
 }

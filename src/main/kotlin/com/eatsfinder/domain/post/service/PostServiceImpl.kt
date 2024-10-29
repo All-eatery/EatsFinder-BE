@@ -3,6 +3,7 @@ package com.eatsfinder.domain.post.service
 import com.eatsfinder.domain.follow.repository.FollowRepository
 import com.eatsfinder.domain.like.repository.PostLikeRepository
 import com.eatsfinder.domain.post.dto.NewPostByNeighborResponse
+import com.eatsfinder.domain.post.dto.TopPostResponse
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.report.repository.ReportPostRepository
 import com.eatsfinder.domain.user.repository.UserRepository
@@ -39,6 +40,10 @@ class PostServiceImpl(
 
         return NewPostByNeighborResponse.from(posts ?: emptyList(), user, followUser, postLikes, pageable)
 
+    }
+
+    override fun getTopPostList(userId: Long?): List<TopPostResponse> {
+        return postRepository.getTopPostList(userId)
     }
 
 }
