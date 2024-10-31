@@ -34,7 +34,7 @@ interface UserService {
     fun getMyFeed(myProfileId: Long, pageable: Pageable) : MyFeedsResponse
 
 
-    fun getOtherPeopleFeed(otherProfileId: Long, pageable: Pageable) : OtherPeopleFeedsResponse
+    fun getOtherPeopleFeed(otherProfileId: Long, pageable: Pageable, userId: Long?) : OtherPeopleFeedsResponse
 
     fun getMyActive(myProfileId: Long, pageable: Pageable, filter : MyActiveFilter): List<MyActiveResponse>
 }

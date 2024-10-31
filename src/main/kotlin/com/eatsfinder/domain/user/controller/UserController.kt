@@ -104,11 +104,13 @@ class UserController(
     @Operation(summary = "다른 사람 피드 조회하기")
     @ApiResponse(responseCode = "400", description = "잘못된 요청입니다.")
     @GetMapping("/feeds/{otherProfileId}")
-    fun getMyFeed(
+    fun getOtherPeopleFeed(
         @PathVariable otherProfileId: Long,
+        @AuthenticationPrincipal userPrincipal: UserPrincipal?,
         @PageableDefault(size = 10, sort = ["updatedAt"]) pageable: Pageable
     ): ResponseEntity<OtherPeopleFeedsResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(profileService.getOtherPeopleFeed(otherProfileId, pageable))
+        val userId = userPrincipal?.id
+        return ResponseEntity.status(HttpStatus.OK).body(profileService.getOtherPeopleFeed(otherProfileId, pageable, userId))
     }
 
     @Operation(summary = "내 활동 조회하기")
