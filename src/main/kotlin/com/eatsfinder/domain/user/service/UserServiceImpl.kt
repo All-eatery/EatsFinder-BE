@@ -213,29 +213,23 @@ class UserServiceImpl(
         return MyFeedsResponse.from(post!!, pageable)
     }
 
-    override fun getOtherPeopleFeed(otherProfileId: Long, pageable: Pageable): OtherPeopleFeedsResponse {
-        val profile = userRepository.findByIdAndDeletedAt(otherProfileId, null) ?: throw ModelNotFoundException(
-            "user",
-            "이 프로필은(id: ${otherProfileId})은 존재하지 않습니다."
-        )
+    override fun getOtherPeopleFeed(otherProfileId: Long, pageable: Pageable, userId: Long?): OtherPeopleFeedsResponse {
+        val profile = userRepository.findByIdAndDeletedAt(otherProfileId, null)
+            ?: throw ModelNotFoundException("user", "이 프로필은(id: ${otherProfileId})은 존재하지 않습니다.")
 
-        val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
+        val user = userId?.let { userRepository.findUserByIdAndDeletedAt(it, null) }
 
-        if (userPrincipal != null && profile.id == userPrincipal.id) {
+        if (user != null && profile.id == user.id) {
             throw MyProfileException("본인 피드이므로 조회할 수 없습니다.")
         }
 
-        val user = userRepository.findByIdAndDeletedAt(userPrincipal?.id!!, null) ?: throw ModelNotFoundException(
-            "user",
-            "이 프로필은(id: ${userPrincipal.id})은 존재하지 않습니다."
-        )
-
         val otherPost = postRepository.findByUserId(profile) ?: emptyList()
 
-        val posts = otherPost.filterNot {
-            reportPostRepository.existsByPostIdAndUserId(it, user)
+        val posts = if (user != null) {
+            otherPost.filterNot { reportPostRepository.existsByPostIdAndUserId(it, user) }
+        } else {
+            otherPost
         }
-
 
         return OtherPeopleFeedsResponse.from(posts, pageable)
     }
