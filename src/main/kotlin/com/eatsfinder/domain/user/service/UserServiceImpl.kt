@@ -44,7 +44,7 @@ class UserServiceImpl(
             "user",
             "이 프로필(id: ${myProfileId})은 존재하지 않습니다."
         )
-        val postCount = postRepository.findByUserId(profile)?.size ?: 0
+        val postCount = postRepository.findByUserIdAndDeletedAt(profile, null)?.size ?: 0
         return MyProfileResponse.from(profile, postCount)
     }
 
@@ -54,7 +54,7 @@ class UserServiceImpl(
             "user",
             "이 프로필(id: ${otherProfileId})은 존재하지 않습니다."
         )
-        val postCount = postRepository.findByUserId(profile)?.size ?: 0
+        val postCount = postRepository.findByUserIdAndDeletedAt(profile, null)?.size ?: 0
 
         val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
 
@@ -209,7 +209,7 @@ class UserServiceImpl(
             "user",
             "이 프로필은(id: ${myProfileId})은 존재하지 않습니다."
         )
-        val post = postRepository.findByUserId(profile)
+        val post = postRepository.findByUserIdAndDeletedAt(profile, null)
         return MyFeedsResponse.from(post!!, pageable)
     }
 
@@ -219,11 +219,7 @@ class UserServiceImpl(
 
         val user = userId?.let { userRepository.findUserByIdAndDeletedAt(it, null) }
 
-        if (user != null && profile.id == user.id) {
-            throw MyProfileException("본인 피드이므로 조회할 수 없습니다.")
-        }
-
-        val otherPost = postRepository.findByUserId(profile) ?: emptyList()
+        val otherPost = postRepository.findByUserIdAndDeletedAt(profile, null) ?: emptyList()
 
         val posts = if (user != null) {
             otherPost.filterNot { reportPostRepository.existsByPostIdAndUserId(it, user) }

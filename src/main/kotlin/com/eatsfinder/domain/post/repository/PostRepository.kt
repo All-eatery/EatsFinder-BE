@@ -8,7 +8,7 @@ import java.time.LocalDateTime
 
 interface PostRepository: JpaRepository<Post, Long>, IPostRepository{
 
-    fun findByUserId(userId: User): List<Post>?
+    fun findByUserIdAndDeletedAt(userId: User, deletedAt: LocalDateTime?): List<Post>?
 
     fun findByIdAndDeletedAt(id: Long, deletedAt: LocalDateTime?): Post?
 
