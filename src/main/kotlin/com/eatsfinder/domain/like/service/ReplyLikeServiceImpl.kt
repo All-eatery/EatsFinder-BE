@@ -9,6 +9,7 @@ import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
+import com.eatsfinder.global.exception.profile.MyProfileException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -31,6 +32,10 @@ class ReplyLikeServiceImpl(
             "reply",
             "이 유저 아이디(${replyId})는 존재하지 않습니다."
         )
+
+        if (reply.userId.id == user.id) {
+            throw MyProfileException("본인 대댓글이므로 좋아요를 할 수 없습니다.")
+        }
 
         val replyLike = replyLikesRepository.findByUserIdAndReplyId(user, reply)
 
@@ -70,6 +75,9 @@ class ReplyLikeServiceImpl(
 
         val replyLike = replyLikesRepository.findByUserIdAndReplyId(user, reply)
 
+        if (reply.userId.id == user.id) {
+            throw MyProfileException("본인 대댓글이므로 좋아요를 취소할 수 없습니다.")
+        }
 
         if (replyLike != null) {
             if (reply.likeCount > 0) {

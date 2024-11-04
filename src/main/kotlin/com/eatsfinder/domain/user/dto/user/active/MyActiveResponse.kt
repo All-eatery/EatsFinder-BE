@@ -1,7 +1,6 @@
 package com.eatsfinder.domain.user.dto.user.active
 
 import com.eatsfinder.global.pagination.PaginationItemsResponse
-import com.eatsfinder.domain.user.model.MyActiveFilter
 import com.eatsfinder.domain.user.model.MyActiveType
 import com.eatsfinder.domain.user.model.UserLog
 import org.springframework.data.domain.Pageable
@@ -17,6 +16,15 @@ data class MyActiveResponse(
             val createdDate = DateTimeFormatter.ofPattern("yyyy.MM.dd")
 
             val data = log.map { logs ->
+                val postUserNickname = logs.postLikeId?.postId?.userId?.nickname
+                val postImageUrl = logs.postLikeId?.postId?.thumbnailUrl
+
+                val commentUserNickname = logs.commentLikeId?.commentId?.userId?.nickname
+                val commentUserImageUrl = logs.commentLikeId?.commentId?.userId?.profileImage
+
+                val replyUserNickname = logs.replyId?.userId?.nickname
+                val replyImageUrl = logs.replyId?.userId?.profileImage
+
                 when (logs.myActiveType) {
                     MyActiveType.POST_LIKES ->
                         if (logs.postLikeId?.postId?.deletedAt == null) {
@@ -24,10 +32,14 @@ data class MyActiveResponse(
                                 type = "POST_LIKES",
                                 postLike = MyActivePostLikeResponse(
                                     postId = logs.postLikeId?.postId?.id,
-                                    createdBy = MyActivePostUserResponse(
-                                        postUserNickname = logs.postLikeId?.postId?.userId?.nickname,
-                                        postImageUrl = logs.postLikeId?.postId?.thumbnailUrl
-                                    ),
+                                    createdBy = if (postUserNickname != null && postImageUrl != null) {
+                                        MyActivePostUserResponse(
+                                            postUserNickname = postUserNickname,
+                                            postImageUrl = postImageUrl
+                                        )
+                                    } else {
+                                        null
+                                    },
                                     postContent = logs.postLikeId?.postId?.content
                                 ),
                                 commentLike = null,
@@ -48,10 +60,14 @@ data class MyActiveResponse(
                             id = logs.commentId?.id,
                             postId = logs.commentId?.postId?.id,
                             postDeletedAt = logs.commentId?.postId?.deletedAt,
-                            createdBy = MyActivePostUserResponse(
-                                postUserNickname = logs.commentId?.postId?.userId?.nickname,
-                                postImageUrl = logs.commentId?.postId?.thumbnailUrl
-                            ),
+                            createdBy = if (postUserNickname != null && postImageUrl != null) {
+                                MyActivePostUserResponse(
+                                    postUserNickname = postUserNickname,
+                                    postImageUrl = postImageUrl
+                                )
+                            } else {
+                                null
+                            },
                             content = logs.commentId?.content
                         ),
                         reply = null,
@@ -67,10 +83,14 @@ data class MyActiveResponse(
                                 commentLike = MyActiveCommentLikeResponse(
                                     postId = logs.commentLikeId?.commentId?.postId?.id,
                                     commentId = logs.commentLikeId?.commentId?.id,
-                                    createdBy = MyActiveCommentUserResponse(
-                                        commentUserNickname = logs.commentLikeId?.commentId?.userId?.nickname,
-                                        commentUserImageUrl = logs.commentLikeId?.commentId?.userId?.profileImage
-                                    ),
+                                    createdBy = if (commentUserNickname != null && commentUserImageUrl != null) {
+                                        MyActiveCommentUserResponse(
+                                            commentUserNickname = commentUserNickname,
+                                            commentUserImageUrl = commentUserImageUrl
+                                        )
+                                    } else {
+                                        null
+                                    },
                                     commentContent = logs.commentLikeId?.commentId?.content
                                 ),
                                 comment = null,
@@ -82,24 +102,29 @@ data class MyActiveResponse(
                             null
                         }
 
-                    MyActiveType.REPLY -> MyActiveDataResponse(
-                        type = "REPLY",
-                        postLike = null,
-                        commentLike = null,
-                        comment = null,
-                        reply = MyActiveReplyResponse(
-                            id = logs.replyId?.id,
-                            commentId = logs.replyId?.commentId?.id,
-                            commentDeletedAt = logs.replyId?.commentId?.deletedAt,
-                            createdBy = MyActiveReplyUserResponse(
-                                replyUserNickname = logs.replyId?.userId?.nickname,
-                                replyImageUrl = logs.replyId?.userId?.profileImage
+                    MyActiveType.REPLY ->
+                        MyActiveDataResponse(
+                            type = "REPLY",
+                            postLike = null,
+                            commentLike = null,
+                            comment = null,
+                            reply = MyActiveReplyResponse(
+                                id = logs.replyId?.id,
+                                commentId = logs.replyId?.commentId?.id,
+                                commentDeletedAt = logs.replyId?.commentId?.deletedAt,
+                                createdBy = if (commentUserNickname != null && commentUserImageUrl != null) {
+                                    MyActiveCommentUserResponse(
+                                        commentUserNickname = commentUserNickname,
+                                        commentUserImageUrl = commentUserImageUrl
+                                    )
+                                } else {
+                                    null
+                                },
+                                content = logs.replyId?.content
                             ),
-                            content = logs.replyId?.content
-                        ),
-                        replyLike = null,
-                        createdAt = logs.createdAt.toLocalDate().format(createdDate),
-                    )
+                            replyLike = null,
+                            createdAt = logs.createdAt.toLocalDate().format(createdDate),
+                        )
 
                     MyActiveType.REPLY_LIKES ->
                         if (logs.replyLikeId?.replyId?.deletedAt == null) {
@@ -111,10 +136,14 @@ data class MyActiveResponse(
                                 reply = null,
                                 replyLike = MyActiveReplyLikeResponse(
                                     replyId = logs.replyLikeId?.replyId?.id,
-                                    createdBy = MyActiveReplyUserResponse(
-                                        replyUserNickname = logs.replyId?.userId?.nickname,
-                                        replyImageUrl = logs.replyId?.userId?.profileImage
-                                    ),
+                                    createdBy = if (replyUserNickname != null && replyImageUrl != null) {
+                                        MyActiveReplyUserResponse(
+                                            replyUserNickname = replyUserNickname,
+                                            replyImageUrl = replyImageUrl
+                                        )
+                                    } else {
+                                        null
+                                    },
                                     replyContent = logs.replyLikeId?.replyId?.content
                                 ),
                                 createdAt = logs.createdAt.toLocalDate().format(createdDate),

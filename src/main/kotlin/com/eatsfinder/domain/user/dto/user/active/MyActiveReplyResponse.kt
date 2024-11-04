@@ -6,6 +6,6 @@ data class MyActiveReplyResponse(
     val id: Long?,
     val commentId: Long?,
     val commentDeletedAt: LocalDateTime?,
-    val createdBy: MyActiveReplyUserResponse? = null,
+    val createdBy: MyActiveCommentUserResponse? = null,
     val content: String?
 )
