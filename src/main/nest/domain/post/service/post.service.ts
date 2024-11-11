@@ -54,6 +54,60 @@ export class PostService {
     });
   }
 
+  async findPost(userId: number, cursor: number) {
+    const LIMIT = 5;
+    let posts: any;
+
+    if (!cursor) {
+      posts = await this.prismaService.posts.findMany({
+        take: LIMIT,
+        skip: 1,
+        orderBy: { id: 'desc' },
+        select: {
+          id: true,
+          thumbnailUrl: true,
+          users: {
+            select: {
+              nickname: true,
+              profileImage: true,
+            },
+          },
+          postLikes: userId ? { where: { userId } } : { where: { id: -1 } },
+        },
+      });
+    } else {
+      posts = await this.prismaService.posts.findMany({
+        take: LIMIT,
+        skip: 1,
+        cursor: { id: cursor },
+        orderBy: { id: 'desc' },
+        select: {
+          id: true,
+          thumbnailUrl: true,
+          users: {
+            select: {
+              nickname: true,
+              profileImage: true,
+            },
+          },
+          postLikes: userId ? { where: { userId } } : { where: { id: -1 } },
+        },
+      });
+    }
+
+    const postsData = posts.map(({ postLikes, ...posts }) => {
+      const likeStatus = postLikes.length > 0;
+      return { ...posts, likeStatus };
+    });
+    const totalItems = await this.prismaService.posts.count({ where: { deletedAt: null } });
+
+    return {
+      pagination: { totalItems, itemsPerPage: LIMIT },
+      items: postsData,
+      lastItemId: postsData.length > 0 ? postsData[postsData.length - 1].id : null,
+    };
+  }
+
   async findOnePost(id: number, userId: number) {
     const postData = await this.prismaService.posts.findFirst({
       where: { id, deletedAt: null },

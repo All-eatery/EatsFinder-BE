@@ -7,6 +7,7 @@ export * from './response/find-one-post-response.dto';
 export * from './response/find-similar-response.dto';
 export * from './response/find-local-place-response.dto';
 export * from './response/access-token-response.dto';
+export * from './response/find-all-post-response.dto';
 
 // Request
 export * from './request/create-user-request.dto';
@@ -16,3 +17,4 @@ export * from './request/create-menu-request.dto';
 export * from './request/create-post-request.dto';
 export * from './request/update-post-request.dto';
 export * from './request/find-password-request.dto';
+export * from './request/find-all-post-request.dto';

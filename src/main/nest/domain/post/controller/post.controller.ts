@@ -10,6 +10,7 @@ import {
   Get,
   Patch,
   Delete,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
@@ -18,12 +19,19 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiResponse,
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { PostService } from '../service/post.service';
-import { CreatePostRequestDto, FindOnePostResponseDto, UpdatePostRequestDto } from '../../../global/dto';
+import {
+  CreatePostRequestDto,
+  FindAllPostResponseDto,
+  FindAllPostsDto,
+  FindOnePostResponseDto,
+  UpdatePostRequestDto,
+} from '../../../global/dto';
 import { GetUserId, ApiGuard, ApiCreatePost, ApiUpdatePost, ApiOptionGuard } from '../../../global/decorator';
 
 @ApiTags('Post')
@@ -45,6 +53,15 @@ export class PostController {
     if (!mainImage) throw new NotFoundException('대표 이미지는 필수입니다.');
     if (files.length > 5) throw new BadRequestException('최대 5개까지 업로드 가능합니다.');
     return await this.postService.createPost(userId, files, dto);
+  }
+
+  @Get()
+  @ApiOptionGuard()
+  @ApiQuery({ name: 'cursor', required: false })
+  @ApiOperation({ summary: '유저 게시물 전체 조회' })
+  @ApiOkResponse({ type: FindAllPostResponseDto })
+  async findPost(@GetUserId() userId: number, @Query() query: FindAllPostsDto) {
+    return await this.postService.findPost(userId, query.cursor);
   }
 
   @Get(':id/details')
