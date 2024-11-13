@@ -3,7 +3,7 @@ import { ApiTags } from '@nestjs/swagger';
 import { BookmarkService } from '../service/bookmark.service';
 
 @ApiTags('Bookmark')
-@Controller('bookmark')
+@Controller('bookmarks')
 export class BookmarkController {
   constructor(private readonly bookmarkService: BookmarkService) {}
 
