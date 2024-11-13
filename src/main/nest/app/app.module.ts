@@ -9,6 +9,7 @@ import { MailModule } from '../global/mail/mail.module';
 import { PostModule } from '../domain/post/post.module';
 import { PlaceModule } from '../domain/place/place.module';
 import { MenuModule } from '../domain/menu/menu.module';
+import { BookmarkModule } from '../domain/bookmark/bookmark.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { MenuModule } from '../domain/menu/menu.module';
     PostModule,
     PlaceModule,
     MenuModule,
+    BookmarkModule,
   ],
   controllers: [AppController],
   providers: [AppService],
