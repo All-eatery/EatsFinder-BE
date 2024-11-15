@@ -18,3 +18,4 @@ export * from './request/create-post-request.dto';
 export * from './request/update-post-request.dto';
 export * from './request/find-password-request.dto';
 export * from './request/find-all-post-request.dto';
+export * from './request/create-bookmark-list-request.dto';
