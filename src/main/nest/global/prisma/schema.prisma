@@ -234,7 +234,7 @@ model BookmarkPlaces {
   bookmarkId BigInt    @map("bookmark_id")
   placeId    BigInt    @map("place_id")
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt  DateTime  @map("updated_at") @db.Timestamp(6)
+  updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
   bookmarks  Bookmarks @relation(fields: [bookmarkId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bookmark_places_bookmarks")
   places     Places    @relation(fields: [placeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bookmark_places_places")
 
@@ -249,7 +249,7 @@ model Bookmarks {
   count          Int              @default(0)
   userId         BigInt           @map("user_id")
   createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt      DateTime         @map("updated_at") @db.Timestamp(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
   bookmarkPlaces BookmarkPlaces[]
 
   @@map("bookmarks")
