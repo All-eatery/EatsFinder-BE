@@ -1,8 +1,19 @@
-import { Controller, Get, Post, Patch, Param, Delete, Body } from '@nestjs/common';
-import { ApiBadRequestResponse, ApiCreatedResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Post, Patch, Param, Delete, Body, Query, ParseIntPipe } from '@nestjs/common';
+import {
+  ApiBadRequestResponse,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { BookmarkService } from '../service/bookmark.service';
 import { ApiGuard, GetUserId } from '../../../global/decorator';
-import { CreateBookmarkListRequestDto } from '../../../global/dto';
+import {
+  CreateBookmarkListRequestDto,
+  FindAllBookmarkListDto,
+  FindAllBookmarkListResponseDto,
+} from '../../../global/dto';
 import { Bookmarks } from '@prisma/client';
 
 @ApiTags('Bookmark')
@@ -20,9 +31,13 @@ export class BookmarkController {
     return { message: '리스트가 생성되었습니다.', bookmark };
   }
 
-  @Get()
-  findAll() {
-    return this.bookmarkService.findAll();
+  @Get('lists')
+  @ApiGuard()
+  @ApiQuery({ name: 'cursor', required: false })
+  @ApiOperation({ summary: '리스트 조회' })
+  @ApiOkResponse({ type: FindAllBookmarkListResponseDto })
+  async find(@GetUserId() userId: number, @Query() query: FindAllBookmarkListDto) {
+    return await this.bookmarkService.find(userId, query.cursor);
   }
 
   @Get(':id')

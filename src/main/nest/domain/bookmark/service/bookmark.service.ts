@@ -12,8 +12,76 @@ export class BookmarkService {
     return await this.prismaService.bookmarks.create({ data: { title: dto.listname, userId } });
   }
 
-  findAll() {
-    return `This action returns all bookmark`;
+  async find(userId: number, cursor: number) {
+    const LIMIT = 10;
+    let bookmark: any;
+
+    if (!cursor) {
+      bookmark = await this.prismaService.bookmarks.findMany({
+        take: LIMIT,
+        where: { userId },
+        select: {
+          id: true,
+          title: true,
+          count: true,
+          bookmarkPlaces: {
+            select: {
+              places: {
+                select: {
+                  posts: {
+                    select: { thumbnailUrl: true },
+                    orderBy: { likeCount: 'desc' },
+                    take: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    } else {
+      bookmark = await this.prismaService.bookmarks.findMany({
+        take: LIMIT,
+        skip: 1,
+        cursor: { id: cursor },
+        where: { userId },
+        select: {
+          id: true,
+          title: true,
+          count: true,
+          bookmarkPlaces: {
+            select: {
+              places: {
+                select: {
+                  posts: {
+                    select: { thumbnailUrl: true },
+                    orderBy: { likeCount: 'desc' },
+                    take: 1,
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    }
+
+    const bookmarkData = bookmark.map((list: { bookmarkPlaces: { places: { posts: any } }[] }) => ({
+      ...list,
+      bookmarkPlaces:
+        list.bookmarkPlaces.length === 0
+          ? null
+          : list.bookmarkPlaces
+              .flatMap((place: { places: { posts: any } }) => place.places.posts)
+              .map((post: { thumbnailUrl: string }) => ({ thumbnailUrl: post.thumbnailUrl })),
+    }));
+    const totalItems = await this.prismaService.bookmarks.count({ where: { userId } });
+
+    return {
+      pagination: { totalItems, itemsPerPage: bookmarkData.length },
+      items: bookmarkData,
+      lastItemId: bookmarkData.length > 0 ? bookmarkData[bookmarkData.length - 1].id : null,
+    };
   }
 
   findOne(id: number) {
