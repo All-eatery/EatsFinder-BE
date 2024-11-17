@@ -1,5 +1,5 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateBookmarkListRequestDto } from '../../../global/dto';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { CreateBookmarkListRequestDto, UpdateBookmarkListRequestDto } from '../../../global/dto';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 
 @Injectable()
@@ -84,12 +84,14 @@ export class BookmarkService {
     };
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} bookmark`;
-  }
-
-  update(id: number) {
-    return `This action updates a #${id} bookmark`;
+  async update(id: number, userId: number, dto: UpdateBookmarkListRequestDto) {
+    const bookmarkData = await this.prismaService.bookmarks.findFirst({ where: { id } });
+    if (!bookmarkData) throw new BadRequestException('해당 리스트는 존재하지 않습니다.');
+    if (Number(userId) !== Number(bookmarkData.userId)) {
+      throw new UnauthorizedException('본인 리스트만 수정할 수 있습니다.');
+    }
+    await this.prismaService.bookmarks.update({ where: { id }, data: { title: dto.title } });
+    return { message: '수정되었습니다.' };
   }
 
   remove(id: number) {

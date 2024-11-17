@@ -6,6 +6,7 @@ import {
   ApiOperation,
   ApiQuery,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { BookmarkService } from '../service/bookmark.service';
 import { ApiGuard, GetUserId } from '../../../global/decorator';
@@ -13,6 +14,7 @@ import {
   CreateBookmarkListRequestDto,
   FindAllBookmarkListDto,
   FindAllBookmarkListResponseDto,
+  UpdateBookmarkListRequestDto,
 } from '../../../global/dto';
 import { Bookmarks } from '@prisma/client';
 
@@ -40,14 +42,18 @@ export class BookmarkController {
     return await this.bookmarkService.find(userId, query.cursor);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.bookmarkService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string) {
-    return this.bookmarkService.update(+id);
+  @Patch('lists/:id')
+  @ApiGuard()
+  @ApiOperation({ summary: '리스트 이름 수정' })
+  @ApiOkResponse({ description: '수정되었습니다.' })
+  @ApiBadRequestResponse({ description: '해당 리스트는 존재하지 않습니다.' })
+  @ApiUnauthorizedResponse({ description: '본인 리스트만 수정할 수 있습니다.' })
+  async update(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUserId() userId: number,
+    @Body() dto: UpdateBookmarkListRequestDto,
+  ) {
+    return await this.bookmarkService.update(id, userId, dto);
   }
 
   @Delete(':id')
