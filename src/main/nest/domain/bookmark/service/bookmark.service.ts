@@ -94,7 +94,13 @@ export class BookmarkService {
     return { message: '수정되었습니다.' };
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} bookmark`;
+  async remove(id: number, userId: number) {
+    const bookmarkData = await this.prismaService.bookmarks.findFirst({ where: { id } });
+    if (!bookmarkData) throw new BadRequestException('해당 리스트는 존재하지 않습니다.');
+    if (Number(userId) !== Number(bookmarkData.userId)) {
+      throw new UnauthorizedException('본인 리스트만 삭제할 수 있습니다.');
+    }
+    await this.prismaService.bookmarks.delete({ where: { id } });
+    return { message: '삭제되었습니다.' };
   }
 }

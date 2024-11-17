@@ -56,8 +56,13 @@ export class BookmarkController {
     return await this.bookmarkService.update(id, userId, dto);
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.bookmarkService.remove(+id);
+  @Delete('lists/:id')
+  @ApiGuard()
+  @ApiOperation({ summary: '리스트 삭제' })
+  @ApiOkResponse({ description: '삭제되었습니다.' })
+  @ApiBadRequestResponse({ description: '해당 리스트는 존재하지 않습니다.' })
+  @ApiUnauthorizedResponse({ description: '본인 리스트만 삭제할 수 있습니다.' })
+  async remove(@Param('id', ParseIntPipe) id: number, @GetUserId() userId: number) {
+    return await this.bookmarkService.remove(id, userId);
   }
 }
