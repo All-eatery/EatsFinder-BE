@@ -1,5 +1,15 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
-import { CreateBookmarkListRequestDto, UpdateBookmarkListRequestDto } from '../../../global/dto';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
+import {
+  CreateBookmarkListRequestDto,
+  CreateBookmarkPlaceDto,
+  UpdateBookmarkListRequestDto,
+} from '../../../global/dto';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 
 @Injectable()
@@ -102,5 +112,36 @@ export class BookmarkService {
     }
     await this.prismaService.bookmarks.delete({ where: { id } });
     return { message: '삭제되었습니다.' };
+  }
+
+  async createBookmark(userId: number, dto: CreateBookmarkPlaceDto) {
+    const { place, lists } = dto;
+
+    const bookmarkListData = await this.prismaService.bookmarks.findMany({ where: { userId, id: { in: lists } } });
+
+    if (bookmarkListData.length === 0) throw new NotFoundException('리스트가 존재하지 않습니다.');
+    if (bookmarkListData.length !== lists.length) throw new BadRequestException('리스트에 추가할 수 없습니다.');
+
+    const isBookmarkPlaces = await this.prismaService.bookmarkPlaces.findMany({
+      where: { placeId: place, bookmarkId: { in: lists } },
+    });
+    const listBigInt = lists.map(BigInt);
+
+    const existingBookmarkPlaces = isBookmarkPlaces.map((place) => place.bookmarkId);
+    const newLists = listBigInt.filter((list) => !existingBookmarkPlaces.includes(list));
+
+    if (newLists.length === 0) throw new ConflictException('이미 추가된 맛집입니다.');
+
+    await this.prismaService.bookmarkPlaces.createMany({
+      data: newLists.map((list) => ({
+        placeId: place,
+        bookmarkId: list,
+      })),
+    });
+
+    return await this.prismaService.bookmarks.updateMany({
+      where: { id: { in: newLists } },
+      data: { count: { increment: 1 } },
+    });
   }
 }

@@ -1,7 +1,9 @@
 import { Controller, Get, Post, Patch, Param, Delete, Body, Query, ParseIntPipe } from '@nestjs/common';
 import {
   ApiBadRequestResponse,
+  ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
@@ -12,6 +14,7 @@ import { BookmarkService } from '../service/bookmark.service';
 import { ApiGuard, GetUserId } from '../../../global/decorator';
 import {
   CreateBookmarkListRequestDto,
+  CreateBookmarkPlaceDto,
   FindAllBookmarkListDto,
   FindAllBookmarkListResponseDto,
   UpdateBookmarkListRequestDto,
@@ -64,5 +67,17 @@ export class BookmarkController {
   @ApiUnauthorizedResponse({ description: '본인 리스트만 삭제할 수 있습니다.' })
   async remove(@Param('id', ParseIntPipe) id: number, @GetUserId() userId: number) {
     return await this.bookmarkService.remove(id, userId);
+  }
+
+  @Post('places')
+  @ApiGuard()
+  @ApiOperation({ summary: '맛집 추가' })
+  @ApiCreatedResponse({ description: '맛집이 추가되었습니다.' })
+  @ApiNotFoundResponse({ description: '리스트가 존재하지 않습니다.' })
+  @ApiBadRequestResponse({ description: '리스트에 추가할 수 없습니다.' })
+  @ApiConflictResponse({ description: '이미 추가된 맛집입니다.' })
+  async createBookmark(@GetUserId() userId: number, @Body() dto: CreateBookmarkPlaceDto) {
+    await this.bookmarkService.createBookmark(userId, dto);
+    return { message: '맛집이 추가되었습니다.' };
   }
 }
