@@ -8,7 +8,9 @@ import {
 import {
   CreateBookmarkListRequestDto,
   CreateBookmarkPlaceDto,
+  RemoveBookmarkPlaceDto,
   UpdateBookmarkListRequestDto,
+  UpdateBookmarkPlaceRequestDto,
 } from '../../../global/dto';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 
@@ -214,5 +216,51 @@ export class BookmarkService {
       items: bookmarkPlaceData,
       lastItemId: bookmarkPlaceData.length > 0 ? bookmarkPlaceData[bookmarkPlaceData.length - 1].id : null,
     };
+  }
+
+  async updateBookmark(userId: number, dto: UpdateBookmarkPlaceRequestDto) {
+    const { places, lists } = dto;
+
+    const bookmarkListData = await this.prismaService.bookmarks.findMany({
+      where: { userId, id: { in: lists } },
+      select: { id: true },
+    });
+
+    if (bookmarkListData.length === 0) throw new NotFoundException('리스트가 존재하지 않습니다.');
+    if (bookmarkListData.length !== lists.length) throw new BadRequestException('리스트에 이동할 수 없습니다.');
+
+    const existingBookmarkPlaces = await this.prismaService.bookmarkPlaces.findMany({
+      where: { bookmarkId: { in: lists } },
+      select: { placeId: true, bookmarkId: true },
+    });
+
+    const existingPlacesByBookmark = lists.reduce(
+      (acc, listId) => {
+        acc[listId] = existingBookmarkPlaces
+          .filter((entry) => Number(entry.bookmarkId) === listId)
+          .map((entry) => Number(entry.placeId));
+        return acc;
+      },
+      {} as Record<number, number[]>,
+    );
+
+    await this.prismaService.bookmarkPlaces.deleteMany({
+      where: {
+        bookmarkId: { in: lists.map(BigInt) },
+        placeId: { notIn: places.map(BigInt) },
+      },
+    });
+
+    const newBookmarkPlaces = lists.flatMap((listId) => {
+      const existingPlaces = existingPlacesByBookmark[listId] || [];
+      const placesToAdd = places.filter((place) => !existingPlaces.includes(place));
+      return placesToAdd.map((placeId) => ({ bookmarkId: BigInt(listId), placeId: BigInt(placeId) }));
+    });
+
+    if (newBookmarkPlaces.length > 0) {
+      await this.prismaService.bookmarkPlaces.createMany({ data: newBookmarkPlaces, skipDuplicates: true });
+    }
+
+    return { message: '맛집이 수정되었습니다.' };
   }
 }
