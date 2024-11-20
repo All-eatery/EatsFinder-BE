@@ -26,3 +26,4 @@ export * from './request/update-bookmark-list-request.dto';
 export * from './request/create-bookmark-place-request.dto';
 export * from './request/find-all-bookmark-place-request.dto';
 export * from './request/update-bookmark-place-request.dto';
+export * from './request/remove-bookmark-place-request.dto';
