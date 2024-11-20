@@ -17,6 +17,8 @@ import {
   CreateBookmarkPlaceDto,
   FindAllBookmarkListDto,
   FindAllBookmarkListResponseDto,
+  FindAllBookmarkPlaceDto,
+  FindAllBookmarkPlaceResponseDto,
   UpdateBookmarkListRequestDto,
 } from '../../../global/dto';
 import { Bookmarks } from '@prisma/client';
@@ -79,5 +81,19 @@ export class BookmarkController {
   async createBookmark(@GetUserId() userId: number, @Body() dto: CreateBookmarkPlaceDto) {
     await this.bookmarkService.createBookmark(userId, dto);
     return { message: '맛집이 추가되었습니다.' };
+  }
+
+  @Get('places/:id')
+  @ApiGuard()
+  @ApiQuery({ name: 'cursor', required: false })
+  @ApiOperation({ summary: '맛집 조회' })
+  @ApiNotFoundResponse({ description: '리스트가 존재하지 않습니다.' })
+  @ApiOkResponse({ type: FindAllBookmarkPlaceResponseDto })
+  async findBookmark(
+    @GetUserId() userId: number,
+    @Param('id', ParseIntPipe) id: number,
+    @Query() query: FindAllBookmarkPlaceDto,
+  ) {
+    return await this.bookmarkService.findBookmark(userId, id, query.cursor);
   }
 }

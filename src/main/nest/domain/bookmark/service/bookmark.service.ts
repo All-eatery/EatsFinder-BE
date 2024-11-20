@@ -144,4 +144,75 @@ export class BookmarkService {
       data: { count: { increment: 1 } },
     });
   }
+
+  async findBookmark(userId: number, id: number, cursor: number) {
+    const bookmarkData = await this.prismaService.bookmarks.findFirst({ where: { userId, id } });
+    if (bookmarkData === null) throw new NotFoundException('리스트가 존재하지 않습니다.');
+
+    const LIMIT = 10;
+    let bookmarkPlaceData: any;
+
+    if (!cursor) {
+      bookmarkPlaceData = await this.prismaService.bookmarkPlaces.findMany({
+        take: LIMIT,
+        where: { bookmarkId: id },
+        select: {
+          id: true,
+          places: {
+            select: {
+              id: true,
+              name: true,
+              roadAddress: true,
+              depth2: true,
+              posts: {
+                select: { thumbnailUrl: true },
+                orderBy: { likeCount: 'desc' },
+                take: 1,
+              },
+            },
+          },
+        },
+      });
+    } else {
+      bookmarkPlaceData = await this.prismaService.bookmarkPlaces.findMany({
+        take: LIMIT,
+        skip: 1,
+        cursor: { id: cursor },
+        where: { bookmarkId: id },
+        select: {
+          id: true,
+          places: {
+            select: {
+              id: true,
+              name: true,
+              roadAddress: true,
+              depth2: true,
+              posts: {
+                select: { thumbnailUrl: true },
+                orderBy: { likeCount: 'desc' },
+                take: 1,
+              },
+            },
+          },
+        },
+      });
+    }
+
+    bookmarkPlaceData = bookmarkPlaceData.map((bookmarkPlace: any) => ({
+      ...bookmarkPlace,
+      places: {
+        ...bookmarkPlace.places,
+        thumbnailUrl: bookmarkPlace.places.posts.length > 0 ? bookmarkPlace.places.posts[0].thumbnailUrl || null : null,
+        posts: undefined,
+      },
+    }));
+
+    const totalItems = await this.prismaService.bookmarkPlaces.count({ where: { bookmarkId: id } });
+
+    return {
+      pagination: { totalItems, itemsPerPage: bookmarkPlaceData.length },
+      items: bookmarkPlaceData,
+      lastItemId: bookmarkPlaceData.length > 0 ? bookmarkPlaceData[bookmarkPlaceData.length - 1].id : null,
+    };
+  }
 }
