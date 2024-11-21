@@ -263,4 +263,28 @@ export class BookmarkService {
 
     return { message: '맛집이 수정되었습니다.' };
   }
+
+  async removeBookmark(userId: number, query: RemoveBookmarkPlaceDto) {
+    const { placeId, listId } = query;
+    const numericListId = parseInt(listId, 10);
+
+    const bookmarkListData = await this.prismaService.bookmarks.findMany({
+      where: { userId, id: { in: [numericListId] } },
+    });
+
+    if (bookmarkListData.length === 0) throw new NotFoundException('리스트가 존재하지 않습니다.');
+    if (bookmarkListData.length !== listId.length) throw new BadRequestException('리스트에 이동할 수 없습니다.');
+
+    if (placeId === 'all') {
+      await this.prismaService.bookmarkPlaces.deleteMany({ where: { bookmarkId: numericListId } });
+    } else {
+      const placeIds = placeId.split(',').map((id) => parseInt(id, 10));
+      if (placeIds.some(isNaN)) throw new ConflictException('요청 형식에 맞지 않습니다.');
+
+      await this.prismaService.bookmarkPlaces.deleteMany({
+        where: { bookmarkId: numericListId, placeId: { in: placeIds } },
+      });
+    }
+    return { message: '맛집이 삭제되었습니다.' };
+  }
 }

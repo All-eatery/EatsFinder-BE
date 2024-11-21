@@ -108,4 +108,15 @@ export class BookmarkController {
   async updateBookmark(@GetUserId() userId: number, @Body() dto: UpdateBookmarkPlaceRequestDto) {
     return await this.bookmarkService.updateBookmark(userId, dto);
   }
+
+  @Delete('places')
+  @ApiGuard()
+  @ApiOperation({ summary: '맛집 삭제' })
+  @ApiOkResponse({ description: '맛집이 삭제되었습니다.' })
+  @ApiNotFoundResponse({ description: '리스트가 존재하지 않습니다.' })
+  @ApiBadRequestResponse({ description: '리스트에 이동할 수 없습니다.' })
+  @ApiConflictResponse({ description: '요청 형식에 맞지 않습니다.' })
+  async removeBookmark(@GetUserId() userId: number, @Query() query: RemoveBookmarkPlaceDto) {
+    return await this.bookmarkService.removeBookmark(userId, query);
+  }
 }
