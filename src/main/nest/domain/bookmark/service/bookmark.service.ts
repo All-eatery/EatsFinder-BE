@@ -261,6 +261,17 @@ export class BookmarkService {
       await this.prismaService.bookmarkPlaces.createMany({ data: newBookmarkPlaces, skipDuplicates: true });
     }
 
+    for (const listId of lists) {
+      const placeCount = await this.prismaService.bookmarkPlaces.count({
+        where: { bookmarkId: BigInt(listId) },
+      });
+
+      await this.prismaService.bookmarks.update({
+        where: { id: BigInt(listId) },
+        data: { count: placeCount },
+      });
+    }
+
     return { message: '맛집이 수정되었습니다.' };
   }
 
@@ -285,6 +296,16 @@ export class BookmarkService {
         where: { bookmarkId: numericListId, placeId: { in: placeIds } },
       });
     }
+
+    const PlaceCount = await this.prismaService.bookmarkPlaces.count({
+      where: { bookmarkId: numericListId },
+    });
+
+    await this.prismaService.bookmarks.update({
+      where: { id: numericListId },
+      data: { count: PlaceCount },
+    });
+
     return { message: '맛집이 삭제되었습니다.' };
   }
 }
