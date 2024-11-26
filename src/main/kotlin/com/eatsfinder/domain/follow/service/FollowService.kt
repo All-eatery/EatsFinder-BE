@@ -11,7 +11,7 @@ interface FollowService {
 
     fun createUserFollow(userId: Long, followUserId: Long)
 
-    fun deleteUserFollow(userId: Long, unfollowUserId: Long)
+    fun deleteUserFollow(userId: Long, followUserId: Long)
 
     fun getFollowingList(userId: Long): List<FollowingListResponse>
 
