@@ -95,7 +95,7 @@ class FollowServiceImpl(
             userRepository.save(user)
             userRepository.save(unfollowUser)
         } else {
-            throw ModelNotFoundException("follow", "이미 언팔로우(${follow})하셨습니다.")
+            throw ModelNotFoundException("follow", "이미 언팔로우하셨습니다.")
         }
     }
 
