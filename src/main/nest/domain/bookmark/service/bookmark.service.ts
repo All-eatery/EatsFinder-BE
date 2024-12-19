@@ -229,6 +229,7 @@ export class BookmarkService {
     if (bookmarkListData.length === 0) throw new NotFoundException('리스트가 존재하지 않습니다.');
     if (bookmarkListData.length !== lists.length) throw new BadRequestException('리스트에 이동할 수 없습니다.');
 
+    // 기존 북마크의 플레이스 가져오기
     const existingBookmarkPlaces = await this.prismaService.bookmarkPlaces.findMany({
       where: { bookmarkId: { in: lists } },
       select: { placeId: true, bookmarkId: true },
@@ -244,33 +245,55 @@ export class BookmarkService {
       {} as Record<number, number[]>,
     );
 
+    // 각 북마크에서 이미 존재하는 플레이스를 제외하고 새로운 플레이스 추가
+    const newBookmarkPlaces = [];
+
+    for (const listId of lists) {
+      const existingPlaces = existingPlacesByBookmark[listId] || [];
+
+      // 이동할 플레이스 중에서 현재 북마크에 없는 플레이스만 추가
+      for (const placeId of places) {
+        // 현재 북마크에 이미 존재하지 않는 플레이스만 추가
+        if (!existingPlaces.includes(placeId)) {
+          newBookmarkPlaces.push({ bookmarkId: BigInt(listId), placeId: BigInt(placeId) });
+        }
+      }
+    }
+
+    // 새로운 플레이스 추가
+    if (newBookmarkPlaces.length > 0) {
+      await this.prismaService.bookmarkPlaces.createMany({
+        data: newBookmarkPlaces,
+        skipDuplicates: true,
+      });
+    }
+
+    // 플레이스 이동 후 기존 북마크에서 플레이스 삭제
     await this.prismaService.bookmarkPlaces.deleteMany({
       where: {
-        bookmarkId: { in: lists.map(BigInt) },
-        placeId: { notIn: places.map(BigInt) },
+        bookmarkId: { notIn: lists.map(BigInt) },
+        placeId: { in: places.map(BigInt) },
       },
     });
 
-    const newBookmarkPlaces = lists.flatMap((listId) => {
-      const existingPlaces = existingPlacesByBookmark[listId] || [];
-      const placesToAdd = places.filter((place) => !existingPlaces.includes(place));
-      return placesToAdd.map((placeId) => ({ bookmarkId: BigInt(listId), placeId: BigInt(placeId) }));
+    // 모든 북마크의 플레이스 수 업데이트
+    const allBookmarks = await this.prismaService.bookmarks.findMany({
+      where: { userId },
+      select: { id: true },
     });
 
-    if (newBookmarkPlaces.length > 0) {
-      await this.prismaService.bookmarkPlaces.createMany({ data: newBookmarkPlaces, skipDuplicates: true });
-    }
+    await Promise.all(
+      allBookmarks.map(async (bookmark) => {
+        const placeCount = await this.prismaService.bookmarkPlaces.count({
+          where: { bookmarkId: bookmark.id },
+        });
 
-    for (const listId of lists) {
-      const placeCount = await this.prismaService.bookmarkPlaces.count({
-        where: { bookmarkId: BigInt(listId) },
-      });
-
-      await this.prismaService.bookmarks.update({
-        where: { id: BigInt(listId) },
-        data: { count: placeCount },
-      });
-    }
+        await this.prismaService.bookmarks.update({
+          where: { id: bookmark.id },
+          data: { count: placeCount },
+        });
+      }),
+    );
 
     return { message: '맛집이 수정되었습니다.' };
   }
