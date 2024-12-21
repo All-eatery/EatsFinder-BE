@@ -19,18 +19,20 @@ model Categories {
 }
 
 model Comments {
-  id           BigInt         @id @default(autoincrement())
-  content      String         @db.Text
-  likeCount    Int            @default(0) @map("like_count")
-  postId       BigInt         @map("post_id")
-  userId       BigInt         @map("user_id")
-  createdAt    DateTime       @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt    DateTime       @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt    DateTime?      @map("deleted_at") @db.Timestamp(6)
-  commentLikes CommentLikes[]
-  userLogs     UserLogs[]
-  users        Users          @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8omq0tc18jd43bu5tjh6jvraq")
-  posts        Posts          @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKh4c7lvsc298whoyd4w9ta25cr")
+  id             BigInt           @id @default(autoincrement())
+  content        String           @db.Text
+  likeCount      Int              @default(0) @map("like_count")
+  postId         BigInt           @map("post_id")
+  userId         BigInt           @map("user_id")
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt      DateTime?        @map("deleted_at") @db.Timestamp(6)
+  commentLikes   CommentLikes[]
+  users          Users            @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8omq0tc18jd43bu5tjh6jvraq")
+  posts          Posts            @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKh4c7lvsc298whoyd4w9ta25cr")
+  replies        Replies[]
+  reportComments ReportComments[]
+  userLogs       UserLogs[]
 
   @@index([userId], map: "FK8omq0tc18jd43bu5tjh6jvraq")
   @@index([postId], map: "FKh4c7lvsc298whoyd4w9ta25cr")
@@ -49,12 +51,12 @@ model EmailVerifications {
 }
 
 model Follows {
-  id                                 BigInt   @id @default(autoincrement())
-  followedUserId                     BigInt   @map("followed_user_id")
-  followingUserId                    BigInt   @map("following_user_id")
-  createdAt                          DateTime @default(now()) @map("created_at") @db.DateTime(6)
-  usersFollowsFollowedUserIdTousers  Users    @relation("follows_followed_user_idTousers", fields: [followedUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKfg3bo4whthco31ewoiaxpjhvi")
-  usersFollowsFollowingUserIdTousers Users    @relation("follows_following_user_idTousers", fields: [followingUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKk1b1yn6h0224kelm91qetqxen")
+  id                 BigInt   @id @default(autoincrement())
+  followedUserId     BigInt   @map("followed_user_id")
+  followingUserId    BigInt   @map("following_user_id")
+  createdAt          DateTime @default(now()) @map("created_at") @db.DateTime(6)
+  usersFollowedUser  Users    @relation("follows_followed_user_idTousers", fields: [followedUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKfg3bo4whthco31ewoiaxpjhvi")
+  usersFollowingUser Users    @relation("follows_following_user_idTousers", fields: [followingUserId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FKk1b1yn6h0224kelm91qetqxen")
 
   @@index([followedUserId], map: "FKfg3bo4whthco31ewoiaxpjhvi")
   @@index([followingUserId], map: "FKk1b1yn6h0224kelm91qetqxen")
@@ -75,26 +77,27 @@ model PostLikes {
 }
 
 model Posts {
-  id           BigInt      @id @default(autoincrement())
-  content      String?     @db.Text
-  thumbnailUrl String      @map("thumbnail_url") @db.Text
-  imageUrl     String?     @map("image_url") @db.Text
-  menuTag      String?     @map("menu_tag") @db.Text
-  keywordTag   String?     @map("keyword_tag") @db.Text
-  likeCount    Int         @default(0) @map("like_count")
-  viewCount    Int         @default(0) @map("view_count")
-  isOwner      Boolean     @default(false) @map("is_owner")
-  placeId      BigInt      @map("place_id")
-  ratingId     BigInt      @map("rating_id")
-  userId       BigInt      @map("user_id")
-  createdAt    DateTime    @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt    DateTime    @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt    DateTime?   @map("deleted_at") @db.Timestamp(6)
+  id           BigInt        @id @default(autoincrement())
+  content      String?       @db.Text
+  thumbnailUrl String        @map("thumbnail_url") @db.Text
+  imageUrl     String?       @map("image_url") @db.Text
+  menuTag      String?       @map("menu_tag") @db.Text
+  keywordTag   String?       @map("keyword_tag") @db.Text
+  likeCount    Int           @default(0) @map("like_count")
+  viewCount    Int           @default(0) @map("view_count")
+  isOwner      Boolean       @default(false) @map("is_owner")
+  placeId      BigInt        @map("place_id")
+  ratingId     BigInt        @map("rating_id")
+  userId       BigInt        @map("user_id")
+  createdAt    DateTime      @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt    DateTime      @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt    DateTime?     @map("deleted_at") @db.Timestamp(6)
   comments     Comments[]
   postLikes    PostLikes[]
-  users        Users       @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK5lidm6cqbc7u4xhqpxm898qme")
-  starRatings  StarRatings @relation("posts_rating_idTostar_ratings", fields: [ratingId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKonikjcopg9sp7kb852mjrxioj")
-  places       Places      @relation(fields: [placeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKt38bd81etfla6c1ilk3s0wm45")
+  users        Users         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK5lidm6cqbc7u4xhqpxm898qme")
+  starRatings  StarRatings   @relation("posts_rating_idTostar_ratings", fields: [ratingId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKonikjcopg9sp7kb852mjrxioj")
+  places       Places        @relation(fields: [placeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKt38bd81etfla6c1ilk3s0wm45")
+  reportPosts  ReportPosts[]
 
   @@index([userId], map: "FK5lidm6cqbc7u4xhqpxm898qme")
   @@index([ratingId], map: "FKonikjcopg9sp7kb852mjrxioj")
@@ -114,30 +117,37 @@ model StarRatings {
 }
 
 model Users {
-  id                                   BigInt               @id @default(autoincrement())
-  email                                String               @db.VarChar(30)
-  password                             String               @db.Text
-  name                                 String?              @db.VarChar(10)
-  nickname                             String               @unique(map: "UK2ty1xmrrgtn89xt7kyxx6ta7h") @db.VarChar(10)
-  phoneNumber                          String?              @map("phone_number") @db.VarChar(15)
-  profileImage                         String?              @map("profile_image") @db.Text
-  followerCount                        Int                  @default(0) @map("follower_count")
-  followingCount                       Int                  @default(0) @map("following_count")
-  role                                 UsersRole
-  socialType                           UsersSocialType      @map("social_type")
-  status                               UsersStatus
-  createdAt                            DateTime             @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt                            DateTime             @updatedAt @map("updated_at") @db.Timestamp(6)
-  deletedAt                            DateTime?            @map("deleted_at") @db.Timestamp(6)
-  nicknameLimitAt                      DateTime?            @map("nickname_limit_at") @db.Date
-  commentLikes                         CommentLikes[]
-  comments                             Comments[]
-  followsFollowsFollowedUserIdTousers  Follows[]            @relation("follows_followed_user_idTousers")
-  followsFollowsFollowingUserIdTousers Follows[]            @relation("follows_following_user_idTousers")
-  likesByPosts                         PostLikes[]
-  posts                                Posts[]
-  userLogs                             UserLogs[]
-  userWithdrawalData                   UserWithdrawalData[]
+  id                         BigInt               @id @default(autoincrement())
+  email                      String               @db.VarChar(30)
+  password                   String               @db.Text
+  name                       String?              @db.VarChar(10)
+  nickname                   String               @unique(map: "UK2ty1xmrrgtn89xt7kyxx6ta7h") @db.VarChar(10)
+  phoneNumber                String?              @map("phone_number") @db.VarChar(15)
+  profileImage               String?              @map("profile_image") @db.Text
+  followerCount              Int                  @default(0) @map("follower_count")
+  followingCount             Int                  @default(0) @map("following_count")
+  role                       UsersRole
+  socialType                 UsersSocialType      @map("social_type")
+  status                     UsersStatus
+  createdAt                  DateTime             @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt                  DateTime             @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt                  DateTime?            @map("deleted_at") @db.Timestamp(6)
+  nicknameLimitAt            DateTime?            @map("nickname_limit_at") @db.Date
+  bookmarks                  Bookmarks[]
+  commentLikes               CommentLikes[]
+  comments                   Comments[]
+  followsFollowedUser        Follows[]            @relation("follows_followed_user_idTousers")
+  followsFollowingUser       Follows[]            @relation("follows_following_user_idTousers")
+  likesByPosts               PostLikes[]
+  posts                      Posts[]
+  replies                    Replies[]
+  replyLikes                 ReplyLikes[]
+  commentsReportUser         ReportComments[]     @relation("report_comments_user_idTousers")
+  commentsReportReportedUser ReportComments[]     @relation("report_comments_reported_user_idTousers")
+  postsReportReportedUser    ReportPosts[]        @relation("report_posts_reported_user_idTousers")
+  postsReportUser            ReportPosts[]        @relation("report_posts_user_idTousers")
+  userLogs                   UserLogs[]
+  userWithdrawalData         UserWithdrawalData[]
 
   @@map("users")
 }
@@ -148,8 +158,8 @@ model Places {
   address        String           @db.Text
   roadAddress    String?          @map("road_address") @db.Text
   telephone      String?          @db.VarChar(15)
-  x              Float            @db.Double
-  y              Float            @db.Double
+  x              Float
+  y              Float
   depth1         String           @map("depth_1") @db.VarChar(10)
   depth2         String           @map("depth_2") @db.VarChar(10)
   depth3         String?          @map("depth_3") @db.VarChar(10)
@@ -158,11 +168,11 @@ model Places {
   createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
   deletedAt      DateTime?        @map("deleted_at") @db.Timestamp(6)
-  posts          Posts[]
-  placeMenus     PlaceMenus[]
-  starRatings    StarRatings[]
   bookmarkPlaces BookmarkPlaces[]
+  placeMenus     PlaceMenus[]
   categories     Categories       @relation(fields: [categoryId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKca17w9kt9f18v0lr91ssmivx5")
+  posts          Posts[]
+  starRatings    StarRatings[]
 
   @@index([categoryId], map: "FKca17w9kt9f18v0lr91ssmivx5")
   @@map("places")
@@ -200,6 +210,10 @@ model UserLogs {
   postLikeId    BigInt?              @map("post_like_id")
   userId        BigInt               @map("user_id")
   createdAt     DateTime             @default(now()) @map("created_at") @db.Timestamp(6)
+  replyId       BigInt?              @map("reply_id")
+  replyLikeId   BigInt?              @map("reply_like_id")
+  replyLikes    ReplyLikes?          @relation(fields: [replyLikeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKf6cux5jg4yb6uqv7pfs0fr2ou")
+  replies       Replies?             @relation(fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKh8qlido68c3x7wk1q86yrfcfe")
   comments      Comments?            @relation(fields: [commentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKndqig6s2up86td6apohtcm1ls")
   postLikes     PostLikes?           @relation(fields: [postLikeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKoem5slvi7d2ffsgah1cbvelsk")
   commentLikes  CommentLikes?        @relation(fields: [commentLikeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKqdyfcp3yudfwxs9nubuncf8x8")
@@ -209,12 +223,13 @@ model UserLogs {
   @@index([postLikeId], map: "FKoem5slvi7d2ffsgah1cbvelsk")
   @@index([commentLikeId], map: "FKqdyfcp3yudfwxs9nubuncf8x8")
   @@index([userId], map: "FKs5vt3b9fw02oqjm290njxumxq")
+  @@index([replyLikeId], map: "FKf6cux5jg4yb6uqv7pfs0fr2ou")
+  @@index([replyId], map: "FKh8qlido68c3x7wk1q86yrfcfe")
   @@map("user_logs")
 }
 
 model UserWithdrawalData {
   id             BigInt   @id @default(autoincrement())
-  userEmail      String?  @map("user_email") @db.VarChar(255)
   inconvenience  Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
   infrequent     Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
   others         Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
@@ -222,7 +237,9 @@ model UserWithdrawalData {
   reason         String?  @db.VarChar(255)
   switching      Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
   unavailability Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
+  userEmail      String?  @map("user_email") @db.VarChar(255)
   userId         BigInt   @map("user_id")
+  userNickname   String?  @map("user_nickname") @db.VarChar(255)
   users          Users    @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK8kfi6fbi97y698yq2f1opa7v0")
 
   @@index([userId], map: "FK8kfi6fbi97y698yq2f1opa7v0")
@@ -235,7 +252,7 @@ model BookmarkPlaces {
   placeId    BigInt    @map("place_id")
   createdAt  DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt  DateTime  @updatedAt @map("updated_at") @db.Timestamp(6)
-  bookmarks  Bookmarks @relation(fields: [bookmarkId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bookmark_places_bookmarks")
+  bookmarks  Bookmarks @relation(fields: [bookmarkId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK_bookmark_places_bookmarks")
   places     Places    @relation(fields: [placeId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bookmark_places_places")
 
   @@index([bookmarkId], map: "FK_bookmark_places_bookmarks")
@@ -251,8 +268,90 @@ model Bookmarks {
   createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
   updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
   bookmarkPlaces BookmarkPlaces[]
+  users          Users            @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_bookmarks_users")
 
+  @@index([userId], map: "FK_bookmarks_users")
   @@map("bookmarks")
+}
+
+model Replies {
+  id             BigInt           @id @default(autoincrement())
+  content        String           @db.Text
+  likeCount      Int              @default(0) @map("like_count")
+  commentId      BigInt           @map("comment_id")
+  userId         BigInt           @map("user_id")
+  createdAt      DateTime         @default(now()) @map("created_at") @db.Timestamp(6)
+  updatedAt      DateTime         @updatedAt @map("updated_at") @db.Timestamp(6)
+  deletedAt      DateTime?        @map("deleted_at") @db.Timestamp(6)
+  comments       Comments         @relation(fields: [commentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKn0xus92n25hvud6dlfni0ttqg")
+  users          Users            @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKn60t7po8l0rllye52xx25q4xx")
+  replyLikes     ReplyLikes[]
+  reportComments ReportComments[]
+  userLogs       UserLogs[]
+
+  @@index([commentId], map: "FKn0xus92n25hvud6dlfni0ttqg")
+  @@index([userId], map: "FKn60t7po8l0rllye52xx25q4xx")
+  @@map("replies")
+}
+
+model ReplyLikes {
+  id       BigInt     @id @default(autoincrement())
+  replyId  BigInt     @map("reply_id")
+  userId   BigInt     @map("user_id")
+  users    Users      @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK6bhwalsn7qkcu2u071dveyakb")
+  replies  Replies    @relation(fields: [replyId], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "FK9e6lbe7pp4s69d6vas12sg3kh")
+  userLogs UserLogs[]
+
+  @@index([userId], map: "FK6bhwalsn7qkcu2u071dveyakb")
+  @@index([replyId], map: "FK9e6lbe7pp4s69d6vas12sg3kh")
+  @@map("reply_likes")
+}
+
+model ReportComments {
+  id                    BigInt    @id @default(autoincrement())
+  abusive               Boolean?  @default(dbgenerated("b'0'")) @db.Bit(1)
+  harmful               Boolean?  @default(dbgenerated("b'0'")) @db.Bit(1)
+  offensive             Boolean?  @default(dbgenerated("b'0'")) @db.Bit(1)
+  others                Boolean?  @default(dbgenerated("b'0'")) @db.Bit(1)
+  porno                 Boolean?  @default(dbgenerated("b'0'")) @db.Bit(1)
+  reason                String?   @db.VarChar(255)
+  spam                  Boolean?  @default(dbgenerated("b'0'")) @db.Bit(1)
+  commentId             BigInt?   @map("comment_id")
+  replyId               BigInt?   @map("reply_id")
+  reportedUserId        BigInt    @map("reported_user_id")
+  userId                BigInt    @map("user_id")
+  usersReportComments   Users     @relation("report_comments_user_idTousers", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK2x1ublqlbd3m226ypxi7d2urs")
+  usersCommentsReported Users     @relation("report_comments_reported_user_idTousers", fields: [reportedUserId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKgu33i92ynx0whqqc6c6fiwj15")
+  replies               Replies?  @relation(fields: [replyId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKqibtqmu3xuggyc3d35h1jprfd")
+  comments              Comments? @relation(fields: [commentId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKtcnhbp0rkcpxcsc8d6qqxpwdq")
+
+  @@index([userId], map: "FK2x1ublqlbd3m226ypxi7d2urs")
+  @@index([reportedUserId], map: "FKgu33i92ynx0whqqc6c6fiwj15")
+  @@index([replyId], map: "FKqibtqmu3xuggyc3d35h1jprfd")
+  @@index([commentId], map: "FKtcnhbp0rkcpxcsc8d6qqxpwdq")
+  @@map("report_comments")
+}
+
+model ReportPosts {
+  id                     BigInt   @id @default(autoincrement())
+  closed                 Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
+  differentMenu          Boolean? @default(dbgenerated("b'0'")) @map("different_menu") @db.Bit(1)
+  differentPlace         Boolean? @default(dbgenerated("b'0'")) @map("different_place") @db.Bit(1)
+  differentPrice         Boolean? @default(dbgenerated("b'0'")) @map("different_price") @db.Bit(1)
+  others                 Boolean? @default(dbgenerated("b'0'")) @db.Bit(1)
+  reason                 String?  @db.VarChar(255)
+  sameReview             Boolean? @default(dbgenerated("b'0'")) @map("same_review") @db.Bit(1)
+  postId                 BigInt?  @map("post_id")
+  reportedUserId         BigInt   @map("reported_user_id")
+  userId                 BigInt   @map("user_id")
+  usersPostsReportedUser Users    @relation("report_posts_reported_user_idTousers", fields: [reportedUserId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKbp17vw0f30qpjj5uy3375ueqj")
+  posts                  Posts?   @relation(fields: [postId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKgkhrwd0fnq9yi124njj73hp7g")
+  usersReportPostsUser   Users    @relation("report_posts_user_idTousers", fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FKki9dmpd6qvqvixq92a68h826a")
+
+  @@index([reportedUserId], map: "FKbp17vw0f30qpjj5uy3375ueqj")
+  @@index([postId], map: "FKgkhrwd0fnq9yi124njj73hp7g")
+  @@index([userId], map: "FKki9dmpd6qvqvixq92a68h826a")
+  @@map("report_posts")
 }
 
 enum UsersSocialType {
@@ -284,6 +383,8 @@ enum UserLogsMyActiveType {
   COMMENT
   COMMENT_LIKES
   POST_LIKES
+  REPLY
+  REPLY_LIKES
 
   @@map("user_logs_my_active_type")
 }
