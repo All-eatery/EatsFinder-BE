@@ -1,5 +1,6 @@
 package com.eatsfinder.domain.search.controller
 
+import com.eatsfinder.domain.search.dto.SearchResponse
 import com.eatsfinder.domain.search.model.SearchFilter
 import com.eatsfinder.domain.search.service.SearchService
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -21,7 +22,7 @@ class SearchController(
         @AuthenticationPrincipal userPrincipal: UserPrincipal?,
         @RequestParam keyword: String,
         @RequestParam filter: SearchFilter?
-    ): ResponseEntity<Unit> {
+    ): ResponseEntity<SearchResponse> {
         val userId = userPrincipal?.id
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getSearchKeyword(userId, keyword, filter))
     }

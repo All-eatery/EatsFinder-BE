@@ -1,5 +1,32 @@
 package com.eatsfinder.domain.search.dto
 
+import com.eatsfinder.domain.place.model.Place
+import com.eatsfinder.domain.post.model.Post
+import com.eatsfinder.domain.starRating.model.StarRating
+import com.eatsfinder.domain.user.model.User
+
 data class SearchResponse(
-    val pD: String
-)
+    val post: List<PostSearchResponse>?,
+    val place: List<PlaceSearchResponse>?,
+    val neighbor: List<NeighborPostResponse>?
+){
+    companion object {
+        fun from(
+            posts: List<Post>,
+            places: List<Place>,
+            users: List<User>,
+            post: Post,
+            star: StarRating,
+            isPostLike: Boolean,
+            isBookmark: Boolean,
+            postCount: Int,
+            isFollow: Boolean
+        ): SearchResponse {
+            return SearchResponse(
+                post = posts.map { PostSearchResponse.from(it, isPostLike) },
+                place = places.map { PlaceSearchResponse.from(it, post, star, isBookmark) },
+                neighbor = users.map { NeighborPostResponse.from(it, postCount, isFollow) }
+            )
+        }
+    }
+}
