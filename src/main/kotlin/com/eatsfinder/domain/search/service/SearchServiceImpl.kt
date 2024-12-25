@@ -12,6 +12,7 @@ import com.eatsfinder.domain.search.dto.PostSearchResponse
 import com.eatsfinder.domain.search.dto.SearchResponse
 import com.eatsfinder.domain.search.model.SearchFilter
 import com.eatsfinder.domain.starRating.repository.StarRatingRepository
+import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.domain.user.repository.UserRepository
 import org.springframework.stereotype.Service
 
@@ -34,9 +35,10 @@ class SearchServiceImpl(
         val users = userRepository.findAll().filter { it.deletedAt == null }
         val postLike = postLikeRepository.findByUserId(user)
         val postCount = postRepository.findByUserId(user)?.size ?: 0
-        val isFollow = followRepository.findAll().any {
-            it.followedUserId.id == userId && it.followingUserId.deletedAt == null
-        }
+        val follow = followRepository.findByFollowedUserId(user).map {
+            it.followingUserId.id
+        }.toSet()
+
         val isBookmark = bookmarkRepository.findAll().any {
             it.userId.id == userId && it.userId.deletedAt == null
         }
@@ -93,10 +95,15 @@ class SearchServiceImpl(
                     place = emptyList(),
                     neighbor = users.filter { user1 ->
                         user1.nickname.contains(keyword, ignoreCase = true)
-                    }.map { NeighborPostResponse.from(it, postCount, isFollow) }
+                    }.map { user1 ->
+                        val isFollow = follow.contains(user1.id)
+                        NeighborPostResponse.from(user1, postCount, isFollow) }
+
                     // 일단은 닉네임만 조회 가능하도록 해둠.
                 )
             }
+
+
 
             else -> {
                 SearchResponse(emptyList(), emptyList(), emptyList())
