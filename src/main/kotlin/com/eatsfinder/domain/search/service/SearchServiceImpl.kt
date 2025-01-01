@@ -1,5 +1,6 @@
 package com.eatsfinder.domain.search.service
 
+import com.eatsfinder.domain.bookmark.repository.BookmarkPlacesRepository
 import com.eatsfinder.domain.bookmark.repository.BookmarkRepository
 import com.eatsfinder.domain.follow.repository.FollowRepository
 import com.eatsfinder.domain.like.model.PostLikes
@@ -29,8 +30,8 @@ class SearchServiceImpl(
     private val postLikeRepository: PostLikeRepository,
     private val starRatingRepository: StarRatingRepository,
     private val followRepository: FollowRepository,
-    private val bookmarkRepository: BookmarkRepository,
-    private val placeMenusRepository: PlaceMenusRepository
+    private val placeMenusRepository: PlaceMenusRepository,
+    private val bookmarkPlacesRepository: BookmarkPlacesRepository
 
 ) : SearchService {
     override fun getSearchKeyword(keyword: String, searchFilter: SearchFilter?): SearchResponse {
@@ -47,19 +48,22 @@ class SearchServiceImpl(
         val follow = user?.let { followRepository.findByFollowedUserId(it).mapNotNull { it.followingUserId.id }.toSet() } ?: emptySet()
 
         // 북마크 여부 확인
-        val isBookmark = user?.let {
-            bookmarkRepository.findAll().any { it.userId.id == it.id && it.userId.deletedAt == null }
-        } ?: false
+        val bookmark = user?.let {
+            bookmarkPlacesRepository.findByBookmarkIdUserId(it.id!!).mapNotNull { bookmarkPlace ->
+                bookmarkPlace.placeId.id
+            }.toSet()
+        } ?: emptySet()
+
 
         return when (searchFilter) {
-            SearchFilter.PLACES -> searchPlaces(keyword, places, isBookmark)
+            SearchFilter.PLACES -> searchPlaces(keyword, places, bookmark)
             SearchFilter.POSTS -> searchPosts(keyword, posts, user, postLike)
             SearchFilter.USERS -> searchUsers(keyword, users, userPostCounts, follow)
             else -> SearchResponse(emptyList(), emptyList(), emptyList())
         }
     }
 
-    private fun searchPlaces(keyword: String, places: List<Place>, isBookmark: Boolean): SearchResponse {
+    private fun searchPlaces(keyword: String, places: List<Place>, bookmark: Set<Long>): SearchResponse {
         val filteredPlaces = places.filter { place ->
             place.name.contains(keyword, ignoreCase = true) ||
             placeMenusRepository.findByPlaceIdAndMenu(place, keyword)?.menu?.contains(keyword, ignoreCase = true) == true ||
@@ -68,10 +72,11 @@ class SearchServiceImpl(
         }.map { place ->
             val posts = postRepository.findByPlaceId(place)
             val stars = starRatingRepository.findByPlaceId(place)
+            val isBookmark = bookmark.contains(place.id)
             PlaceSearchResponse.from(
-                posts = posts!!,
+                posts = posts ?: emptyList(),
                 place = place,
-                star = stars!!,
+                star = stars ?: emptyList(),
                 isBookmark = isBookmark
             )
         }
