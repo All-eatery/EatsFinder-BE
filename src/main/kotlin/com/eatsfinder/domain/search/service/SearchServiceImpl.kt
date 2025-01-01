@@ -66,10 +66,12 @@ class SearchServiceImpl(
             place.address.contains(keyword, ignoreCase = true) ||
             place.categoryId.name.contains(keyword, ignoreCase = true)
         }.map { place ->
+            val posts = postRepository.findByPlaceId(place)
+            val stars = starRatingRepository.findByPlaceId(place)
             PlaceSearchResponse.from(
-                post = postRepository.findByPlaceId(place)!!,
+                posts = posts!!,
                 place = place,
-                star = starRatingRepository.findByPlaceId(place)!!,
+                star = stars!!,
                 isBookmark = isBookmark
             )
         }

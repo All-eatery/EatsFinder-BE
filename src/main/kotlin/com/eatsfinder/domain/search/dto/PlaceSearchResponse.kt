@@ -16,16 +16,19 @@ data class PlaceSearchResponse(
     val likeCount: Int
 ) {
     companion object {
-        fun from(place: Place, post: Post, star: StarRating, isBookmark: Boolean): PlaceSearchResponse {
+        fun from(place: Place, posts: List<Post>, star: List<StarRating>, isBookmark: Boolean): PlaceSearchResponse {
+            val firstPost = posts.firstOrNull()
+            val firstStar = star.firstOrNull()
+
             return PlaceSearchResponse(
-                postThumbnailUrl = post.thumbnailUrl,
+                postThumbnailUrl = firstPost?.thumbnailUrl ?: "",
                 placeName = place.name,
                 roadAddress = place.roadAddress,
-                starRating = star.star,
+                starRating = firstStar?.star ?: 0,
                 category = place.categoryId.name,
                 isBookmark = isBookmark,
                 updatedAt = place.updatedAt,
-                likeCount = post.likeCount
+                likeCount = firstPost?.likeCount ?: 0
             )
         }
     }

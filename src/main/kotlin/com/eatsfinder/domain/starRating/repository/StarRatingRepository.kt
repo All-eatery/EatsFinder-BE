@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface StarRatingRepository : JpaRepository<StarRating, Long> {
 
-    fun findByPlaceId(placeId: Place): StarRating?
+    fun findByPlaceId(placeId: Place): List<StarRating>?
 }
