@@ -35,21 +35,30 @@ class SearchServiceImpl(
 ) : SearchService {
     override fun getSearchKeyword(keyword: String, searchFilter: SearchFilter?): SearchResponse {
         val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
-        val user = userRepository.findByIdAndDeletedAt(userPrincipal?.id!!, null) ?: TODO()
+        val user = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
 
         val places = placeRepository.findByDeletedAt(null) ?: emptyList()
         val posts = postRepository.findByDeletedAt(null) ?: emptyList()
         val users = userRepository.findAll().filter { it.deletedAt == null }
-        val postLike = postLikeRepository.findByUserId(user)
-        val postCount = postRepository.findByUserId(user)?.size ?: 0
-        val follow = followRepository.findByFollowedUserId(user).mapNotNull { it.followingUserId.id }.toSet()
 
-        val isBookmark = bookmarkRepository.findAll().any { it.userId.id == userPrincipal.id && it.userId.deletedAt == null }
+        // 로그인한 사용자일 경우에만 관련 정보 가져오기
+        val postLike = user?.let { postLikeRepository.findByUserId(it) } ?: emptyList()
+        val userPostCounts = if (user != null) {
+            users.associateWith { postRepository.findByUserId(it)?.size ?: 0 }
+        } else {
+            emptyMap()
+        }
+        val follow = user?.let { followRepository.findByFollowedUserId(it).mapNotNull { it.followingUserId.id }.toSet() } ?: emptySet()
+
+        // 북마크 여부 확인
+        val isBookmark = userPrincipal?.let {
+            bookmarkRepository.findAll().any { it.userId.id == it.id && it.userId.deletedAt == null }
+        } ?: false
 
         return when (searchFilter) {
             SearchFilter.PLACES -> searchPlaces(keyword, places, isBookmark)
             SearchFilter.POSTS -> searchPosts(keyword, posts, user, postLike)
-            SearchFilter.USERS -> searchUsers(keyword, users, postCount, follow)
+            SearchFilter.USERS -> searchUsers(keyword, users, userPostCounts, follow)
             else -> SearchResponse(emptyList(), emptyList(), emptyList())
         }
     }
@@ -72,7 +81,7 @@ class SearchServiceImpl(
         return SearchResponse(post = emptyList(), place = filteredPlaces, neighbor = emptyList())
     }
 
-    private fun searchPosts(keyword: String, posts: List<Post>, user: User, postLike: List<PostLikes>): SearchResponse {
+    private fun searchPosts(keyword: String, posts: List<Post>, user: User?, postLike: List<PostLikes>): SearchResponse {
         val filteredPosts = posts.filter { post ->
             post.placeId.name.contains(keyword, ignoreCase = true) ||
             placeMenusRepository.findByPlaceIdAndMenu(post.placeId, keyword)?.menu?.contains(keyword, ignoreCase = true) == true ||
@@ -84,18 +93,19 @@ class SearchServiceImpl(
         }.map { post ->
             PostSearchResponse.from(
                 post,
-                isPostLike = postLike.any { like -> like.postId.id == post.id && like.userId.id == user.id }
+                isPostLike = postLike.any { like -> like.postId.id == post.id && like.userId.id == user?.id }
             )
         }
 
         return SearchResponse(post = filteredPosts, place = emptyList(), neighbor = emptyList())
     }
 
-    private fun searchUsers(keyword: String, users: List<User>, postCount: Int, follow: Set<Long>): SearchResponse {
+    private fun searchUsers(keyword: String, users: List<User>, userPostCounts: Map<User, Int>, follow: Set<Long>): SearchResponse {
         val filteredUsers = users.filter { user ->
             user.nickname.contains(keyword, ignoreCase = true)
         }.map { user ->
             val isFollow = follow.contains(user.id)
+            val postCount = userPostCounts[user] ?: 0
             NeighborPostResponse.from(user, postCount, isFollow)
         }
 
