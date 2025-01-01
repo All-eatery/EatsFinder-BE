@@ -7,5 +7,5 @@ import org.springframework.data.domain.Pageable
 
 interface SearchService{
 
-    fun getSearchKeyword(userId: Long?, keyword: String, searchFilter: SearchFilter?): SearchResponse
+    fun getSearchKeyword(keyword: String, searchFilter: SearchFilter?): SearchResponse
 }
