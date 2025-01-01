@@ -41,6 +41,7 @@ class SecurityConfig(
                     "/follows",
                     "/follower",
                     "/following",
+                    "/search"
                 ).permitAll().anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

@@ -43,15 +43,11 @@ class SearchServiceImpl(
 
         // 로그인한 사용자일 경우에만 관련 정보 가져오기
         val postLike = user?.let { postLikeRepository.findByUserId(it) } ?: emptyList()
-        val userPostCounts = if (user != null) {
-            users.associateWith { postRepository.findByUserId(it)?.size ?: 0 }
-        } else {
-            emptyMap()
-        }
+        val userPostCounts = users.associateWith { postRepository.findByUserId(it)?.size ?: 0 }
         val follow = user?.let { followRepository.findByFollowedUserId(it).mapNotNull { it.followingUserId.id }.toSet() } ?: emptySet()
 
         // 북마크 여부 확인
-        val isBookmark = userPrincipal?.let {
+        val isBookmark = user?.let {
             bookmarkRepository.findAll().any { it.userId.id == it.id && it.userId.deletedAt == null }
         } ?: false
 
