@@ -71,22 +71,22 @@ class FollowServiceImpl(
     }
 
     @Transactional
-    override fun deleteUserFollow(userId: Long, unfollowUserId: Long) {
+    override fun deleteUserFollow(userId: Long, followUserId: Long) {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
             "이 프로필(id:${userId})는 존재하지 않습니다."
         )
         val unfollowUser =
-            userRepository.findByIdAndDeletedAt(unfollowUserId, null) ?: throw ModelNotFoundException(
+            userRepository.findByIdAndDeletedAt(followUserId, null) ?: throw ModelNotFoundException(
                 "user",
-                "이 프로필(id:${unfollowUserId})는 존재하지 않습니다."
+                "이 프로필(id:${followUserId})는 존재하지 않습니다."
             )
 
         val follow = followRepository.findByFollowedUserIdAndFollowingUserId(user, unfollowUser)
 
         if (user.followerCount < 0 && unfollowUser.followingCount < 0) throw DefaultZeroException("사용자의 팔로워 수 또는 팔로잉 수가 0 이하입니다.")
 
-        if (userId == unfollowUserId) throw InvalidInputException("본인에게 언팔로우를 할 수 없습니다.")
+        if (userId == followUserId) throw InvalidInputException("본인에게 언팔로우를 할 수 없습니다.")
 
         if (follow != null) {
             followRepository.delete(follow)
@@ -95,7 +95,7 @@ class FollowServiceImpl(
             userRepository.save(user)
             userRepository.save(unfollowUser)
         } else {
-            throw ModelNotFoundException("follow", "이미 언팔로우(${follow})하셨습니다.")
+            throw ModelNotFoundException("follow", "이미 언팔로우하셨습니다.")
         }
     }
 
