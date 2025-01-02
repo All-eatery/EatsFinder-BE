@@ -59,16 +59,53 @@ class SearchServiceImpl(
             SearchFilter.PLACES -> searchPlaces(keyword, places, bookmark)
             SearchFilter.POSTS -> searchPosts(keyword, posts, user, postLike)
             SearchFilter.USERS -> searchUsers(keyword, users, userPostCounts, follow)
+            SearchFilter.ALL -> searchAllThings(
+                keyword,
+                places,
+                bookmark,
+                posts,
+                users,
+                postLike,
+                user,
+                userPostCounts,
+                follow
+            )
+
             else -> SearchResponse(emptyList(), emptyList(), emptyList())
         }
+    }
+
+    private fun searchAllThings(
+        keyword: String,
+        places: List<Place>,
+        bookmark: Set<Long>,
+        posts: List<Post>,
+        users: List<User>,
+        postLike: List<PostLikes>,
+        user: User?,
+        userPostCounts: Map<User, Int>,
+        follow: Set<Long>
+    ): SearchResponse {
+        val searchPlace = searchPlaces(keyword, places, bookmark)
+        val searchPost = searchPosts(keyword, posts, user, postLike)
+        val searchUser = searchUsers(keyword, users, userPostCounts, follow)
+
+        return SearchResponse(
+            post = searchPost.post,
+            place = searchPlace.place,
+            neighbor = searchUser.neighbor
+        )
     }
 
     private fun searchPlaces(keyword: String, places: List<Place>, bookmark: Set<Long>): SearchResponse {
         val filteredPlaces = places.filter { place ->
             place.name.contains(keyword, ignoreCase = true) ||
-            placeMenusRepository.findByPlaceIdAndMenu(place, keyword)?.menu?.contains(keyword, ignoreCase = true) == true ||
-            place.address.contains(keyword, ignoreCase = true) ||
-            place.categoryId.name.contains(keyword, ignoreCase = true)
+                    placeMenusRepository.findByPlaceIdAndMenu(place, keyword)?.menu?.contains(
+                        keyword,
+                        ignoreCase = true
+                    ) == true ||
+                    place.address.contains(keyword, ignoreCase = true) ||
+                    place.categoryId.name.contains(keyword, ignoreCase = true)
         }.map { place ->
             val posts = postRepository.findByPlaceId(place)
             val stars = starRatingRepository.findByPlaceId(place)
@@ -92,12 +129,15 @@ class SearchServiceImpl(
     ): SearchResponse {
         val filteredPosts = posts.filter { post ->
             post.placeId.name.contains(keyword, ignoreCase = true) ||
-            placeMenusRepository.findByPlaceIdAndMenu(post.placeId, keyword)?.menu?.contains(keyword, ignoreCase = true) == true ||
-            post.placeId.address.contains(keyword, ignoreCase = true) ||
-            post.userId.nickname.contains(keyword, ignoreCase = true) ||
-            (post.content?.let { it.contains(keyword, ignoreCase = true) } == true) ||
-            post.keywordTag.contains(keyword, ignoreCase = true) ||
-            post.placeId.categoryId.name.contains(keyword, ignoreCase = true)
+                    placeMenusRepository.findByPlaceIdAndMenu(post.placeId, keyword)?.menu?.contains(
+                        keyword,
+                        ignoreCase = true
+                    ) == true ||
+                    post.placeId.address.contains(keyword, ignoreCase = true) ||
+                    post.userId.nickname.contains(keyword, ignoreCase = true) ||
+                    (post.content?.let { it.contains(keyword, ignoreCase = true) } == true) ||
+                    post.keywordTag.contains(keyword, ignoreCase = true) ||
+                    post.placeId.categoryId.name.contains(keyword, ignoreCase = true)
         }.map { post ->
             PostSearchResponse.from(
                 post,
