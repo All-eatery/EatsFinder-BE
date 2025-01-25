@@ -96,6 +96,15 @@ export class BookmarkService {
     };
   }
 
+  async findBookmarkByPlaces(userId: number, placeId: number) {
+    return {
+      items: await this.prismaService.bookmarks.findMany({
+        where: { userId, bookmarkPlaces: { some: { placeId } } },
+        select: { id: true, title: true, count: true },
+      }),
+    };
+  }
+
   async update(id: number, userId: number, dto: UpdateBookmarkListRequestDto) {
     const bookmarkData = await this.prismaService.bookmarks.findFirst({ where: { id } });
     if (!bookmarkData) throw new BadRequestException('해당 리스트는 존재하지 않습니다.');
