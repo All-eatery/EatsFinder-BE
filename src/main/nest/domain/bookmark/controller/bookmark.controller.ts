@@ -49,6 +49,13 @@ export class BookmarkController {
     return await this.bookmarkService.find(userId, query.cursor);
   }
 
+  @Get('lists/:placeId')
+  @ApiGuard()
+  @ApiOperation({ summary: '장소가 들어가 있는 리스트들 조회' })
+  async findBookmarkByPlaces(@GetUserId() userId: number, @Param('placeId') placeId: number) {
+    return await this.bookmarkService.findBookmarkByPlaces(userId, placeId);
+  }
+
   @Patch('lists/:id')
   @ApiGuard()
   @ApiOperation({ summary: '리스트 이름 수정' })
