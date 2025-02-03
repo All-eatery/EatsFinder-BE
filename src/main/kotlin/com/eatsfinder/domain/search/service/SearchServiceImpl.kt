@@ -43,16 +43,17 @@ class SearchServiceImpl(
 
         val postLike = user?.let { postLikeRepository.findByUserId(it) } ?: emptyList()
         val userPostCounts = users.associateWith { postRepository.findByUserId(it)?.size ?: 0 }
-        val follow =
-            user?.let { followRepository.findByFollowedUserId(it).mapNotNull { it.followingUserId.id }.toSet() }
-                ?: emptySet()
-
+        val follow = user?.let {
+            followRepository.findByFollowedUserId(it).mapNotNull { followEntity ->
+                followEntity.followingUserId.id
+            }.let { ids -> listOf(ids.toSet()) }
+        } ?: emptyList()
 
         val bookmark = user?.let {
             bookmarkPlacesRepository.findByBookmarkIdUserId(it.id!!).mapNotNull { bookmarkPlace ->
                 bookmarkPlace.placeId.id
-            }.toSet()
-        } ?: emptySet()
+            }.let { ids -> listOf(ids.toSet()) }
+        } ?: emptyList()
 
 
         return when (searchFilter) {
@@ -78,13 +79,13 @@ class SearchServiceImpl(
     private fun searchAllThings(
         keyword: String,
         places: List<Place>,
-        bookmark: Set<Long>,
+        bookmark: List<Set<Long>>,
         posts: List<Post>,
         users: List<User>,
         postLike: List<PostLikes>,
         user: User?,
         userPostCounts: Map<User, Int>,
-        follow: Set<Long>
+        follow: List<Set<Long>>
     ): SearchResponse {
         val searchPlace = searchPlaces(keyword, places, bookmark)
         val searchPost = searchPosts(keyword, posts, user, postLike)
@@ -97,7 +98,7 @@ class SearchServiceImpl(
         )
     }
 
-    private fun searchPlaces(keyword: String, places: List<Place>, bookmark: Set<Long>): SearchResponse {
+    private fun searchPlaces(keyword: String, places: List<Place>, bookmark: List<Set<Long>>): SearchResponse {
         val filteredPlaces = places.filter { place ->
             place.name.contains(keyword, ignoreCase = true) ||
                     placeMenusRepository.findByPlaceIdAndMenu(place, keyword)?.menu?.contains(
@@ -109,7 +110,7 @@ class SearchServiceImpl(
         }.map { place ->
             val posts = postRepository.findByPlaceId(place)
             val stars = starRatingRepository.findByPlaceId(place)
-            val isBookmark = bookmark.contains(place.id)
+            val isBookmark =  bookmark.any { it.contains(place.id) }
             PlaceSearchResponse.from(
                 posts = posts ?: emptyList(),
                 place = place,
@@ -152,12 +153,12 @@ class SearchServiceImpl(
         keyword: String,
         users: List<User>,
         userPostCounts: Map<User, Int>,
-        follow: Set<Long>
+        follow: List<Set<Long>>
     ): SearchResponse {
         val filteredUsers = users.filter { user ->
             user.nickname.contains(keyword, ignoreCase = true)
         }.map { user ->
-            val isFollow = follow.contains(user.id)
+            val isFollow = follow.any { it.contains(user.id) }
             val postCount = userPostCounts[user] ?: 0
             NeighborPostResponse.from(user, postCount, isFollow)
         }
