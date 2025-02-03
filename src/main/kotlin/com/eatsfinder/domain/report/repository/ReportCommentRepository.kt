@@ -7,7 +7,9 @@ import com.eatsfinder.domain.user.model.User
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface ReportCommentRepository : JpaRepository<ReportComment, Long> {
-    fun existsByIdAndReportedUserIdAndUserId(id: Long, reportedUserId: User, userId: User?): Boolean
+    fun existsByReplyIdAndReportedUserIdAndUserId(replyId: Reply?, reportedUserId: User, userId: User?): Boolean
+
+    fun existsByCommentIdAndReportedUserIdAndUserId(commentId: Comment?, reportedUserId: User, userId: User?): Boolean
 
     fun existsByCommentIdAndUserId(commentId: Comment?, userId: User?): Boolean
 
