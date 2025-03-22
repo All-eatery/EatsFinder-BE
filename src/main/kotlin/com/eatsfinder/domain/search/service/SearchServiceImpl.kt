@@ -9,14 +9,13 @@ import com.eatsfinder.domain.place.repository.PlaceMenusRepository
 import com.eatsfinder.domain.place.repository.PlaceRepository
 import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.post.repository.PostRepository
-import com.eatsfinder.domain.search.dto.NeighborPostResponse
-import com.eatsfinder.domain.search.dto.PlaceSearchResponse
-import com.eatsfinder.domain.search.dto.PostSearchResponse
-import com.eatsfinder.domain.search.dto.SearchResponse
+import com.eatsfinder.domain.report.repository.ReportPostRepository
+import com.eatsfinder.domain.search.dto.*
 import com.eatsfinder.domain.search.model.SearchFilter
 import com.eatsfinder.domain.starRating.repository.StarRatingRepository
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.domain.user.repository.UserRepository
+import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -30,6 +29,7 @@ class SearchServiceImpl(
     private val starRatingRepository: StarRatingRepository,
     private val followRepository: FollowRepository,
     private val placeMenusRepository: PlaceMenusRepository,
+    private val reportPostRepository: ReportPostRepository,
     private val bookmarkPlacesRepository: BookmarkPlacesRepository
 
 ) : SearchService {
@@ -43,17 +43,16 @@ class SearchServiceImpl(
 
         val postLike = user?.let { postLikeRepository.findByUserId(it) } ?: emptyList()
         val userPostCounts = users.associateWith { postRepository.findByUserId(it)?.size ?: 0 }
-        val follow = user?.let {
-            followRepository.findByFollowedUserId(it).mapNotNull { followEntity ->
-                followEntity.followingUserId.id
-            }.let { ids -> listOf(ids.toSet()) }
-        } ?: emptyList()
+        val follow =
+            user?.let { followRepository.findByFollowedUserId(it).mapNotNull { it.followingUserId.id }.toSet() }
+                ?: emptySet()
+
 
         val bookmark = user?.let {
             bookmarkPlacesRepository.findByBookmarkIdUserId(it.id!!).mapNotNull { bookmarkPlace ->
                 bookmarkPlace.placeId.id
-            }.let { ids -> listOf(ids.toSet()) }
-        } ?: emptyList()
+            }.toSet()
+        } ?: emptySet()
 
 
         return when (searchFilter) {
@@ -76,16 +75,41 @@ class SearchServiceImpl(
         }
     }
 
+    override fun getLikePostSearchKeyword(keyword: String, userId: Long): LikedPostsResponse {
+        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
+            "user",
+            "이 유저 아이디(${userId})는 존재하지 않습니다."
+        )
+
+        val likedPosts = postLikeRepository.findByUserId(user).filterNot {
+            reportPostRepository.existsByPostIdAndUserId(it.postId, user)
+        }
+
+        val filteredLikedPosts = likedPosts.filter { likedPost ->
+            likedPost.postId.placeId.name.contains(
+                keyword,
+                ignoreCase = true
+            ) || likedPost.postId.userId.nickname.contains(keyword, ignoreCase = true)
+        }
+
+        val likedPostResponses = filteredLikedPosts.map { likedPost ->
+            val post = likedPost.postId
+            LikedPostSearchResponse.from(post)
+        }
+        return LikedPostsResponse(likedPosts = likedPostResponses)
+
+    }
+
     private fun searchAllThings(
         keyword: String,
         places: List<Place>,
-        bookmark: List<Set<Long>>,
+        bookmark: Set<Long>,
         posts: List<Post>,
         users: List<User>,
         postLike: List<PostLikes>,
         user: User?,
         userPostCounts: Map<User, Int>,
-        follow: List<Set<Long>>
+        follow: Set<Long>
     ): SearchResponse {
         val searchPlace = searchPlaces(keyword, places, bookmark)
         val searchPost = searchPosts(keyword, posts, user, postLike)
@@ -98,7 +122,7 @@ class SearchServiceImpl(
         )
     }
 
-    private fun searchPlaces(keyword: String, places: List<Place>, bookmark: List<Set<Long>>): SearchResponse {
+    private fun searchPlaces(keyword: String, places: List<Place>, bookmark: Set<Long>): SearchResponse {
         val filteredPlaces = places.filter { place ->
             place.name.contains(keyword, ignoreCase = true) ||
                     placeMenusRepository.findByPlaceIdAndMenu(place, keyword)?.menu?.contains(
@@ -110,7 +134,7 @@ class SearchServiceImpl(
         }.map { place ->
             val posts = postRepository.findByPlaceId(place)
             val stars = starRatingRepository.findByPlaceId(place)
-            val isBookmark =  bookmark.any { it.contains(place.id) }
+            val isBookmark = bookmark.contains(place.id)
             PlaceSearchResponse.from(
                 posts = posts ?: emptyList(),
                 place = place,
@@ -137,7 +161,6 @@ class SearchServiceImpl(
                     post.placeId.address.contains(keyword, ignoreCase = true) ||
                     post.userId.nickname.contains(keyword, ignoreCase = true) ||
                     (post.content?.let { it.contains(keyword, ignoreCase = true) } == true) ||
-                    post.keywordTag.contains(keyword, ignoreCase = true) ||
                     post.placeId.categoryId.name.contains(keyword, ignoreCase = true)
         }.map { post ->
             PostSearchResponse.from(
@@ -153,12 +176,12 @@ class SearchServiceImpl(
         keyword: String,
         users: List<User>,
         userPostCounts: Map<User, Int>,
-        follow: List<Set<Long>>
+        follow: Set<Long>
     ): SearchResponse {
         val filteredUsers = users.filter { user ->
             user.nickname.contains(keyword, ignoreCase = true)
         }.map { user ->
-            val isFollow = follow.any { it.contains(user.id) }
+            val isFollow = follow.contains(user.id)
             val postCount = userPostCounts[user] ?: 0
             NeighborPostResponse.from(user, postCount, isFollow)
         }
