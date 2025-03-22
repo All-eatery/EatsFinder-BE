@@ -17,7 +17,7 @@ data class LikedPostSearchResponse(
             return LikedPostSearchResponse(
                 userId = post.userId.id,
                 userImageUrl = post.userId.profileImage,
-                placeName = post.placeId.name ,
+                placeName = post.placeId.name,
                 postId = post.id,
                 postThumbnailUrl = post.thumbnailUrl,
                 postLikeCount = post.likeCount,
