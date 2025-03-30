@@ -1,6 +1,6 @@
 package com.eatsfinder.domain.search.controller
 
-import com.eatsfinder.domain.search.dto.LikedPostsResponse
+import com.eatsfinder.domain.like.dto.PostLikesResponse
 import com.eatsfinder.domain.search.dto.SearchResponse
 import com.eatsfinder.domain.search.model.SearchFilter
 import com.eatsfinder.domain.search.service.SearchService
@@ -31,7 +31,7 @@ class SearchController(
     fun getLikePostSearchKeyword(
         @RequestParam keyword: String,
         @AuthenticationPrincipal userPrincipal: UserPrincipal
-    ): ResponseEntity<LikedPostsResponse> {
+    ): ResponseEntity<PostLikesResponse> {
         val userId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getLikePostSearchKeyword(keyword, userId))
     }

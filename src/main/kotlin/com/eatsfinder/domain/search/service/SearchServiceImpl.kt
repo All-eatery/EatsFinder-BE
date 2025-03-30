@@ -2,6 +2,7 @@ package com.eatsfinder.domain.search.service
 
 import com.eatsfinder.domain.bookmark.repository.BookmarkPlacesRepository
 import com.eatsfinder.domain.follow.repository.FollowRepository
+import com.eatsfinder.domain.like.dto.PostLikesResponse
 import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.like.repository.PostLikeRepository
 import com.eatsfinder.domain.place.model.Place
@@ -75,7 +76,7 @@ class SearchServiceImpl(
         }
     }
 
-    override fun getLikePostSearchKeyword(keyword: String, userId: Long): LikedPostsResponse {
+    override fun getLikePostSearchKeyword(keyword: String, userId: Long): PostLikesResponse {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
@@ -92,11 +93,9 @@ class SearchServiceImpl(
             ) || likedPost.postId.userId.nickname.contains(keyword, ignoreCase = true)
         }
 
-        val likedPostResponses = filteredLikedPosts.map { likedPost ->
-            val post = likedPost.postId
-            LikedPostSearchResponse.from(post)
-        }
-        return LikedPostsResponse(likedPosts = likedPostResponses)
+
+        val postCount = filteredLikedPosts.size
+        return PostLikesResponse.from(likedPosts, user, postCount)
 
     }
 
