@@ -152,6 +152,7 @@ class SearchServiceImpl(
         postLike: List<PostLikes>
     ): SearchResponse {
         val filteredPosts = posts.filter { post ->
+            !reportPostRepository.existsByPostIdAndUserId(post, user) &&
             post.placeId.name.contains(keyword, ignoreCase = true) ||
                     placeMenusRepository.findByPlaceIdAndMenu(post.placeId, keyword)?.menu?.contains(
                         keyword,
