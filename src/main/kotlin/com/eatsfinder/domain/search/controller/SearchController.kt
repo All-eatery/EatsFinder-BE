@@ -27,7 +27,7 @@ class SearchController(
     }
 
     @Operation(summary = "좋아요한 게시물 검색하기")
-    @GetMapping("/search/liked/post")
+    @GetMapping("/search/liked-posts")
     fun getLikePostSearchKeyword(
         @RequestParam keyword: String,
         @AuthenticationPrincipal userPrincipal: UserPrincipal
