@@ -2,8 +2,11 @@ package com.eatsfinder.domain.follow.controller
 
 import com.eatsfinder.domain.follow.dto.FollowResponse
 import com.eatsfinder.domain.follow.dto.FollowerListResponse
-import com.eatsfinder.domain.follow.dto.FollowingListResponse
+import com.eatsfinder.domain.follow.dto.PaginationFollowerResponse
+import com.eatsfinder.domain.follow.dto.PaginationFollowingResponse
+import com.eatsfinder.domain.follow.model.Follow
 import com.eatsfinder.domain.follow.service.FollowService
+import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
@@ -55,14 +58,22 @@ class FollowController(
 
     @Operation(summary = "팔로잉 확인")
     @GetMapping("/following")
-    fun getFollowingList(@RequestParam userId: Long): ResponseEntity<List<FollowingListResponse>>{
-        return ResponseEntity.status(HttpStatus.OK).body(followService.getFollowingList(userId))
+    fun getFollowingList(
+        @RequestParam userId: Long,
+        @RequestParam cursorId: Long?,
+        @RequestParam(defaultValue = "15") pageSize: Int
+    ): ResponseEntity<PaginationFollowingResponse>{
+        return ResponseEntity.status(HttpStatus.OK).body(followService.findFollowingListCursorBased(cursorId, pageSize, userId))
     }
 
     @Operation(summary = "팔로워 확인")
     @GetMapping("/follower")
-    fun getFollowerList(@RequestParam userId: Long): ResponseEntity<List<FollowerListResponse>>{
-        return ResponseEntity.status(HttpStatus.OK).body(followService.getFollowerList(userId))
+    fun getFollowerList(
+        @RequestParam userId: Long,
+        @RequestParam cursorId: Long?,
+        @RequestParam(defaultValue = "15") pageSize: Int
+    ): ResponseEntity<PaginationFollowerResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(followService.findFollowerListCursorBased(cursorId, pageSize, userId))
     }
 
 }
