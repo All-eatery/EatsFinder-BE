@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.like.service
 
-import com.eatsfinder.domain.like.dto.PostLikesResponse
+import com.eatsfinder.domain.like.dto.PaginationPostLikeResponse
+import com.eatsfinder.domain.like.dto.PostLikeResponse
 import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.like.repository.PostLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
@@ -12,6 +13,9 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
 import com.eatsfinder.global.exception.profile.MyProfileException
+import com.eatsfinder.global.pagination.PaginationCursorItemsResponse
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -96,16 +100,46 @@ class PostLikeServiceImpl(
     }
 
     @Transactional(readOnly = true)
-    override fun getPostLikes(userId: Long): PostLikesResponse {
+    override fun getPostLikes(userId: Long, cursorId: Long?, pageSize: Int): PaginationPostLikeResponse {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
-        val postLikes = postLikeRepository.findByUserId(user).filterNot {
+
+        val pageable: Pageable = PageRequest.of(0, pageSize + 1)
+
+
+        val postLikes = postLikeRepository.findAllByUserId(user, pageable).filterNot {
             reportPostRepository.existsByPostIdAndUserId(it.postId, user)
         }
-        val postCount = postLikes.size
 
-        return PostLikesResponse.from(postLikes, user, postCount)
+        val postLikeList: List<PostLikeResponse> = postLikes.map { like ->
+            PostLikeResponse(
+                id = like.id,
+                postId = like.postId.id,
+                postPlaceName = like.postId.placeId.name,
+                postThumbnailUrl = like.postId.thumbnailUrl,
+                isPostLike = (like.userId.id == user.id),
+                postUserNickname = like.postId.userId.nickname,
+                postUserProfileImage = like.postId.userId.profileImage
+            )
+        }
+
+        val hasNext = hasNext(postLikes.size, pageSize)
+
+        val pagination = PaginationCursorItemsResponse(
+            cursorId = cursorId,
+            totalItems = postLikes.size.toLong(),
+            itemsPerPage = pageSize,
+            totalPage = (postLikes.size / pageSize).toLong() + if (postLikes.size % pageSize > 0) 1 else 0,
+            currentPage = 1,
+            isLastPage = !hasNext
+        )
+
+        return PaginationPostLikeResponse(pagination =  pagination, postLikeList = postLikeList)
+    }
+
+    private fun hasNext(followsSize: Int, pageSize: Int): Boolean {
+        return followsSize > pageSize
     }
 }

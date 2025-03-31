@@ -1,6 +1,6 @@
 package com.eatsfinder.domain.like.service
 
-import com.eatsfinder.domain.like.dto.PostLikesResponse
+import com.eatsfinder.domain.like.dto.PaginationPostLikeResponse
 
 interface PostLikeService {
 
@@ -8,5 +8,5 @@ interface PostLikeService {
 
     fun deletePostLikes(userId: Long, postId: Long)
 
-    fun getPostLikes(userId: Long): PostLikesResponse
+    fun getPostLikes(userId: Long, cursorId: Long?, pageSize: Int): PaginationPostLikeResponse
 }
