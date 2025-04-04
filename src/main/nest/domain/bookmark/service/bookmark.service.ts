@@ -157,7 +157,10 @@ export class BookmarkService {
   }
 
   async findBookmark(userId: number, id: number, cursor: number) {
-    const bookmarkData = await this.prismaService.bookmarks.findFirst({ where: { userId, id } });
+    const bookmarkData = await this.prismaService.bookmarks.findFirst({
+      where: { userId, id },
+      select: { title: true },
+    });
     if (bookmarkData === null) throw new NotFoundException('리스트가 존재하지 않습니다.');
 
     const LIMIT = 10;
@@ -221,6 +224,7 @@ export class BookmarkService {
     const totalItems = await this.prismaService.bookmarkPlaces.count({ where: { bookmarkId: id } });
 
     return {
+      title: bookmarkData.title,
       pagination: { totalItems, itemsPerPage: bookmarkPlaceData.length },
       items: bookmarkPlaceData,
       lastItemId: bookmarkPlaceData.length > 0 ? bookmarkPlaceData[bookmarkPlaceData.length - 1].id : null,
