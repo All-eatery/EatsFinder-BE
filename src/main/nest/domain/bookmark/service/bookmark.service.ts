@@ -224,8 +224,8 @@ export class BookmarkService {
     const totalItems = await this.prismaService.bookmarkPlaces.count({ where: { bookmarkId: id } });
 
     return {
-      title: bookmarkData.title,
       pagination: { totalItems, itemsPerPage: bookmarkPlaceData.length },
+      title: bookmarkData.title,
       items: bookmarkPlaceData,
       lastItemId: bookmarkPlaceData.length > 0 ? bookmarkPlaceData[bookmarkPlaceData.length - 1].id : null,
     };
