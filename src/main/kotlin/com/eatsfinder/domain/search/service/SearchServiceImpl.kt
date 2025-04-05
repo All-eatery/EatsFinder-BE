@@ -2,9 +2,12 @@ package com.eatsfinder.domain.search.service
 
 import com.eatsfinder.domain.bookmark.repository.BookmarkPlacesRepository
 import com.eatsfinder.domain.follow.repository.FollowRepository
+import com.eatsfinder.domain.like.dto.PaginationPostLikeResponse
+import com.eatsfinder.domain.like.dto.PostLikeResponse
 import com.eatsfinder.domain.like.dto.PostLikesResponse
 import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.like.repository.PostLikeRepository
+import com.eatsfinder.domain.like.service.PostLikeServiceImpl
 import com.eatsfinder.domain.place.model.Place
 import com.eatsfinder.domain.place.repository.PlaceMenusRepository
 import com.eatsfinder.domain.place.repository.PlaceRepository
@@ -17,7 +20,10 @@ import com.eatsfinder.domain.starRating.repository.StarRatingRepository
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
+import com.eatsfinder.global.pagination.PaginationItemsResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
@@ -76,13 +82,20 @@ class SearchServiceImpl(
         }
     }
 
-    override fun getLikePostSearchKeyword(keyword: String, userId: Long): PostLikesResponse {
+    override fun getLikePostSearchKeyword(cursorId: Long?, pageSize: Int, keyword: String, userId: Long): PaginationPostLikeResponse {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
 
-        val likedPosts = postLikeRepository.findByUserId(user).filterNot {
+        val pageable: Pageable = PageRequest.of(0, pageSize + 1)
+
+
+        val likedPosts = if (cursorId == null ) {
+            postLikeRepository.findAllByUserId(user, pageable)
+        } else {
+            postLikeRepository.findAllByUserIdAndIdGreaterThan(user, cursorId, pageable)
+        }.filterNot {
             reportPostRepository.existsByPostIdAndUserId(it.postId, user)
         }
 
@@ -94,10 +107,56 @@ class SearchServiceImpl(
         }
 
 
-        val postCount = filteredLikedPosts.size
-        return PostLikesResponse.from(likedPosts, user, postCount)
+        val postLikeList: List<PostLikeResponse> = filteredLikedPosts.map { like ->
+            PostLikeResponse(
+                id = like.id,
+                postId = like.postId.id,
+                postPlaceName = like.postId.placeId.name,
+                postThumbnailUrl = like.postId.thumbnailUrl,
+                isPostLike = (like.userId.id == user.id),
+                postUserNickname = like.postId.userId.nickname,
+                postUserProfileImage = like.postId.userId.profileImage
+            )
+        }
+        val isLastPage = postLikeList.size <= pageSize
+
+        val nextCursorId = when {
+            postLikeList.isEmpty() -> null
+            postLikeList.size > pageSize -> postLikeList[pageSize - 1].id
+            else -> postLikeList.last().id
+        }
+
+        val totalCount = postLikeRepository.countByUserId(user)
+
+
+        val pagination = PaginationItemsResponse(
+            totalItems = totalCount,
+            itemsPerPage = pageSize,
+            totalPage = (filteredLikedPosts.size / pageSize).toLong() + if (filteredLikedPosts.size % pageSize > 0) 1 else 0,
+            currentPage = 1,
+            isLastPage = isLastPage
+        )
+
+
+        if (postLikeList.isEmpty()) {
+            return PaginationPostLikeResponse(
+                pagination = PaginationItemsResponse(
+                    totalItems = 0,
+                    itemsPerPage = pageSize,
+                    totalPage = 0,
+                    currentPage = 1,
+                    isLastPage = true
+                ),
+                items = emptyList(),
+                lastItemId = 0
+            )
+        }
+
+        return PaginationPostLikeResponse(pagination =  pagination, items = postLikeList.take(pageSize), lastItemId = nextCursorId)
 
     }
+
+
 
     private fun searchAllThings(
         keyword: String,
