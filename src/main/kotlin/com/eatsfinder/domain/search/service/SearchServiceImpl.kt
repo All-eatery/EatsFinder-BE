@@ -38,12 +38,16 @@ class SearchServiceImpl(
     private val bookmarkPlacesRepository: BookmarkPlacesRepository
 
 ) : SearchService {
-    override fun getSearchKeyword(keyword: String, searchFilter: SearchFilter?): SearchResponse {
+    override fun getSearchKeyword(
+        keyword: String,
+        searchFilter: SearchFilter?,
+        postCursorId: Long?,
+        placeCursorId: Long?,
+        neighborCursorId: Long?,
+        pageSize: Int
+    ): SearchResponse {
         val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
         val user = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
-
-        val places = placeRepository.findByDeletedAt(null) ?: emptyList()
-        val posts = postRepository.findByDeletedAt(null) ?: emptyList()
         val users = userRepository.findAll().filter { it.deletedAt == null }
 
         val postLike = user?.let { postLikeRepository.findByUserId(it) } ?: emptyList()
@@ -52,31 +56,30 @@ class SearchServiceImpl(
             user?.let { followRepository.findByFollowedUserId(it).mapNotNull { it.followingUserId.id }.toSet() }
                 ?: emptySet()
 
-
         val bookmark = user?.let {
             bookmarkPlacesRepository.findByBookmarkIdUserId(it.id!!).mapNotNull { bookmarkPlace ->
                 bookmarkPlace.placeId.id
             }.toSet()
         } ?: emptySet()
 
-
         return when (searchFilter) {
-            SearchFilter.Places -> searchPlaces(keyword, places, bookmark)
-            SearchFilter.Posts -> searchPosts(keyword, posts, user, postLike)
-            SearchFilter.Neighbors -> searchUsers(keyword, users, userPostCounts, follow)
-            SearchFilter.All -> searchAllThings(
+            SearchFilter.Places -> searchPlaces(keyword, bookmark, placeCursorId, pageSize)
+            SearchFilter.Posts -> searchPosts(keyword, user, postLike, postCursorId, pageSize)
+            SearchFilter.Neighbors -> searchUsers(keyword, userPostCounts, follow, neighborCursorId, pageSize)
+            SearchFilter.All -> searchAll(
                 keyword,
-                places,
                 bookmark,
-                posts,
-                users,
                 postLike,
                 user,
                 userPostCounts,
-                follow
+                follow,
+                postCursorId,
+                placeCursorId,
+                neighborCursorId,
+                pageSize
             )
 
-            else -> SearchResponse(emptyList(), emptyList(), emptyList())
+            else -> SearchResponse(null, emptyList(), emptyList(), emptyList(), null, null, null)
         }
     }
 
@@ -130,8 +133,6 @@ class SearchServiceImpl(
         }
 
         val totalCount = postLikeRepository.countByUserId(user)
-
-
         val pagination = PaginationItemsResponse(
             totalItems = totalCount,
             itemsPerPage = pageSize,
@@ -139,7 +140,6 @@ class SearchServiceImpl(
             currentPage = 1,
             isLastPage = isLastPage
         )
-
 
         if (postLikeList.isEmpty()) {
             return PaginationPostLikeResponse(
@@ -163,31 +163,73 @@ class SearchServiceImpl(
 
     }
 
-
-    private fun searchAllThings(
+    private fun searchAll(
         keyword: String,
-        places: List<Place>,
         bookmark: Set<Long>,
-        posts: List<Post>,
-        users: List<User>,
         postLike: List<PostLikes>,
         user: User?,
         userPostCounts: Map<User, Int>,
-        follow: Set<Long>
+        follow: Set<Long>,
+        postCursorId: Long?,
+        placeCursorId: Long?,
+        neighborCursorId: Long?,
+        pageSize: Int
     ): SearchResponse {
-        val searchPlace = searchPlaces(keyword, places, bookmark)
-        val searchPost = searchPosts(keyword, posts, user, postLike)
-        val searchUser = searchUsers(keyword, users, userPostCounts, follow)
+        val searchPlace = searchPlaces(keyword, bookmark, placeCursorId, pageSize)
+        val searchPost = searchPosts(keyword, user, postLike, postCursorId, pageSize)
+        val searchUser = searchUsers(keyword, userPostCounts, follow, neighborCursorId, pageSize)
+
+        val totalCount = postRepository.countTotalByKeyword(keyword) +
+                placeRepository.countTotalByKeyword(keyword) +
+                userRepository.countByNicknameContaining(keyword)
+
+        val isLastPage = (searchPlace.places?.size ?: 0) < pageSize &&
+                (searchUser.neighbors?.size ?: 0) < pageSize &&
+                (searchPost.posts?.size ?: 0) < pageSize
+
+        val pagination = PaginationItemsResponse(
+            totalItems = totalCount,
+            itemsPerPage = pageSize,
+            totalPage = (totalCount / pageSize) + if (totalCount % pageSize > 0) 1 else 0,
+            currentPage = 1,
+            isLastPage = isLastPage
+        )
+
+        val postLastItemId = searchPost.postLastItemId
+        val placeLastItemId = searchPlace.placeLastItemId
+        val neighborLastItemId = searchUser.neighborLastItemId
 
         return SearchResponse(
+            pagination = pagination,
             posts = searchPost.posts,
             places = searchPlace.places,
-            neighbors = searchUser.neighbors
+            neighbors = searchUser.neighbors,
+            postLastItemId = postLastItemId,
+            placeLastItemId = placeLastItemId,
+            neighborLastItemId = neighborLastItemId
         )
     }
 
-    private fun searchPlaces(keyword: String, places: List<Place>, bookmark: Set<Long>): SearchResponse {
-        val filteredPlaces = places.filter { place ->
+    private fun searchPlaces(
+        keyword: String,
+        bookmark: Set<Long>,
+        placeCursorId: Long?,
+        pageSize: Int
+    ): SearchResponse {
+
+        val pageable: Pageable = PageRequest.of(0, pageSize + 1)
+
+        val paginationPlace = if (placeCursorId == null) {
+            placeRepository.findAllByKeywords(keyword, pageable)
+        } else {
+            placeRepository.findAllByKeywordsAndIdGreaterThan(
+                keyword,
+                placeCursorId,
+                pageable
+            )
+        }
+
+        val filteredPlaces = paginationPlace.filter { place ->
             place.name.contains(keyword, ignoreCase = true) ||
                     placeMenusRepository.findByPlaceIdAndMenu(place, keyword)?.menu?.contains(
                         keyword,
@@ -207,16 +249,59 @@ class SearchServiceImpl(
             )
         }
 
-        return SearchResponse(posts = emptyList(), places = filteredPlaces, neighbors = emptyList())
+        val searchPlace = when (placeCursorId) {
+            null -> filteredPlaces.take(pageSize)
+            else -> filteredPlaces.filter { it.placeId > placeCursorId }.take(pageSize)
+        }
+
+        val isLastPage = paginationPlace.size <= pageSize
+
+        val nextCursorId = when {
+            searchPlace.isEmpty() -> null
+            searchPlace.size > pageSize -> filteredPlaces[pageSize - 1].placeId
+            else -> searchPlace.last().placeId
+        }
+
+        val totalCount = placeRepository.countTotalByKeyword(keyword)
+        val pagination = PaginationItemsResponse(
+            totalItems = totalCount,
+            itemsPerPage = pageSize,
+            totalPage = (filteredPlaces.size / pageSize).toLong() + if (filteredPlaces.size % pageSize > 0) 1 else 0,
+            currentPage = 1,
+            isLastPage = isLastPage
+        )
+
+        return SearchResponse(
+            posts = emptyList(),
+            places = filteredPlaces.take(pageSize),
+            neighbors = emptyList(),
+            pagination = pagination,
+            postLastItemId = null,
+            placeLastItemId = nextCursorId,
+            neighborLastItemId = null
+        )
     }
 
     private fun searchPosts(
         keyword: String,
-        posts: List<Post>,
         user: User?,
-        postLike: List<PostLikes>
+        postLike: List<PostLikes>,
+        postCursorId: Long?,
+        pageSize: Int
     ): SearchResponse {
-        val filteredPosts = posts.filter { post ->
+
+        val pageable: Pageable = PageRequest.of(0, pageSize + 1)
+        val paginationPost = if (postCursorId == null) {
+            postRepository.findAllByKeywords(keyword, pageable)
+        } else {
+            postRepository.findAllByKeywordsAndIdGreaterThan(
+                keyword,
+                postCursorId,
+                pageable
+            )
+        }
+
+        val filteredPosts = paginationPost.filter { post ->
             !reportPostRepository.existsByPostIdAndUserId(post, user) &&
                     post.placeId.name.contains(keyword, ignoreCase = true) ||
                     placeMenusRepository.findByPlaceIdAndMenu(post.placeId, keyword)?.menu?.contains(
@@ -234,16 +319,59 @@ class SearchServiceImpl(
             )
         }
 
-        return SearchResponse(posts = filteredPosts, places = emptyList(), neighbors = emptyList())
+        val searchPost = when (postCursorId) {
+            null -> filteredPosts.take(pageSize)
+            else -> filteredPosts.filter { it.postId!! > postCursorId }.take(pageSize)
+        }
+
+        val isLastPage = paginationPost.size <= pageSize
+
+        val nextCursorId = when {
+            searchPost.isEmpty() -> null
+            searchPost.size > pageSize -> filteredPosts[pageSize - 1].postId
+            else -> searchPost.last().postId
+        }
+
+        val totalCount = postRepository.countTotalByKeyword(keyword)
+        val pagination = PaginationItemsResponse(
+            totalItems = totalCount,
+            itemsPerPage = pageSize,
+            totalPage = (filteredPosts.size / pageSize).toLong() + if (filteredPosts.size % pageSize > 0) 1 else 0,
+            currentPage = 1,
+            isLastPage = isLastPage
+        )
+
+        return SearchResponse(
+            posts = filteredPosts.take(pageSize),
+            places = emptyList(),
+            neighbors = emptyList(),
+            pagination = pagination,
+            postLastItemId = nextCursorId,
+            placeLastItemId = null,
+            neighborLastItemId = null
+        )
     }
 
     private fun searchUsers(
         keyword: String,
-        users: List<User>,
         userPostCounts: Map<User, Int>,
-        follow: Set<Long>
+        follow: Set<Long>,
+        neighborCursorId: Long?,
+        pageSize: Int
     ): SearchResponse {
-        val filteredUsers = users.filter { user ->
+
+        val pageable: Pageable = PageRequest.of(0, pageSize + 1)
+        val paginationUser = if (neighborCursorId == null) {
+            userRepository.findAllByNicknameContaining(keyword, pageable)
+        } else {
+            userRepository.findAllByKeywordsAndIdGreaterThan(
+                keyword,
+                neighborCursorId,
+                pageable
+            )
+        }
+
+        val filteredUsers = paginationUser.filter { user ->
             user.nickname.contains(keyword, ignoreCase = true)
         }.map { user ->
             val isFollow = follow.contains(user.id)
@@ -251,6 +379,37 @@ class SearchServiceImpl(
             NeighborPostResponse.from(user, postCount, isFollow)
         }
 
-        return SearchResponse(posts = emptyList(), places = emptyList(), neighbors = filteredUsers)
+        val searchNeighbor = when (neighborCursorId) {
+            null -> filteredUsers.take(pageSize)
+            else -> filteredUsers.filter { it.neighbor.id > neighborCursorId }.take(pageSize)
+        }
+
+        val isLastPage = paginationUser.size <= pageSize
+
+        val nextCursorId = if (searchNeighbor.isNotEmpty()) {
+            searchNeighbor.last().neighbor.id
+        } else {
+            null
+        }
+
+        val totalCount = userRepository.countByNicknameContaining(keyword)
+
+        val pagination = PaginationItemsResponse(
+            totalItems = totalCount,
+            itemsPerPage = pageSize,
+            totalPage = (filteredUsers.size / pageSize).toLong() + if (filteredUsers.size % pageSize > 0) 1 else 0,
+            currentPage = 1,
+            isLastPage = isLastPage
+        )
+
+        return SearchResponse(
+            posts = emptyList(),
+            places = emptyList(),
+            neighbors = filteredUsers.take(pageSize),
+            pagination = pagination,
+            postLastItemId = null,
+            placeLastItemId = null,
+            neighborLastItemId = nextCursorId
+        )
     }
 }

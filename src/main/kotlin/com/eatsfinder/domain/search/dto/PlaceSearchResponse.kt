@@ -6,6 +6,7 @@ import com.eatsfinder.domain.starRating.model.StarRating
 import java.time.LocalDateTime
 
 data class PlaceSearchResponse(
+    val placeId: Long,
     val postThumbnailUrl: String,
     val placeName: String,
     val roadAddress: String,
@@ -21,6 +22,7 @@ data class PlaceSearchResponse(
             val firstStar = star.firstOrNull()
 
             return PlaceSearchResponse(
+                placeId = place.id!!,
                 postThumbnailUrl = firstPost?.thumbnailUrl ?: "",
                 placeName = place.name,
                 roadAddress = place.roadAddress,
