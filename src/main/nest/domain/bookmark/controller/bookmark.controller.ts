@@ -126,4 +126,11 @@ export class BookmarkController {
   async removeBookmark(@GetUserId() userId: number, @Query() query: RemoveBookmarkPlaceDto) {
     return await this.bookmarkService.removeBookmark(userId, query);
   }
+
+  @Get('totalcount')
+  @ApiGuard()
+  @ApiOperation({ summary: '맛집 전체 카운트' })
+  async bookmarkAllCount(@GetUserId() userId: number) {
+    return await this.bookmarkService.bookmarkAllCount(userId);
+  }
 }

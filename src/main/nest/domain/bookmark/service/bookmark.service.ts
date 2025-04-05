@@ -344,4 +344,13 @@ export class BookmarkService {
 
     return { message: '맛집이 삭제되었습니다.' };
   }
+
+  async bookmarkAllCount(userId: number) {
+    console.log('🚀 userId:', userId);
+
+    const totalLists = await this.prismaService.bookmarks.count({ where: { userId } });
+    const totalItems = await this.prismaService.bookmarkPlaces.count({ where: { bookmarks: { userId: userId } } });
+
+    return { totalItems, totalLists };
+  }
 }
