@@ -115,9 +115,9 @@ class SearchServiceImpl(
         val searchUser = searchUsers(keyword, users, userPostCounts, follow)
 
         return SearchResponse(
-            post = searchPost.post,
-            place = searchPlace.place,
-            neighbor = searchUser.neighbor
+            posts = searchPost.posts,
+            places = searchPlace.places,
+            neighbors = searchUser.neighbors
         )
     }
 
@@ -142,7 +142,7 @@ class SearchServiceImpl(
             )
         }
 
-        return SearchResponse(post = emptyList(), place = filteredPlaces, neighbor = emptyList())
+        return SearchResponse(posts = emptyList(), places = filteredPlaces, neighbors = emptyList())
     }
 
     private fun searchPosts(
@@ -169,7 +169,7 @@ class SearchServiceImpl(
             )
         }
 
-        return SearchResponse(post = filteredPosts, place = emptyList(), neighbor = emptyList())
+        return SearchResponse(posts = filteredPosts, places = emptyList(), neighbors = emptyList())
     }
 
     private fun searchUsers(
@@ -186,6 +186,6 @@ class SearchServiceImpl(
             NeighborPostResponse.from(user, postCount, isFollow)
         }
 
-        return SearchResponse(post = emptyList(), place = emptyList(), neighbor = filteredUsers)
+        return SearchResponse(posts = emptyList(), places= emptyList(), neighbors = filteredUsers)
     }
 }

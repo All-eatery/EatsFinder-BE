@@ -6,9 +6,9 @@ import com.eatsfinder.domain.starRating.model.StarRating
 import com.eatsfinder.domain.user.model.User
 
 data class SearchResponse(
-    val post: List<PostSearchResponse>?,
-    val place: List<PlaceSearchResponse>?,
-    val neighbor: List<NeighborPostResponse>?
+    val posts: List<PostSearchResponse>?,
+    val places: List<PlaceSearchResponse>?,
+    val neighbors: List<NeighborPostResponse>?
 ){
     companion object {
         fun from(
@@ -23,9 +23,9 @@ data class SearchResponse(
             isFollow: Boolean
         ): SearchResponse {
             return SearchResponse(
-                post = posts.map { PostSearchResponse.from(it, isPostLike) },
-                place = places.map { PlaceSearchResponse.from(it, post, star, isBookmark) },
-                neighbor = users.map { NeighborPostResponse.from(it, postCount, isFollow) }
+                posts = posts.map { PostSearchResponse.from(it, isPostLike) },
+                places = places.map { PlaceSearchResponse.from(it, post, star, isBookmark) },
+                neighbors = users.map { NeighborPostResponse.from(it, postCount, isFollow) }
             )
         }
     }
