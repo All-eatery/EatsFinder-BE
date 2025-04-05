@@ -13,7 +13,7 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
 import com.eatsfinder.global.exception.profile.MyProfileException
-import com.eatsfinder.global.pagination.PaginationCursorItemsResponse
+import com.eatsfinder.global.pagination.PaginationItemsResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -109,9 +109,14 @@ class PostLikeServiceImpl(
         val pageable: Pageable = PageRequest.of(0, pageSize + 1)
 
 
-        val postLikes = postLikeRepository.findAllByUserId(user, pageable).filterNot {
+        val postLikes = if (cursorId == null ) {
+            postLikeRepository.findAllByUserId(user, pageable)
+        } else {
+            postLikeRepository.findAllByUserIdAndIdGreaterThan(user, cursorId, pageable)
+        }.filterNot {
             reportPostRepository.existsByPostIdAndUserId(it.postId, user)
         }
+
 
         val postLikeList: List<PostLikeResponse> = postLikes.map { like ->
             PostLikeResponse(
@@ -124,22 +129,40 @@ class PostLikeServiceImpl(
                 postUserProfileImage = like.postId.userId.profileImage
             )
         }
+        val isLastPage = postLikeList.size <= pageSize
 
-        val hasNext = hasNext(postLikes.size, pageSize)
+        val nextCursorId = when {
+            postLikeList.isEmpty() -> null
+            postLikeList.size > pageSize -> postLikeList[pageSize - 1].id
+            else -> postLikeList.last().id
+        }
 
-        val pagination = PaginationCursorItemsResponse(
-            cursorId = cursorId,
-            totalItems = postLikes.size.toLong(),
+        val totalCount = postLikeRepository.countByUserId(user)
+
+
+        val pagination = PaginationItemsResponse(
+            totalItems = totalCount,
             itemsPerPage = pageSize,
             totalPage = (postLikes.size / pageSize).toLong() + if (postLikes.size % pageSize > 0) 1 else 0,
             currentPage = 1,
-            isLastPage = !hasNext
+            isLastPage = isLastPage
         )
 
-        return PaginationPostLikeResponse(pagination =  pagination, postLikeList = postLikeList)
-    }
 
-    private fun hasNext(followsSize: Int, pageSize: Int): Boolean {
-        return followsSize > pageSize
+        if (postLikeList.isEmpty()) {
+            return PaginationPostLikeResponse(
+                pagination = PaginationItemsResponse(
+                    totalItems = 0,
+                    itemsPerPage = pageSize,
+                    totalPage = 0,
+                    currentPage = 1,
+                    isLastPage = true
+                ),
+                items = emptyList(),
+                lastItemId = 0
+            )
+        }
+
+        return PaginationPostLikeResponse(pagination =  pagination, items = postLikeList.take(pageSize), lastItemId = nextCursorId)
     }
 }

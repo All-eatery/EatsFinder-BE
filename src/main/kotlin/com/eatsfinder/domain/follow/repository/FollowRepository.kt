@@ -1,10 +1,12 @@
 package com.eatsfinder.domain.follow.repository
 
 import com.eatsfinder.domain.follow.model.Follow
+import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.user.model.User
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.repository.query.Param
+import java.time.LocalDateTime
 
 interface FollowRepository: JpaRepository<Follow, Long>{
 
@@ -14,10 +16,12 @@ interface FollowRepository: JpaRepository<Follow, Long>{
 
     fun findByFollowingUserId(followingUserId: User): List<Follow>
 
-    fun findAllByFollowedUserIdAndFollowingUserIdDeletedAtIsNull(user: User, pageable: Pageable): List<Follow>
+    fun findAllByFollowedUserIdAndFollowingUserIdDeletedAtIsNull(user: User, cursorId: Long, pageable: Pageable): List<Follow>
 
-    fun findByIdLessThanOrderByIdDescCreatedAtDesc(
-        @Param("cursorId") cursorId: Long,
-        pageable: Pageable
-    ): List<Follow>
+    fun findAllByFollowedUserIdAndFollowedUserIdDeletedAtIsNull(user: User, cursorId: Long, pageable: Pageable): List<Follow>
+
+    fun countByFollowedUserId(user: User): Long
+
+    fun countByFollowingUserId(user: User): Long
+
 }

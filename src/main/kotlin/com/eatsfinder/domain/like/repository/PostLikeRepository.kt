@@ -15,4 +15,8 @@ interface PostLikeRepository : JpaRepository<PostLikes, Long> {
     fun findByUserId(userId: User): List<PostLikes>
 
     fun findAllByUserId(userId: User, pageable: Pageable): List<PostLikes>
+
+    fun countByUserId(userId: User): Long
+    fun findAllByUserIdAndIdGreaterThan(user: User, cursorId: Long, pageable: Pageable): List<PostLikes>
+
 }

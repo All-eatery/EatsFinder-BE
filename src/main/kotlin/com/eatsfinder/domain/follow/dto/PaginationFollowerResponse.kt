@@ -1,9 +1,10 @@
 package com.eatsfinder.domain.follow.dto
 
-import com.eatsfinder.global.pagination.PaginationCursorItemsResponse
+import com.eatsfinder.global.pagination.PaginationItemsResponse
 
 
 data class PaginationFollowerResponse(
-    val pagination: PaginationCursorItemsResponse,
-    val followList: List<FollowerListResponse>
+    val pagination: PaginationItemsResponse,
+    val items: List<FollowingListResponse>,
+    val lastItemId: Long?
 )

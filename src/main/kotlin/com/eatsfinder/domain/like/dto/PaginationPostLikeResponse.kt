@@ -1,8 +1,9 @@
 package com.eatsfinder.domain.like.dto
 
-import com.eatsfinder.global.pagination.PaginationCursorItemsResponse
+import com.eatsfinder.global.pagination.PaginationItemsResponse
 
 data class PaginationPostLikeResponse(
-    val pagination: PaginationCursorItemsResponse,
-    val postLikeList: List<PostLikeResponse>
+    val pagination: PaginationItemsResponse,
+    val items: List<PostLikeResponse>,
+    val lastItemId: Long?
 )
