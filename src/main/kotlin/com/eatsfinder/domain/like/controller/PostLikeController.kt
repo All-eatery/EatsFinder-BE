@@ -26,7 +26,7 @@ class PostLikeController(
     fun getPostLikes(
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam cursorId: Long?,
-        @RequestParam(defaultValue = "15") pageSize: Int
+        @RequestParam(defaultValue = "20") pageSize: Int
     ): ResponseEntity<PaginationPostLikeResponse> {
         val userId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(postLikeService.getPostLikes(userId, cursorId, pageSize))

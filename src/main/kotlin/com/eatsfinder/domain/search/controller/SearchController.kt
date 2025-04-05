@@ -21,9 +21,13 @@ class SearchController(
     @GetMapping("/search")
     fun getSearchKeyword(
         @RequestParam keyword: String,
-        @RequestParam filter: SearchFilter?
+        @RequestParam filter: SearchFilter?,
+        @RequestParam postCursorId: Long?,
+        @RequestParam placeCursorId: Long?,
+        @RequestParam neighborCursorId: Long?,
+        @RequestParam(defaultValue = "15") pageSize: Int
     ): ResponseEntity<SearchResponse> {
-        return ResponseEntity.status(HttpStatus.OK).body(searchService.getSearchKeyword(keyword, filter))
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.getSearchKeyword(keyword, filter, postCursorId, placeCursorId, neighborCursorId, pageSize))
     }
 
     @Operation(summary = "좋아요한 게시물 검색하기")
@@ -32,7 +36,7 @@ class SearchController(
         @RequestParam keyword: String,
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
         @RequestParam cursorId: Long?,
-        @RequestParam(defaultValue = "15") pageSize: Int
+        @RequestParam(defaultValue = "20") pageSize: Int
     ): ResponseEntity<PaginationPostLikeResponse> {
         val userId = userPrincipal.id
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getLikePostSearchKeyword(cursorId, pageSize,keyword, userId))
