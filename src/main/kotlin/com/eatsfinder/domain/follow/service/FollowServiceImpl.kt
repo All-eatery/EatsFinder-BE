@@ -7,7 +7,6 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.InvalidInputException
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
-import com.eatsfinder.global.pagination.PaginationCursorItemsResponse
 import com.eatsfinder.global.pagination.PaginationItemsResponse
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
@@ -159,7 +158,7 @@ class FollowServiceImpl(
 
         val follows = if (cursorId == null) {
             followRepository.findByFollowingUserId(user)
-        }else {
+        } else {
             followRepository.findAllByFollowedUserIdAndFollowingUserIdDeletedAtIsNull(user, cursorId, pageable)
         }
 

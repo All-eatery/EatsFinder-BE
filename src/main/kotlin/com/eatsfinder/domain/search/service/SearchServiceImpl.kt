@@ -4,10 +4,8 @@ import com.eatsfinder.domain.bookmark.repository.BookmarkPlacesRepository
 import com.eatsfinder.domain.follow.repository.FollowRepository
 import com.eatsfinder.domain.like.dto.PaginationPostLikeResponse
 import com.eatsfinder.domain.like.dto.PostLikeResponse
-import com.eatsfinder.domain.like.dto.PostLikesResponse
 import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.like.repository.PostLikeRepository
-import com.eatsfinder.domain.like.service.PostLikeServiceImpl
 import com.eatsfinder.domain.place.model.Place
 import com.eatsfinder.domain.place.repository.PlaceMenusRepository
 import com.eatsfinder.domain.place.repository.PlaceRepository
@@ -82,7 +80,12 @@ class SearchServiceImpl(
         }
     }
 
-    override fun getLikePostSearchKeyword(cursorId: Long?, pageSize: Int, keyword: String, userId: Long): PaginationPostLikeResponse {
+    override fun getLikePostSearchKeyword(
+        cursorId: Long?,
+        pageSize: Int,
+        keyword: String,
+        userId: Long
+    ): PaginationPostLikeResponse {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
@@ -91,7 +94,7 @@ class SearchServiceImpl(
         val pageable: Pageable = PageRequest.of(0, pageSize + 1)
 
 
-        val likedPosts = if (cursorId == null ) {
+        val likedPosts = if (cursorId == null) {
             postLikeRepository.findAllByUserId(user, pageable)
         } else {
             postLikeRepository.findAllByUserIdAndIdGreaterThan(user, cursorId, pageable)
@@ -152,10 +155,13 @@ class SearchServiceImpl(
             )
         }
 
-        return PaginationPostLikeResponse(pagination =  pagination, items = postLikeList.take(pageSize), lastItemId = nextCursorId)
+        return PaginationPostLikeResponse(
+            pagination = pagination,
+            items = postLikeList.take(pageSize),
+            lastItemId = nextCursorId
+        )
 
     }
-
 
 
     private fun searchAllThings(
@@ -212,7 +218,7 @@ class SearchServiceImpl(
     ): SearchResponse {
         val filteredPosts = posts.filter { post ->
             !reportPostRepository.existsByPostIdAndUserId(post, user) &&
-            post.placeId.name.contains(keyword, ignoreCase = true) ||
+                    post.placeId.name.contains(keyword, ignoreCase = true) ||
                     placeMenusRepository.findByPlaceIdAndMenu(post.placeId, keyword)?.menu?.contains(
                         keyword,
                         ignoreCase = true
@@ -245,6 +251,6 @@ class SearchServiceImpl(
             NeighborPostResponse.from(user, postCount, isFollow)
         }
 
-        return SearchResponse(posts = emptyList(), places= emptyList(), neighbors = filteredUsers)
+        return SearchResponse(posts = emptyList(), places = emptyList(), neighbors = filteredUsers)
     }
 }

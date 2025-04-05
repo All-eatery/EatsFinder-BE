@@ -1,12 +1,9 @@
 package com.eatsfinder.domain.follow.controller
 
 import com.eatsfinder.domain.follow.dto.FollowResponse
-import com.eatsfinder.domain.follow.dto.FollowerListResponse
 import com.eatsfinder.domain.follow.dto.PaginationFollowerResponse
 import com.eatsfinder.domain.follow.dto.PaginationFollowingResponse
-import com.eatsfinder.domain.follow.model.Follow
 import com.eatsfinder.domain.follow.service.FollowService
-import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
 import io.swagger.v3.oas.annotations.Operation
