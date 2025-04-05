@@ -20,7 +20,7 @@ data class NewPostByNeighborResponse(
                 follow?.let {
                     val isPostLike = likes.any { like -> like.postId.id == post.id && like.userId.id == user.id }
                     NeighborPostResponse(
-                        followingUser = FollowingUserDataResponse(
+                        neighbor = FollowingUserDataResponse(
                             nickname = it.followingUserId.nickname,
                             profileImage = it.followingUserId.profileImage,
                         ),
@@ -57,7 +57,7 @@ data class NewPostByNeighborResponse(
             return NewPostByNeighborResponse(
                 pagination = pagination,
                 followingCount = user.followingCount,
-                neighborPost = pagedItems,
+                neighborPost = pagedItems
             )
         }
     }
