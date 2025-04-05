@@ -346,8 +346,6 @@ export class BookmarkService {
   }
 
   async bookmarkAllCount(userId: number) {
-    console.log('🚀 userId:', userId);
-
     const totalLists = await this.prismaService.bookmarks.count({ where: { userId } });
     const totalItems = await this.prismaService.bookmarkPlaces.count({ where: { bookmarks: { userId: userId } } });
 
