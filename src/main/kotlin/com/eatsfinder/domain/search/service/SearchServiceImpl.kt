@@ -57,10 +57,10 @@ class SearchServiceImpl(
 
 
         return when (searchFilter) {
-            SearchFilter.PLACES -> searchPlaces(keyword, places, bookmark)
-            SearchFilter.POSTS -> searchPosts(keyword, posts, user, postLike)
-            SearchFilter.USERS -> searchUsers(keyword, users, userPostCounts, follow)
-            SearchFilter.ALL -> searchAllThings(
+            SearchFilter.Places -> searchPlaces(keyword, places, bookmark)
+            SearchFilter.Posts -> searchPosts(keyword, posts, user, postLike)
+            SearchFilter.Neighbors -> searchUsers(keyword, users, userPostCounts, follow)
+            SearchFilter.All -> searchAllThings(
                 keyword,
                 places,
                 bookmark,
