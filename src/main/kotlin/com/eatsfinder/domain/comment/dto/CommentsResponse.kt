@@ -5,15 +5,16 @@ import com.eatsfinder.domain.like.model.CommentLikes
 import com.eatsfinder.domain.like.model.ReplyLikes
 import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.reply.dto.ReplyResponse
+import com.eatsfinder.global.pagination.PaginationItemsResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
-import java.time.LocalDateTime
 
 data class CommentsResponse(
-    val totalCommentCount: Int = 0,
-    val comments: List<CommentResponse>
+    val pagination: PaginationItemsResponse?,
+    val items: List<CommentResponse>,
+    val lastItemId: Long?
 ) {
     companion object {
-        fun from(comments: List<Comment>, userPrincipal: UserPrincipal?, commentCount: Int, commentLikes: List<CommentLikes>?, replyLikes: List<ReplyLikes>?, post: Post): CommentsResponse {
+        fun from(totalCount: Long, pageSize: Int, comments: List<Comment>, userPrincipal: UserPrincipal?, commentLikes: List<CommentLikes>?, replyLikes: List<ReplyLikes>?, post: Post): CommentsResponse {
             val res = comments.map { comment ->
                 CommentResponse(
                     id = comment.id!!,
@@ -43,9 +44,27 @@ data class CommentsResponse(
                     }
                 )
             }
+            val isLastPage = comments.size <= pageSize
+
+            val nextCursorId = when {
+                comments.isEmpty() -> null
+                comments.size > pageSize -> comments[pageSize - 1].id
+                else -> comments.last().id
+            }
+
+            val pagination = PaginationItemsResponse(
+                totalItems = totalCount,
+                itemsPerPage = pageSize,
+                totalPage = (comments.size / pageSize).toLong() + if (comments.size % pageSize > 0) 1 else 0,
+                currentPage = 1,
+                isLastPage = isLastPage
+            )
+
+
             return CommentsResponse(
-                totalCommentCount = commentCount,
-                comments = res
+                pagination = pagination ,
+                items = res.take(pageSize),
+                lastItemId =  nextCursorId
             )
         }
     }

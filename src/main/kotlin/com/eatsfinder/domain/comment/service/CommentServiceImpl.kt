@@ -5,6 +5,7 @@ import com.eatsfinder.domain.comment.dto.CommentsResponse
 import com.eatsfinder.domain.comment.dto.CommentsResponse.Companion.from
 import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.comment.repository.CommentRepository
+import com.eatsfinder.domain.follow.dto.FollowerListResponse
 import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.like.repository.ReplyLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
@@ -17,7 +18,10 @@ import com.eatsfinder.domain.user.repository.UserLogRepository
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.profile.ImmutableUserOrUnauthorizedUserException
+import com.eatsfinder.global.pagination.PaginationCursorItemsResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -34,7 +38,13 @@ class CommentServiceImpl(
 ) : CommentService {
 
     @Transactional(readOnly = true)
-    override fun getCommentList(postId: Long, userPrincipal: UserPrincipal?, userId: Long?): CommentsResponse {
+    override fun getCommentList(
+        postId: Long,
+        userPrincipal: UserPrincipal?,
+        userId: Long?,
+        cursorId: Long?,
+        pageSize: Int
+    ): CommentsResponse {
         val loginUser = userPrincipal?.id
 
         val user = loginUser?.let {
@@ -49,23 +59,37 @@ class CommentServiceImpl(
             "이 게시물 아이디: (${postId})는 존재하지 않습니다."
         )
 
-        val reportedPost = reportPostRepository.findByPostIdAndReportedUserId(post, post.userId)
-        if (reportedPost != null && reportedPost.userId.id == loginUser) return CommentsResponse(0, emptyList())
+        val pageable: Pageable = PageRequest.of(0, pageSize + 1)
 
-
-        val commentCount = commentRepository.countByPostIdAndDeletedAt(post, null) ?: 0
-        val comments = commentRepository.findByPostIdAndDeletedAt(post, null).filterNot {
-            reportCommentRepository.existsByCommentIdAndUserId(it, user)
+        val comments = if (cursorId == null ) {
+            commentRepository.findByPostIdAndDeletedAt(post, null)
+        } else {
+            commentRepository.findAllByPostIdAndIdGreaterThan(post, cursorId, pageable)
+        }.filterNot {
+            reportPostRepository.existsByPostIdAndUserId(it.postId, user)
         }
+
         comments.forEach { comment ->
             comment.replies =
                 comment.replies.filterNot { reportCommentRepository.existsByReplyIdAndUserId(it, user) }.toMutableList()
         }
 
+        val nextCursorId = when {
+            comments.isEmpty() -> null
+            comments.size > pageSize -> comments[pageSize - 1].id
+            else -> comments.last().id
+        }
+
+        val totalCount = commentRepository.countByPostIdAndDeletedAt(post, null)
+
+        val reportedPost = reportPostRepository.findFirstByPostIdAndReportedUserId(post, post.userId)
+        if (reportedPost != null && reportedPost.userId.id == loginUser) return CommentsResponse(null, emptyList(), nextCursorId)
+
+
         val commentLikes = user?.let { commentLikeRepository.findCommentLikesByUserId(it) } ?: emptyList()
         val replyLikes = user?.let { replyLikeRepository.findReplyLikesByUserId(it) } ?: emptyList()
 
-        return from(comments, userPrincipal, commentCount, commentLikes, replyLikes, post)
+        return from(totalCount, pageSize, comments, userPrincipal, commentLikes, replyLikes, post)
     }
 
     @Transactional
@@ -126,5 +150,43 @@ class CommentServiceImpl(
         val userLog = userLogRepository.findUserLogByCommentIdAndMyActiveType(comment, MyActiveType.COMMENT)
             ?: throw ModelNotFoundException("userLog")
         userLogRepository.delete(userLog)
+    }
+
+//    private fun paginationComment(cursorId: Long?, pageSize: Int): {
+//
+//        val pageable = PageRequest.of(0, pageSize + 1)
+//
+//        val follows = commentRepository.findAllByFollowedUserIdAndFollowingUserIdDeletedAtIsNull(user, pageable)
+//
+//        val hasNext = hasNext(follows.size, pageSize)
+//
+//        val pagination = PaginationCursorItemsResponse(
+//            cursorId = cursorId,
+//            totalItems = follows.size.toLong(),
+//            itemsPerPage = pageSize,
+//            totalPage = (follows.size / pageSize).toLong() + if (follows.size % pageSize > 0) 1 else 0,
+//            currentPage = 1,
+//            isLastPage = !hasNext
+//        )
+//
+//        val followList: List<FollowerListResponse> = follows.map { follow ->
+//            FollowerListResponse(
+//                followerUserId = follow.followedUserId.id!!,
+//                followerUserNickname = follow.followedUserId.nickname,
+//                imageUrl = follow.followingUserId.profileImage
+//            )
+//        }
+//
+//        return PaginationFollowerResponse(
+//            followList = followList,
+//            pagination = pagination
+//        )
+//    }
+
+    private fun hasNext(followsSize: Int, pageSize: Int): Boolean {
+//        if (followsSize == 0) {
+//            throw EntityNotFoundException(Follow::class.java)
+//        }
+        return followsSize > pageSize
     }
 }

@@ -19,9 +19,14 @@ class CommentController(
 
     @Operation(summary = "댓글 전체 조회")
     @GetMapping("/posts/{postId}/comments")
-    fun getCommentList(@PathVariable postId: Long, @AuthenticationPrincipal userPrincipal: UserPrincipal?): ResponseEntity<CommentsResponse> {
+    fun getCommentList(
+        @PathVariable postId: Long,
+        @AuthenticationPrincipal userPrincipal: UserPrincipal?,
+        @RequestParam cursorId: Long?,
+        @RequestParam(defaultValue = "15") pageSize: Int
+    ): ResponseEntity<CommentsResponse> {
         val userId = userPrincipal?.id
-        return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentList(postId, userPrincipal, userId))
+        return ResponseEntity.status(HttpStatus.OK).body(commentService.getCommentList(postId, userPrincipal, userId, cursorId, pageSize))
     }
 
     @Operation(summary = "댓글 작성")
