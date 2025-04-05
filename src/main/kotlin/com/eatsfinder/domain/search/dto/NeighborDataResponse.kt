@@ -1,7 +1,7 @@
 package com.eatsfinder.domain.search.dto
 
 data class NeighborDataResponse(
-    val id : Long,
+    val id: Long,
     val nickname: String,
     val profileImage: String?,
     val postCount: Int,

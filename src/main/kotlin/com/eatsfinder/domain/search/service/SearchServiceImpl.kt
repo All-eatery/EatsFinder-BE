@@ -6,10 +6,8 @@ import com.eatsfinder.domain.like.dto.PaginationPostLikeResponse
 import com.eatsfinder.domain.like.dto.PostLikeResponse
 import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.like.repository.PostLikeRepository
-import com.eatsfinder.domain.place.model.Place
 import com.eatsfinder.domain.place.repository.PlaceMenusRepository
 import com.eatsfinder.domain.place.repository.PlaceRepository
-import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.post.repository.PostRepository
 import com.eatsfinder.domain.report.repository.ReportPostRepository
 import com.eatsfinder.domain.search.dto.*

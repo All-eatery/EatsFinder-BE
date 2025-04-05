@@ -1,6 +1,5 @@
 package com.eatsfinder.domain.user.repository
 
-import com.eatsfinder.domain.like.model.PostLikes
 import com.eatsfinder.domain.user.model.SocialType
 import com.eatsfinder.domain.user.model.User
 import org.springframework.data.domain.Pageable
@@ -25,6 +24,7 @@ interface UserRepository : JpaRepository<User, Long> {
 
     fun findAllByNicknameContaining(nickname: String, pageable: Pageable): List<User>
     fun countByNicknameContaining(nickname: String): Long
+
     @Query("SELECT u FROM User u WHERE (u.nickname LIKE %:keyword% OR u.email LIKE %:keyword%) AND (u.id > :neighborCursorId OR :neighborCursorId IS NULL)")
     fun findAllByKeywordsAndIdGreaterThan(
         @Param("keyword") keyword: String,
