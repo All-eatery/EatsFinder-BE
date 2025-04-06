@@ -29,7 +29,10 @@ jobs:
         with:
           script: |
             const labels = context.payload.pull_request.labels.map(label => label.name);
-            core.setOutput("result", labels.includes("nestjs"));
+            core.info("라벨들: " + JSON.stringify(labels));
+            const hasNestLabel = labels.includes("nestjs");
+            core.info("NestJS 라벨 포함 여부: " + hasNestLabel);
+            core.setOutput("result", hasNestLabel.toString());
 
       - name: PR 라벨 코틀린
         id: PR-label-kotlin
