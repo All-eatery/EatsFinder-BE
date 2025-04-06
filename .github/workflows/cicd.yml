@@ -29,9 +29,7 @@ jobs:
         with:
           script: |
             const labels = context.payload.pull_request.labels.map(label => label.name);
-            core.info("라벨들: " + JSON.stringify(labels));
             const hasNestLabel = labels.includes("nestjs");
-            core.info("NestJS 라벨 포함 여부: " + hasNestLabel);
             core.setOutput("result", hasNestLabel.toString());
 
       - name: PR 라벨 코틀린
@@ -40,7 +38,17 @@ jobs:
         with:
           script: |
             const labels = context.payload.pull_request.labels.map(label => label.name);
-            core.setOutput("result", labels.includes("kotlin"));
+            const hasKotlinLabel = labels.includes("kotlin");
+            core.setOutput("result", hasNestLabel.toString());
+
+  debug-check:
+    needs: PR_Merge_label
+    runs-on: ubuntu-latest
+    steps:
+      - name: 디버그용
+        run: |
+          echo "✅ build_nestjs: ${{ needs.PR_Merge_label.outputs.build_nestjs }}"
+          echo "✅ build_kotlin: ${{ needs.PR_Merge_label.outputs.build_kotlin }}"
 
   nestjs-build:
     runs-on: ubuntu-latest
