@@ -29,8 +29,7 @@ jobs:
         with:
           script: |
             const labels = context.payload.pull_request.labels.map(label => label.name);
-            const hasNestLabel = labels.includes("nestjs");
-            core.setOutput("result", hasNestLabel.toString());
+            return labels.includes("nestjs");
 
       - name: PR 라벨 코틀린
         id: PR-label-kotlin
@@ -38,8 +37,7 @@ jobs:
         with:
           script: |
             const labels = context.payload.pull_request.labels.map(label => label.name);
-            const hasKotlinLabel = labels.includes("kotlin");
-            core.setOutput("result", hasKotlinLabel.toString());
+            return labels.includes("kotlin");
 
   debug-check:
     needs: PR_Merge_label
