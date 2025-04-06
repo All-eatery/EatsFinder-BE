@@ -39,7 +39,7 @@ jobs:
           script: |
             const labels = context.payload.pull_request.labels.map(label => label.name);
             const hasKotlinLabel = labels.includes("kotlin");
-            core.setOutput("result", hasNestLabel.toString());
+            core.setOutput("result", hasKotlinLabel.toString());
 
   debug-check:
     needs: PR_Merge_label
