@@ -37,7 +37,8 @@ class PostRepositoryImpl: IPostRepository, QueryDslSupport() {
         )
             .from(post)
             .leftJoin(postLike).on(postLike.postId.eq(post))
-            .orderBy(post.likeCount.desc())
+            .orderBy(post.likeCount.desc(), post.viewCount.desc(), post.id.asc())
+            .distinct()
             .limit(20)
             .fetch()
     }
@@ -65,8 +66,9 @@ class PostRepositoryImpl: IPostRepository, QueryDslSupport() {
             .from(post)
             .leftJoin(postLike)
             .on(postLike.postId.eq(post))
+            .distinct()
             .where(post.id.notIn(reportedPost))
-            .orderBy(post.likeCount.desc())
+            .orderBy(post.likeCount.desc(), post.viewCount.desc(), post.id.asc())
             .limit(20)
             .fetch()
     }

@@ -1,8 +1,10 @@
 package com.eatsfinder.domain.follow.service
 
-import com.eatsfinder.domain.follow.dto.FollowResponse
-import com.eatsfinder.domain.follow.dto.FollowerListResponse
-import com.eatsfinder.domain.follow.dto.FollowingListResponse
+import com.eatsfinder.domain.follow.dto.*
+import com.eatsfinder.domain.follow.model.Follow
+import com.eatsfinder.domain.user.model.User
+import com.eatsfinder.global.pagination.PaginationItemsResponse
+import com.eatsfinder.global.security.jwt.UserPrincipal
 
 interface FollowService {
 
@@ -13,7 +15,7 @@ interface FollowService {
 
     fun deleteUserFollow(userId: Long, followUserId: Long)
 
-    fun getFollowingList(userId: Long): List<FollowingListResponse>
+    fun findFollowingListCursorBased(cursorId: Long?, pageSize: Int, userId: Long): PaginationFollowingResponse
 
-    fun getFollowerList(userId: Long): List<FollowerListResponse>
+    fun findFollowerListCursorBased(cursorId: Long?, pageSize: Int, userId: Long): PaginationFollowerResponse
 }

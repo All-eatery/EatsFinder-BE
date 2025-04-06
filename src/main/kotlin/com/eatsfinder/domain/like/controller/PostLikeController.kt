@@ -1,6 +1,6 @@
 package com.eatsfinder.domain.like.controller
 
-import com.eatsfinder.domain.like.dto.PostLikesResponse
+import com.eatsfinder.domain.like.dto.PaginationPostLikeResponse
 import com.eatsfinder.domain.like.service.PostLikeService
 import com.eatsfinder.global.exception.dto.BaseResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
@@ -21,10 +21,15 @@ class PostLikeController(
 ) {
 
     @Operation(summary = "좋아요한 게시물 조회하기")
+    @ApiResponse(responseCode = "403", description = "권한이 없습니다.")
     @GetMapping("/post-likes")
-    fun getPostLikes(@AuthenticationPrincipal userPrincipal: UserPrincipal): ResponseEntity<PostLikesResponse> {
+    fun getPostLikes(
+        @AuthenticationPrincipal userPrincipal: UserPrincipal,
+        @RequestParam cursorId: Long?,
+        @RequestParam(defaultValue = "20") pageSize: Int
+    ): ResponseEntity<PaginationPostLikeResponse> {
         val userId = userPrincipal.id
-        return ResponseEntity.status(HttpStatus.OK).body(postLikeService.getPostLikes(userId))
+        return ResponseEntity.status(HttpStatus.OK).body(postLikeService.getPostLikes(userId, cursorId, pageSize))
     }
 
     @Operation(summary = "게시물 좋아요 하기")

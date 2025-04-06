@@ -2,6 +2,7 @@ package com.eatsfinder.domain.comment.repository
 
 import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.post.model.Post
+import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
@@ -14,7 +15,7 @@ interface CommentRepository : JpaRepository<Comment, Long> {
 
     fun findByIdAndDeletedAt(id: Long, deleteAt: LocalDateTime?): Comment?
 
-    fun countByPostIdAndDeletedAt(postId: Post, deleteAt: LocalDateTime?): Int?
+    fun countByPostIdAndDeletedAt(postId: Post, deleteAt: LocalDateTime?): Long
 
     @Query("SELECT c.likeCount FROM Comment c WHERE c.id = :id")
     fun getLikeCountById(@Param("id") id: Long): Int
@@ -26,4 +27,7 @@ interface CommentRepository : JpaRepository<Comment, Long> {
     @Modifying
     @Query("DELETE FROM UserLog ul WHERE ul.commentLikeId.id = :commentLikeId")
     fun deleteUserLogCommentLikeId(@Param("commentLikeId") commentLikeId: Long)
+
+    fun findAllByPostIdAndIdGreaterThan(post: Post, cursorId: Long, pageable: Pageable) : List<Comment>
+
 }

@@ -8,7 +8,6 @@ import com.eatsfinder.domain.comment.repository.CommentRepository
 import com.eatsfinder.domain.like.repository.CommentLikeRepository
 import com.eatsfinder.domain.like.repository.ReplyLikeRepository
 import com.eatsfinder.domain.post.repository.PostRepository
-import com.eatsfinder.domain.reply.repository.ReplyRepository
 import com.eatsfinder.domain.report.repository.ReportCommentRepository
 import com.eatsfinder.domain.report.repository.ReportPostRepository
 import com.eatsfinder.domain.user.model.MyActiveType
@@ -18,6 +17,8 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.profile.ImmutableUserOrUnauthorizedUserException
 import com.eatsfinder.global.security.jwt.UserPrincipal
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -34,7 +35,13 @@ class CommentServiceImpl(
 ) : CommentService {
 
     @Transactional(readOnly = true)
-    override fun getCommentList(postId: Long, userPrincipal: UserPrincipal?, userId: Long?): CommentsResponse {
+    override fun getCommentList(
+        postId: Long,
+        userPrincipal: UserPrincipal?,
+        userId: Long?,
+        cursorId: Long?,
+        pageSize: Int
+    ): CommentsResponse {
         val loginUser = userPrincipal?.id
 
         val user = loginUser?.let {
@@ -49,23 +56,41 @@ class CommentServiceImpl(
             "이 게시물 아이디: (${postId})는 존재하지 않습니다."
         )
 
-        val reportedPost = reportPostRepository.findByPostIdAndReportedUserId(post, post.userId)
-        if (reportedPost != null && reportedPost.userId.id == loginUser) return CommentsResponse(0, emptyList())
+        val pageable: Pageable = PageRequest.of(0, pageSize + 1)
 
-
-        val commentCount = commentRepository.countByPostIdAndDeletedAt(post, null) ?: 0
-        val comments = commentRepository.findByPostIdAndDeletedAt(post, null).filterNot {
-            reportCommentRepository.existsByCommentIdAndUserId(it, user)
+        val comments = if (cursorId == null) {
+            commentRepository.findByPostIdAndDeletedAt(post, null)
+        } else {
+            commentRepository.findAllByPostIdAndIdGreaterThan(post, cursorId, pageable)
+        }.filterNot {
+            reportPostRepository.existsByPostIdAndUserId(it.postId, user)
         }
+
         comments.forEach { comment ->
             comment.replies =
                 comment.replies.filterNot { reportCommentRepository.existsByReplyIdAndUserId(it, user) }.toMutableList()
         }
 
+        val nextCursorId = when {
+            comments.isEmpty() -> null
+            comments.size > pageSize -> comments[pageSize - 1].id
+            else -> comments.last().id
+        }
+
+        val totalCount = commentRepository.countByPostIdAndDeletedAt(post, null)
+
+        val reportedPost = reportPostRepository.findFirstByPostIdAndReportedUserId(post, post.userId)
+        if (reportedPost != null && reportedPost.userId.id == loginUser) return CommentsResponse(
+            null,
+            emptyList(),
+            nextCursorId
+        )
+
+
         val commentLikes = user?.let { commentLikeRepository.findCommentLikesByUserId(it) } ?: emptyList()
         val replyLikes = user?.let { replyLikeRepository.findReplyLikesByUserId(it) } ?: emptyList()
 
-        return from(comments, userPrincipal, commentCount, commentLikes, replyLikes, post)
+        return from(totalCount, pageSize, comments, userPrincipal, commentLikes, replyLikes, post)
     }
 
     @Transactional

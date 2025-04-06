@@ -81,7 +81,7 @@ class ReportServiceImpl(
             "이 댓글(${commentId})은 존재하지 않습니다."
         )
 
-        val report = reportCommentRepository.existsByIdAndReportedUserIdAndUserId(commentId, comment.userId, user)
+        val report = reportCommentRepository.existsByCommentIdAndReportedUserIdAndUserId(comment, comment.userId, user)
         if (report) throw AlreadyExistException ("이미 신고 완료된 댓글입니다.")
 
         if (comment.userId.id == user.id){
@@ -126,7 +126,7 @@ class ReportServiceImpl(
             "이 대댓글(${replyId})은 존재하지 않습니다."
         )
 
-        val report = reportCommentRepository.existsByIdAndReportedUserIdAndUserId(replyId, reply.userId, user)
+        val report = reportCommentRepository.existsByReplyIdAndReportedUserIdAndUserId(reply, reply.userId, user)
         if (report) throw AlreadyExistException ("이미 신고 완료된 대댓글입니다.")
 
         if (reply.userId.id == user.id){
