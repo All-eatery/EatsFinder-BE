@@ -157,7 +157,10 @@ export class BookmarkService {
   }
 
   async findBookmark(userId: number, id: number, cursor: number) {
-    const bookmarkData = await this.prismaService.bookmarks.findFirst({ where: { userId, id } });
+    const bookmarkData = await this.prismaService.bookmarks.findFirst({
+      where: { userId, id },
+      select: { title: true },
+    });
     if (bookmarkData === null) throw new NotFoundException('리스트가 존재하지 않습니다.');
 
     const LIMIT = 10;
@@ -222,6 +225,7 @@ export class BookmarkService {
 
     return {
       pagination: { totalItems, itemsPerPage: bookmarkPlaceData.length },
+      title: bookmarkData.title,
       items: bookmarkPlaceData,
       lastItemId: bookmarkPlaceData.length > 0 ? bookmarkPlaceData[bookmarkPlaceData.length - 1].id : null,
     };
@@ -339,5 +343,12 @@ export class BookmarkService {
     });
 
     return { message: '맛집이 삭제되었습니다.' };
+  }
+
+  async bookmarkAllCount(userId: number) {
+    const totalLists = await this.prismaService.bookmarks.count({ where: { userId } });
+    const totalItems = await this.prismaService.bookmarkPlaces.count({ where: { bookmarks: { userId: userId } } });
+
+    return { totalItems, totalLists };
   }
 }
