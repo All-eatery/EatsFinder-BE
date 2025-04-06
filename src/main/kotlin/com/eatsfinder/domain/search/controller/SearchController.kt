@@ -25,7 +25,7 @@ class SearchController(
         @RequestParam postCursorId: Long?,
         @RequestParam placeCursorId: Long?,
         @RequestParam neighborCursorId: Long?,
-        @RequestParam(defaultValue = "15") pageSize: Int
+        @RequestParam(defaultValue = "10") pageSize: Int
     ): ResponseEntity<SearchResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getSearchKeyword(keyword, filter, postCursorId, placeCursorId, neighborCursorId, pageSize))
     }
