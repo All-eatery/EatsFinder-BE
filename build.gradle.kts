@@ -75,6 +75,9 @@ dependencies {
 	implementation("com.querydsl:querydsl-jpa:5.0.0:jakarta")
 	kapt("com.querydsl:querydsl-apt:5.0.0:jakarta")
 
+	//redis
+	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+
 	implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
