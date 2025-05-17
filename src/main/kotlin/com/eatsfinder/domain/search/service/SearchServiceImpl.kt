@@ -2,6 +2,7 @@ package com.eatsfinder.domain.search.service
 
 import com.eatsfinder.domain.bookmark.repository.BookmarkPlacesRepository
 import com.eatsfinder.domain.follow.repository.FollowRepository
+import com.eatsfinder.domain.keyword.dto.KeywordLogResponse
 import com.eatsfinder.domain.like.dto.PaginationPostLikeResponse
 import com.eatsfinder.domain.like.dto.PostLikeResponse
 import com.eatsfinder.domain.like.model.PostLikes
@@ -18,8 +19,10 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.pagination.PaginationItemsResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
@@ -33,9 +36,11 @@ class SearchServiceImpl(
     private val followRepository: FollowRepository,
     private val placeMenusRepository: PlaceMenusRepository,
     private val reportPostRepository: ReportPostRepository,
-    private val bookmarkPlacesRepository: BookmarkPlacesRepository
-
+    private val bookmarkPlacesRepository: BookmarkPlacesRepository,
+    private val redisTemplate: RedisTemplate<String, KeywordLogResponse>
 ) : SearchService {
+
+    @Cacheable(key = "#keyword", cacheNames = ["keyword"], condition = "#keyword != null")
     override fun getSearchKeyword(
         keyword: String,
         searchFilter: SearchFilter?,
@@ -59,6 +64,8 @@ class SearchServiceImpl(
                 bookmarkPlace.placeId.id
             }.toSet()
         } ?: emptySet()
+
+        saveKeywordLog(keyword)
 
         return when (searchFilter) {
             SearchFilter.Places -> searchPlaces(keyword, bookmark, placeCursorId, pageSize)
@@ -197,6 +204,8 @@ class SearchServiceImpl(
         val placeLastItemId = searchPlace.placeLastItemId
         val neighborLastItemId = searchUser.neighborLastItemId
 
+        saveKeywordLog(keyword)
+
         return SearchResponse(
             pagination = pagination,
             posts = searchPost.posts,
@@ -268,6 +277,7 @@ class SearchServiceImpl(
             currentPage = 1,
             isLastPage = isLastPage
         )
+        saveKeywordLog(keyword)
 
         return SearchResponse(
             posts = emptyList(),
@@ -338,6 +348,7 @@ class SearchServiceImpl(
             currentPage = 1,
             isLastPage = isLastPage
         )
+        saveKeywordLog(keyword)
 
         return SearchResponse(
             posts = filteredPosts.take(pageSize),
@@ -400,6 +411,8 @@ class SearchServiceImpl(
             isLastPage = isLastPage
         )
 
+        saveKeywordLog(keyword)
+
         return SearchResponse(
             posts = emptyList(),
             places = emptyList(),
@@ -409,5 +422,11 @@ class SearchServiceImpl(
             placeLastItemId = null,
             neighborLastItemId = nextCursorId
         )
+    }
+
+    private fun saveKeywordLog(keyword: String) {
+        val value = KeywordLogResponse(keyword)
+
+        redisTemplate.opsForZSet().incrementScore(keyword, value, 1.0)
     }
 }
