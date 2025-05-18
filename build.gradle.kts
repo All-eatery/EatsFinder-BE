@@ -77,6 +77,9 @@ dependencies {
 
 	//redis
 	implementation("org.springframework.boot:spring-boot-starter-data-redis")
+	implementation ("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.17.1")
+
+	implementation("io.github.oshai:kotlin-logging-jvm:7.0.7")
 
 	implementation("org.springdoc:springdoc-openapi-ui:1.6.14")
 
