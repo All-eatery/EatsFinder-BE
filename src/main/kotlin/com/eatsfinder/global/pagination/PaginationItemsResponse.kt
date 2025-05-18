@@ -1,9 +1,12 @@
 package com.eatsfinder.global.pagination
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import java.io.Serializable
+
 data class PaginationItemsResponse(
-    val totalItems: Long,
-    val itemsPerPage: Int,
-    val totalPage: Long,
-    val currentPage: Int,
-    val isLastPage: Boolean
-)
+    @JsonProperty("totalItems") val totalItems: Long,
+    @JsonProperty("itemsPerPage") val itemsPerPage: Int,
+    @JsonProperty("totalPage") val totalPage: Long,
+    @JsonProperty("currentPage") val currentPage: Int,
+    @JsonProperty("lastPage") val isLastPage: Boolean
+): Serializable
