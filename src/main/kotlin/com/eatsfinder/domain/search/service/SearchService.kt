@@ -10,4 +10,7 @@ interface SearchService{
     fun getSearchKeyword(keyword: String, searchFilter: SearchFilter?, postCursorId: Long?, placeCursorId: Long?, neighborCursorId: Long?, pageSize: Int): SearchResponse
 
     fun getLikePostSearchKeyword(cursorId: Long?, pageSize: Int, keyword: String, userId: Long): PaginationPostLikeResponse
+
+
+    fun findKeywordLog(): List<String>
 }

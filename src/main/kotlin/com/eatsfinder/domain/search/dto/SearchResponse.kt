@@ -5,16 +5,21 @@ import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.domain.starRating.model.StarRating
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.pagination.PaginationItemsResponse
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import java.io.Serializable
 
-data class SearchResponse(
-    val pagination: PaginationItemsResponse?,
-    val posts: List<PostSearchResponse>?,
-    val places: List<PlaceSearchResponse>?,
-    val neighbors: List<NeighborPostResponse>?,
-    val postLastItemId: Long?,
-    val placeLastItemId: Long?,
-    val neighborLastItemId: Long?
-){
+@JsonDeserialize
+data class SearchResponse @JsonCreator constructor(
+    @JsonProperty("pagination") val pagination: PaginationItemsResponse? = null,
+    @JsonProperty("posts") val posts: List<PostSearchResponse>? = null,
+    @JsonProperty("places") val places: List<PlaceSearchResponse>? = null,
+    @JsonProperty("neighbors") val neighbors: List<NeighborPostResponse>? = null,
+    @JsonProperty("postLastItemId") val postLastItemId: Long? = null,
+    @JsonProperty("placeLastItemId") val placeLastItemId: Long? = null,
+    @JsonProperty("neighborLastItemId") val neighborLastItemId: Long? = null
+) : Serializable {
     companion object {
         fun from(
             posts: List<Post>,
@@ -31,7 +36,6 @@ data class SearchResponse(
             placeLastItemId: Long?,
             neighborLastItemId: Long?
         ): SearchResponse {
-
             return SearchResponse(
                 pagination = pagination,
                 posts = posts.map { PostSearchResponse.from(it, isPostLike) },
@@ -40,7 +44,6 @@ data class SearchResponse(
                 postLastItemId = postLastItemId,
                 placeLastItemId = placeLastItemId,
                 neighborLastItemId = neighborLastItemId
-
             )
         }
     }
