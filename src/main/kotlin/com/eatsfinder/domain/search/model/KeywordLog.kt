@@ -1,4 +1,4 @@
-package com.eatsfinder.domain.keyword.model
+package com.eatsfinder.domain.search.model
 
 import jakarta.persistence.*
 
@@ -7,7 +7,7 @@ import jakarta.persistence.*
 class KeywordLog(
     @Column(name = "keyword", nullable = false) var keyword: String,
 
-    @Column(name = "count", nullable = false) var count: Long
+    @Column(name = "count", nullable = false) var count: Double
 
 ) {
     @Id
