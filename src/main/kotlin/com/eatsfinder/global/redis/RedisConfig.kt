@@ -22,12 +22,14 @@ import java.time.Duration
 class RedisConfig(
     @Value("\${spring.data.redis.host}") val host: String,
     @Value("\${spring.data.redis.port}") val port: Int,
+    @Value("\${spring.data.redis.password}") val password: String,
 ) {
     @Bean
     fun lettuceConnectionFactory(): LettuceConnectionFactory {
         val config = RedisStandaloneConfiguration().apply {
             hostName = host
             this.port = port
+            this.password = password
         }
         return LettuceConnectionFactory(config)
     }

@@ -15,6 +15,7 @@ spring:
     redis:
       host: ${ENV_REDIS_HOST}
       port: ${ENV_REDIS_PORT}
+      password: ${ENV_REDIS_PASSWORD}
 
 logging:
   level:
