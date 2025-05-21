@@ -5,7 +5,4 @@ import org.springframework.data.jpa.repository.JpaRepository
 
 interface KeywordRepository: JpaRepository<KeywordLog, Long> {
     fun findByKeyword(keyword: String): KeywordLog?
-
-    fun existsByKeyword(keyword: String): Boolean
-
 }
