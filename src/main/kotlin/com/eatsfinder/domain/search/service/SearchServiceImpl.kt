@@ -56,12 +56,12 @@ class SearchServiceImpl(
         val objectMapper = ObjectMapper()
 
         // 캐시에서 가져오기
-        val cached = redisTemplate.opsForValue().get("keyword::$keyword")
-        if (cached != null) {
+        val RedisCache = redisTemplate.opsForValue().get("keyword::$keyword")
+        if (RedisCache != null) {
             try {
-                val cachedResponse = objectMapper.readValue(cached, SearchResponse::class.java)
-                println("캐시에서 조회 성공: $cachedResponse")
-                return cachedResponse
+                val RedisCacheRes = objectMapper.readValue(RedisCache, SearchResponse::class.java)
+                println("캐시에서 조회 성공: $RedisCacheRes")
+                return RedisCacheRes
             } catch (e: Exception) {
                 println("캐시 역직렬화 실패: ${e.message}")
             }
