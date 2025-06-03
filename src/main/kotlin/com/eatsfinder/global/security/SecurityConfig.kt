@@ -36,12 +36,16 @@ class SecurityConfig(
                     "/users/**",
                     "/post-likes/**",
                     "/comment-likes/**",
+                    "/reply-likes",
                     "/posts/**",
                     "/comments/**",
                     "/follows",
                     "/follower",
                     "/following",
-                    "/search"
+                    "/search/**",
+                    "/replies/**",
+                    "/reports/**",
+                    "/keyword"
                 ).permitAll().anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)

@@ -11,6 +11,12 @@ spring:
     url: ${ENV_DB_URL}
     username: ${ENV_DB_USER}
     password: ${ENV_DB_PW}
+  data:
+    redis:
+      host: ${ENV_REDIS_HOST}
+      port: ${ENV_REDIS_PORT}
+      password: ${ENV_REDIS_PASSWORD}
+
 logging:
   level:
     org:

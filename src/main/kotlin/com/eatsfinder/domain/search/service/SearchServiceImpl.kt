@@ -2,6 +2,8 @@ package com.eatsfinder.domain.search.service
 
 import com.eatsfinder.domain.bookmark.repository.BookmarkPlacesRepository
 import com.eatsfinder.domain.follow.repository.FollowRepository
+import com.eatsfinder.domain.search.model.KeywordLog
+import com.eatsfinder.domain.search.repository.KeywordRepository
 import com.eatsfinder.domain.like.dto.PaginationPostLikeResponse
 import com.eatsfinder.domain.like.dto.PostLikeResponse
 import com.eatsfinder.domain.like.model.PostLikes
@@ -18,10 +20,14 @@ import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.pagination.PaginationItemsResponse
 import com.eatsfinder.global.security.jwt.UserPrincipal
+import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Pageable
+import org.springframework.data.redis.core.RedisTemplate
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.time.Duration
 
 @Service
 class SearchServiceImpl(
@@ -33,9 +39,12 @@ class SearchServiceImpl(
     private val followRepository: FollowRepository,
     private val placeMenusRepository: PlaceMenusRepository,
     private val reportPostRepository: ReportPostRepository,
-    private val bookmarkPlacesRepository: BookmarkPlacesRepository
-
+    private val bookmarkPlacesRepository: BookmarkPlacesRepository,
+    private val redisTemplate: RedisTemplate<String, String>,
+    private val keywordRepository: KeywordRepository,
 ) : SearchService {
+
+    @Transactional
     override fun getSearchKeyword(
         keyword: String,
         searchFilter: SearchFilter?,
@@ -44,6 +53,20 @@ class SearchServiceImpl(
         neighborCursorId: Long?,
         pageSize: Int
     ): SearchResponse {
+        val objectMapper = ObjectMapper()
+
+        // 캐시에서 가져오기
+        val RedisCache = redisTemplate.opsForValue().get("keyword::$keyword")
+        if (RedisCache != null) {
+            try {
+                val RedisCacheRes = objectMapper.readValue(RedisCache, SearchResponse::class.java)
+                println("캐시에서 조회 성공: $RedisCacheRes")
+                return RedisCacheRes
+            } catch (e: Exception) {
+                println("캐시 역직렬화 실패: ${e.message}")
+            }
+        }
+
         val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
         val user = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
         val users = userRepository.findAll().filter { it.deletedAt == null }
@@ -60,25 +83,29 @@ class SearchServiceImpl(
             }.toSet()
         } ?: emptySet()
 
-        return when (searchFilter) {
+        // 실제 검색 로직
+        val response = when (searchFilter) {
             SearchFilter.Places -> searchPlaces(keyword, bookmark, placeCursorId, pageSize)
             SearchFilter.Posts -> searchPosts(keyword, user, postLike, postCursorId, pageSize)
             SearchFilter.Neighbors -> searchUsers(keyword, userPostCounts, follow, neighborCursorId, pageSize)
             SearchFilter.All -> searchAll(
-                keyword,
-                bookmark,
-                postLike,
-                user,
-                userPostCounts,
-                follow,
-                postCursorId,
-                placeCursorId,
-                neighborCursorId,
-                pageSize
+                keyword, bookmark, postLike, user, userPostCounts, follow,
+                postCursorId, placeCursorId, neighborCursorId, pageSize
             )
-
             else -> SearchResponse(null, emptyList(), emptyList(), emptyList(), null, null, null)
         }
+
+        try {
+            val responseJson = objectMapper.writeValueAsString(response)
+            redisTemplate.opsForValue().set("keyword::$keyword", responseJson, Duration.ofMinutes(30))
+        } catch (e: Exception) {
+            println("Redis 캐시 저장 실패: ${e.message}")
+        }
+
+        // 검색어 로그 저장
+        saveKeywordLog(keyword)
+
+        return response
     }
 
     override fun getLikePostSearchKeyword(
@@ -196,6 +223,7 @@ class SearchServiceImpl(
         val postLastItemId = searchPost.postLastItemId
         val placeLastItemId = searchPlace.placeLastItemId
         val neighborLastItemId = searchUser.neighborLastItemId
+
 
         return SearchResponse(
             pagination = pagination,
@@ -400,6 +428,7 @@ class SearchServiceImpl(
             isLastPage = isLastPage
         )
 
+
         return SearchResponse(
             posts = emptyList(),
             places = emptyList(),
@@ -409,5 +438,31 @@ class SearchServiceImpl(
             placeLastItemId = null,
             neighborLastItemId = nextCursorId
         )
+    }
+private fun saveKeywordLog(keyword: String): List<String> {
+    // DB 업데이트
+    keywordRepository.findByKeyword(keyword)?.let {
+        it.count += 1
+        keywordRepository.save(it)
+        it.count
+    } ?: run {
+        val newKeyword = KeywordLog(keyword = keyword, count = 1.0)
+        keywordRepository.save(newKeyword)
+        newKeyword.count
+    }
+
+    try {
+        // Redis에 키워드 문자열만 저장
+        redisTemplate.opsForZSet().incrementScore("ranking", keyword, 1.0)
+    } catch (e: Exception) {
+        println("Redis ZSet 저장 오류: ${e.message}")
+    }
+
+    return findKeywordLog()
+}
+    override fun findKeywordLog(): List<String> {
+        val zSet = redisTemplate.opsForZSet()
+
+        return zSet.reverseRange("ranking", 0, 6)?.toList() ?: emptyList()
     }
 }
