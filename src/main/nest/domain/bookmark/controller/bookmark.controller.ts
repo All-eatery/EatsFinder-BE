@@ -133,4 +133,14 @@ export class BookmarkController {
   async bookmarkAllCount(@GetUserId() userId: number) {
     return await this.bookmarkService.bookmarkAllCount(userId);
   }
+
+  @Get('places')
+  @ApiGuard()
+  @ApiQuery({ name: 'cursor', required: false, type: Number })
+  @ApiQuery({ name: 'keyword', required: false, type: String })
+  @ApiOperation({ summary: '전체보기' })
+  @ApiOkResponse({ type: FindAllBookmarkPlaceResponseDto })
+  async findAllBookmarkedPlaces(@GetUserId() userId: number, @Query() query: FindAllBookmarkPlaceDto) {
+    return await this.bookmarkService.findAllBookmarkedPlaces(userId, query);
+  }
 }
