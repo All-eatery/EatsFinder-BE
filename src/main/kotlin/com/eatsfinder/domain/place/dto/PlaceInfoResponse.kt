@@ -5,17 +5,20 @@ import com.eatsfinder.domain.place.model.Place
 data class PlaceInfoResponse(
     val id: Long?,
     val name: String,
-    val x: Double,
-    val y: Double
+    val lng: Double,
+    val lat: Double
 ) {
     companion object {
-        fun from(place: Place): PlaceInfoResponse {
-            return PlaceInfoResponse(
-                id = place.id,
-                name = place.name,
-                x = place.x,
-                y = place.y
-            )
+        fun from(places: List<Place>): List<PlaceInfoResponse> {
+            val res = places.map { place ->
+                PlaceInfoResponse(
+                    id = place.id,
+                    name = place.name,
+                    lng = place.x,
+                    lat = place.y
+                )
+            }
+            return res
         }
     }
 }
