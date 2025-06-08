@@ -8,6 +8,14 @@ import org.springframework.data.repository.query.Param
 
 interface PlaceRepository : JpaRepository<Place, Long> {
 
+    @Query("SELECT p FROM Place p  WHERE p.y BETWEEN :qa AND :pa AND p.x BETWEEN :oa AND :ha")
+    fun findByXBetweenAndYBetween(
+        @Param("oa") oa: Double,
+        @Param("ha") ha: Double,
+        @Param("qa") qa: Double,
+        @Param("pa") pa: Double,
+    ): List<Place>
+
     @Query(
         """
         SELECT p FROM Place p 
