@@ -1,10 +1,10 @@
 package com.eatsfinder.domain.place.service
 
-import com.eatsfinder.domain.place.dto.PaginationPlaceInfoResponse
 import com.eatsfinder.domain.place.dto.PlaceInfoRequest
+import com.eatsfinder.domain.place.dto.PlaceInfoResponse
 
 interface PlaceInfoService {
 
-    fun getPlaceMapInfo(req: PlaceInfoRequest, cursorId: Long?, pageSize: Int): PaginationPlaceInfoResponse
+    fun getPlaceMapInfo(req: PlaceInfoRequest): List<PlaceInfoResponse>
 }
 

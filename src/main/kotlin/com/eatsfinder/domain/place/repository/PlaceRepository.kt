@@ -8,31 +8,12 @@ import org.springframework.data.repository.query.Param
 
 interface PlaceRepository : JpaRepository<Place, Long> {
 
-    @Query("SELECT COUNT(p) FROM Place p  WHERE p.y BETWEEN :qa AND :pa AND p.x BETWEEN :oa AND :ha")
-    fun countXBetweenAndYBetween(
-        @Param("oa") oa: Double,
-        @Param("ha") ha: Double,
-        @Param("qa") qa: Double,
-        @Param("pa") pa: Double
-    ): Long
-
     @Query("SELECT p FROM Place p  WHERE p.y BETWEEN :qa AND :pa AND p.x BETWEEN :oa AND :ha")
     fun findByXBetweenAndYBetween(
         @Param("oa") oa: Double,
         @Param("ha") ha: Double,
         @Param("qa") qa: Double,
         @Param("pa") pa: Double,
-        pageable: Pageable
-    ): List<Place>
-
-    @Query("SELECT p FROM Place p WHERE p.x BETWEEN :oa AND :ha AND p.y BETWEEN :qa AND :pa AND p.id > :cursorId")
-    fun findByXBetweenAndYBetweenAndIdGreaterThan(
-        @Param("oa") oa: Double,
-        @Param("ha") ha: Double,
-        @Param("qa") qa: Double,
-        @Param("pa") pa: Double,
-        @Param("cursorId") cursorId: Long,
-        pageable: Pageable
     ): List<Place>
 
     @Query(
