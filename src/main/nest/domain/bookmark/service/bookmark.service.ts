@@ -8,6 +8,7 @@ import {
 import {
   CreateBookmarkListRequestDto,
   CreateBookmarkPlaceDto,
+  FindAllBookmarkPlaceDto,
   RemoveBookmarkPlaceDto,
   UpdateBookmarkListRequestDto,
   UpdateBookmarkPlaceRequestDto,
@@ -350,5 +351,76 @@ export class BookmarkService {
     const totalItems = await this.prismaService.bookmarkPlaces.count({ where: { bookmarks: { userId: userId } } });
 
     return { totalItems, totalLists };
+  }
+
+  async findAllBookmarkedPlaces(userId: number, query: FindAllBookmarkPlaceDto) {
+    const { cursor, keyword } = query;
+    const take = 10;
+
+    const userBookmarks = await this.prismaService.bookmarks.findMany({
+      where: { userId },
+      select: { id: true },
+    });
+
+    const bookmarkIds = userBookmarks.map((bookmark) => bookmark.id);
+    if (bookmarkIds.length === 0) {
+      return {
+        pagination: {
+          totalItems: 0,
+          itemsPerPage: take,
+        },
+        items: [],
+        lastItemId: null,
+      };
+    }
+
+    const bookmarkPlaces = await this.prismaService.bookmarkPlaces.findMany({
+      where: {
+        bookmarkId: { in: bookmarkIds },
+        places: keyword ? { name: { contains: keyword } } : undefined,
+      },
+      select: {
+        id: true,
+        placeId: true,
+        places: {
+          select: {
+            id: true,
+            name: true,
+            roadAddress: true,
+            depth2: true,
+          },
+        },
+      },
+      orderBy: {
+        id: 'desc',
+      },
+    });
+
+    const uniqueMap = new Map<bigint, { bookmarkPlaceId: bigint; place: (typeof bookmarkPlaces)[number]['places'] }>();
+
+    for (const bp of bookmarkPlaces) {
+      if (cursor && bp.placeId >= BigInt(cursor)) continue;
+      if (!uniqueMap.has(bp.placeId)) {
+        uniqueMap.set(bp.placeId, {
+          bookmarkPlaceId: bp.id,
+          place: bp.places,
+        });
+      }
+    }
+
+    const allItems = Array.from(uniqueMap.values());
+    const slicedItems = allItems.slice(0, take);
+
+    return {
+      pagination: {
+        totalItems: allItems.length,
+        itemsPerPage: take,
+      },
+      items: slicedItems.map((item) => ({
+        bookmarkPlaceId: item.bookmarkPlaceId,
+        ...item.place,
+      })),
+      lastItemId: slicedItems.length > 0 ? slicedItems[slicedItems.length - 1].place.id : null,
+    };
   }
 }
