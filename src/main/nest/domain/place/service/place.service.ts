@@ -1,7 +1,7 @@
-import { ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 import { Categories } from '@prisma/client';
-import { CreatePlaceRequestDto } from '../../../global/dto';
+import { CreatePlaceRequestDto, PlacePostQueryDto } from '../../../global/dto';
 
 @Injectable()
 export class PlaceService {
@@ -125,5 +125,149 @@ export class PlaceService {
       }),
     );
     return findLocalPlace;
+  }
+
+  async placeDetail(id: number) {
+    const findOnePlace = await this.prismaService.places.findFirst({
+      where: { id },
+      select: {
+        id: true,
+        name: true,
+        address: true,
+        roadAddress: true,
+        posts: {
+          take: 1,
+          orderBy: { likeCount: 'desc' },
+          select: { thumbnailUrl: true, menuTag: true, keywordTag: true },
+        },
+      },
+    });
+
+    if (!findOnePlace) throw new NotFoundException('해당 맛집 정보는 존재하지 않습니다.');
+
+    const post = findOnePlace.posts[0];
+
+    if (!post) {
+      const { posts, ...placeWithoutPosts } = findOnePlace;
+      return { ...placeWithoutPosts };
+    }
+
+    let menuNames: string[] = [];
+
+    if (post.menuTag) {
+      const menuIds = post.menuTag
+        .split(',')
+        .map((id) => Number(id.trim()))
+        .filter((id) => !isNaN(id));
+
+      const menus = await this.prismaService.placeMenus.findMany({
+        where: { id: { in: menuIds } },
+        select: { menu: true },
+      });
+
+      menuNames = menus.map((menu) => menu.menu);
+    }
+
+    const { posts, ...placeWithoutPosts } = findOnePlace;
+
+    return {
+      ...placeWithoutPosts,
+      thumbnailUrl: post.thumbnailUrl,
+      keywordTag: post.keywordTag,
+      menuNames,
+    };
+  }
+
+  async placePosts(placeId: number, userId: number, query: PlacePostQueryDto) {
+    const { cursor, sort } = query;
+    const take = 10;
+
+    const place = await this.prismaService.places.findUnique({
+      where: { id: placeId },
+      select: { name: true },
+    });
+
+    if (!place) throw new NotFoundException('해당 맛집의 게시물이 존재하지 않습니다.');
+
+    let where: any = { placeId };
+
+    if (cursor) {
+      const cursorPost = await this.prismaService.posts.findUnique({
+        where: { id: cursor },
+        select: { createdAt: true, likeCount: true, id: true },
+      });
+
+      if (!cursorPost) {
+        throw new NotFoundException('해당 맛집의 게시물이 존재하지 않습니다.');
+      }
+
+      if (sort === 'recent') {
+        where.OR = [
+          { createdAt: { lt: cursorPost.createdAt } },
+          {
+            createdAt: cursorPost.createdAt,
+            id: { lt: cursorPost.id },
+          },
+        ];
+      } else if (sort === 'like') {
+        where.OR = [
+          { likeCount: { lt: cursorPost.likeCount } },
+          {
+            likeCount: cursorPost.likeCount,
+            id: { lt: cursorPost.id },
+          },
+        ];
+      }
+    }
+
+    const posts = await this.prismaService.posts.findMany({
+      where,
+      orderBy: sort === 'like' ? [{ likeCount: 'desc' }, { id: 'desc' }] : [{ createdAt: 'desc' }, { id: 'desc' }],
+      take,
+      select: {
+        id: true,
+        thumbnailUrl: true,
+        likeCount: true,
+        users: {
+          select: {
+            id: true,
+            nickname: true,
+            profileImage: true,
+          },
+        },
+      },
+    });
+
+    const postIds = posts.map((post) => Number(post.id));
+
+    let likedPostIds: number[] = [];
+    if (userId) {
+      const likes = await this.prismaService.postLikes.findMany({
+        where: {
+          userId,
+          postId: { in: postIds },
+        },
+        select: { postId: true },
+      });
+      likedPostIds = likes.map((like) => Number(like.postId));
+    }
+
+    const formattedPosts = posts.map((post) => ({
+      id: Number(post.id),
+      thumbnailUrl: post.thumbnailUrl,
+      likeCount: post.likeCount,
+      isLiked: likedPostIds.includes(Number(post.id)),
+      nickname: post.users.nickname,
+      profileImage: post.users.profileImage,
+    }));
+
+    return {
+      pagination: {
+        totalItems: formattedPosts.length,
+        itemsPerPage: take,
+      },
+      items: formattedPosts,
+      lastItemId: formattedPosts.length > 0 ? formattedPosts[formattedPosts.length - 1].id : null,
+    };
   }
 }

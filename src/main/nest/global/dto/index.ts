@@ -10,6 +10,7 @@ export * from './response/access-token-response.dto';
 export * from './response/find-all-post-response.dto';
 export * from './response/find-all-bookmark-list-response.dto';
 export * from './response/find-all-bookmark-place-response.dto';
+export * from './response/place-detail-response.dto';
 
 // Request
 export * from './request/create-user-request.dto';
@@ -27,3 +28,4 @@ export * from './request/create-bookmark-place-request.dto';
 export * from './request/find-all-bookmark-place-request.dto';
 export * from './request/update-bookmark-place-request.dto';
 export * from './request/remove-bookmark-place-request.dto';
+export * from './request/place-post-query.dto';
