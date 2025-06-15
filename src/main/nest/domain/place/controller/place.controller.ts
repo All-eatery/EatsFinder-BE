@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
+import { Body, Controller, DefaultValuePipe, Get, Param, ParseIntPipe, Post, Query } from '@nestjs/common';
 import { PlaceService } from '../service/place.service';
 import { Places } from '@prisma/client';
 import {
@@ -8,6 +8,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import {
@@ -16,7 +17,9 @@ import {
   FindLocalPlaceResponseDto,
   FindPlaceResponseDto,
   PlaceDetailResponseDto,
+  PlacePostQueryDto,
 } from '../../../global/dto';
+import { ApiOptionGuard, GetUserId } from '../../../global/decorator';
 
 @ApiTags('Place')
 @Controller('places')
@@ -53,5 +56,19 @@ export class PlaceController {
   @ApiNotFoundResponse({ description: '해당 맛집 정보는 존재하지 않습니다.' })
   async placeDetail(@Param('id', ParseIntPipe) id: number) {
     return await this.placeService.placeDetail(id);
+  }
+
+  @Get(':id/posts')
+  @ApiOptionGuard()
+  @ApiOperation({ summary: '맛집 정보(게시물)' })
+  @ApiQuery({ name: 'cursor', type: Number, required: false })
+  @ApiQuery({ name: 'sort', enum: ['recent', 'like'], required: false })
+  @ApiNotFoundResponse({ description: '해당 맛집의 게시물이 존재하지 않습니다.' })
+  async placePosts(
+    @Param('id', ParseIntPipe) id: number,
+    @GetUserId() userId: number,
+    @Query() query: PlacePostQueryDto,
+  ) {
+    return await this.placeService.placePosts(id, userId, query);
   }
 }
