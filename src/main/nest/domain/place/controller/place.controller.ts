@@ -1,10 +1,11 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post } from '@nestjs/common';
 import { PlaceService } from '../service/place.service';
 import { Places } from '@prisma/client';
 import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiTags,
@@ -14,6 +15,7 @@ import {
   CreatePlaceResponseDto,
   FindLocalPlaceResponseDto,
   FindPlaceResponseDto,
+  PlaceDetailResponseDto,
 } from '../../../global/dto';
 
 @ApiTags('Place')
@@ -43,5 +45,13 @@ export class PlaceController {
   @ApiOkResponse({ type: [FindLocalPlaceResponseDto] })
   async findLocalPlace(@Param('local') local: string) {
     return await this.placeService.findLocalPlace(local);
+  }
+
+  @Get(':id/details')
+  @ApiOperation({ summary: '맛집 정보(상세)' })
+  @ApiOkResponse({ type: PlaceDetailResponseDto })
+  @ApiNotFoundResponse({ description: '해당 맛집 정보는 존재하지 않습니다.' })
+  async placeDetail(@Param('id', ParseIntPipe) id: number) {
+    return await this.placeService.placeDetail(id);
   }
 }
