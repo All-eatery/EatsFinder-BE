@@ -363,6 +363,7 @@ export class BookmarkService {
     });
 
     const bookmarkIds = userBookmarks.map((bookmark) => bookmark.id);
+
     if (bookmarkIds.length === 0) {
       return {
         pagination: {
@@ -374,9 +375,17 @@ export class BookmarkService {
       };
     }
 
+    const totalCount = await this.prismaService.bookmarkPlaces.count({
+      where: {
+        bookmarkId: { in: bookmarkIds },
+        places: keyword ? { name: { contains: keyword } } : undefined,
+      },
+    });
+
     const bookmarkPlaces = await this.prismaService.bookmarkPlaces.findMany({
       where: {
         bookmarkId: { in: bookmarkIds },
+        ...(cursor ? { placeId: { lt: BigInt(cursor) } } : {}),
         places: keyword ? { name: { contains: keyword } } : undefined,
       },
       select: {
@@ -392,35 +401,36 @@ export class BookmarkService {
         },
       },
       orderBy: {
-        id: 'desc',
+        placeId: 'desc',
       },
+      take,
     });
 
-    const uniqueMap = new Map<bigint, { bookmarkPlaceId: bigint; place: (typeof bookmarkPlaces)[number]['places'] }>();
+    const uniqueMap = new Map<bigint, (typeof bookmarkPlaces)[number]>();
 
     for (const bp of bookmarkPlaces) {
-      if (cursor && bp.placeId >= BigInt(cursor)) continue;
       if (!uniqueMap.has(bp.placeId)) {
-        uniqueMap.set(bp.placeId, {
-          bookmarkPlaceId: bp.id,
-          place: bp.places,
-        });
+        uniqueMap.set(bp.placeId, bp);
       }
     }
 
-    const allItems = Array.from(uniqueMap.values());
-    const slicedItems = allItems.slice(0, take);
+    const slicedItems = Array.from(uniqueMap.values()).slice(0, take);
+
+    const items = slicedItems.map((item) => ({
+      bookmarkPlaceId: item.id,
+      id: item.places.id,
+      name: item.places.name,
+      roadAddress: item.places.roadAddress,
+      depth2: item.places.depth2,
+    }));
 
     return {
       pagination: {
-        totalItems: allItems.length,
+        totalItems: totalCount,
         itemsPerPage: take,
       },
-      items: slicedItems.map((item) => ({
-        bookmarkPlaceId: item.bookmarkPlaceId,
-        ...item.place,
-      })),
-      lastItemId: slicedItems.length > 0 ? slicedItems[slicedItems.length - 1].place.id : null,
+      items,
+      lastItemId: items.length > 0 ? items[items.length - 1].id : null,
     };
   }
 }
