@@ -397,6 +397,15 @@ export class BookmarkService {
             name: true,
             roadAddress: true,
             depth2: true,
+            posts: {
+              select: {
+                thumbnailUrl: true,
+              },
+              orderBy: {
+                likeCount: 'desc',
+              },
+              take: 1,
+            },
           },
         },
       },
@@ -422,6 +431,7 @@ export class BookmarkService {
       name: item.places.name,
       roadAddress: item.places.roadAddress,
       depth2: item.places.depth2,
+      thumbnailUrl: item.places.posts.length > 0 ? item.places.posts[0].thumbnailUrl : null,
     }));
 
     return {
