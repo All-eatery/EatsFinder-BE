@@ -7,5 +7,6 @@ data class TopPostResponse(
     val isPostLike: Boolean,
     val postLikeCount: Int,
     val profileImage: String?,
-    val nickname: String
+    val nickname: String,
+    val viewCount: Int
 )
