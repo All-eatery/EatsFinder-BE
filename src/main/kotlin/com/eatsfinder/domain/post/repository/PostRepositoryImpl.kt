@@ -32,11 +32,13 @@ class PostRepositoryImpl: IPostRepository, QueryDslSupport() {
                 postLike.postId.id.isNotNull,
                 post.likeCount,
                 post.userId.profileImage,
-                post.userId.nickname
+                post.userId.nickname,
+                post.viewCount
             )
         )
             .from(post)
             .leftJoin(postLike).on(postLike.postId.eq(post))
+            .where(post.deletedAt.isNull)
             .orderBy(post.likeCount.desc(), post.viewCount.desc(), post.id.asc())
             .distinct()
             .limit(20)
@@ -60,14 +62,15 @@ class PostRepositoryImpl: IPostRepository, QueryDslSupport() {
                 postLike.postId.id.isNotNull,
                 post.likeCount,
                 post.userId.profileImage,
-                post.userId.nickname
+                post.userId.nickname,
+                post.viewCount
             )
         )
             .from(post)
             .leftJoin(postLike)
             .on(postLike.postId.eq(post))
             .distinct()
-            .where(post.id.notIn(reportedPost))
+            .where(post.id.notIn(reportedPost).and(post.deletedAt.isNull))
             .orderBy(post.likeCount.desc(), post.viewCount.desc(), post.id.asc())
             .limit(20)
             .fetch()
