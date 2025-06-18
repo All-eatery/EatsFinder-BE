@@ -15,7 +15,7 @@ class PlaceInfoController(
 ) {
 
     @Operation(summary = "맛집 정보 지도 조회")
-    @GetMapping("/place/map")
+    @GetMapping("/places/map")
     fun getPlaceInfoMap(
         req: PlaceInfoRequest
     ): ResponseEntity<List<PlaceInfoResponse>> {
