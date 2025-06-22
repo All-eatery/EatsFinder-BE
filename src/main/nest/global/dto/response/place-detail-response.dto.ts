@@ -13,6 +13,12 @@ export class PlaceDetailResponseDto {
   @ApiProperty({ example: '맛집 도로명 주소' })
   roadAddress: string;
 
+  @ApiProperty({ example: 128.601247028514 })
+  x: number;
+
+  @ApiProperty({ example: 38.19155114124001 })
+  y: number;
+
   @ApiProperty({
     example: 'https://example.com/example.jpg',
   })
