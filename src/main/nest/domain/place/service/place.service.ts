@@ -135,6 +135,8 @@ export class PlaceService {
         name: true,
         address: true,
         roadAddress: true,
+        x: true,
+        y: true,
         posts: {
           take: 1,
           orderBy: { likeCount: 'desc' },
