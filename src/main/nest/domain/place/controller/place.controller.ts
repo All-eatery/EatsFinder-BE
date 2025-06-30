@@ -14,6 +14,7 @@ import {
 import {
   CreatePlaceRequestDto,
   CreatePlaceResponseDto,
+  FindLocalPlaceDto,
   FindLocalPlaceResponseDto,
   FindPlaceResponseDto,
   PlaceDetailResponseDto,
@@ -43,11 +44,12 @@ export class PlaceController {
     return await this.placeService.findPlace(name);
   }
 
-  @Get(':local/local')
+  @Get('local')
+  @ApiOptionGuard()
   @ApiOperation({ summary: '주변 맛집 조회' })
   @ApiOkResponse({ type: [FindLocalPlaceResponseDto] })
-  async findLocalPlace(@Param('local') local: string) {
-    return await this.placeService.findLocalPlace(local);
+  async findLocalPlace(@Query() query: FindLocalPlaceDto, @GetUserId() userId: number) {
+    return await this.placeService.findLocalPlace(query, userId);
   }
 
   @Get(':id/details')

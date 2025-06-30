@@ -29,3 +29,4 @@ export * from './request/find-all-bookmark-place-request.dto';
 export * from './request/update-bookmark-place-request.dto';
 export * from './request/remove-bookmark-place-request.dto';
 export * from './request/place-post-query.dto';
+export * from './request/find-local-place-request.dto';

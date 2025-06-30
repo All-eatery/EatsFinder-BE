@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 import { Categories } from '@prisma/client';
-import { CreatePlaceRequestDto, PlacePostQueryDto } from '../../../global/dto';
+import { CreatePlaceRequestDto, FindLocalPlaceDto, PlacePostQueryDto } from '../../../global/dto';
 
 @Injectable()
 export class PlaceService {
@@ -101,9 +101,12 @@ export class PlaceService {
     });
   }
 
-  async findLocalPlace(local: string) {
+  async findLocalPlace(query: FindLocalPlaceDto, userId?: number) {
+    const { pa, qa, ha, oa } = query;
+    // pa: 북, qa: 남, ha: 서, oa: 동
+
     const findManyPlace = await this.prismaService.places.findMany({
-      where: { roadAddress: { contains: local } },
+      where: { y: { gte: qa, lte: pa }, x: { gte: ha, lte: oa } },
       select: {
         id: true,
         name: true,
@@ -115,16 +118,42 @@ export class PlaceService {
       orderBy: { id: 'desc' },
     });
 
-    const findLocalPlace = await Promise.all(
+    const placeIds = findManyPlace.map((place) => place.id);
+
+    let bookmarkedPlaceIds: number[] = [];
+    if (userId) {
+      const bookmarks = await this.prismaService.bookmarks.findMany({
+        where: { userId },
+        select: { id: true },
+      });
+      const bookmarkIds = bookmarks.map((b) => b.id);
+
+      if (bookmarkIds.length > 0) {
+        const bookmarkPlaces = await this.prismaService.bookmarkPlaces.findMany({
+          where: {
+            bookmarkId: { in: bookmarkIds },
+            placeId: { in: placeIds.map((id) => BigInt(id)) },
+          },
+          select: { placeId: true },
+        });
+        bookmarkedPlaceIds = bookmarkPlaces.map((bp) => Number(bp.placeId));
+      }
+    }
+
+    const results = await Promise.all(
       findManyPlace.map(async (place) => {
         const avgRating = await this.prismaService.starRatings.aggregate({
           where: { placeId: place.id },
           _avg: { star: true },
         });
-        return { ...place, starRatings: avgRating._avg.star, bookmarkStatus: false /* 임시 북마크 처리 */ };
+        return {
+          ...place,
+          starRatings: avgRating._avg.star,
+          bookmarkStatus: userId ? bookmarkedPlaceIds.includes(Number(place.id)) : false,
+        };
       }),
     );
-    return findLocalPlace;
+    return results;
   }
 
   async placeDetail(id: number) {
