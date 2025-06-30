@@ -1,7 +1,7 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 import { Categories } from '@prisma/client';
-import { CreatePlaceRequestDto, PlacePostQueryDto } from '../../../global/dto';
+import { CreatePlaceRequestDto, FindLocalPlaceDto, PlacePostQueryDto } from '../../../global/dto';
 
 @Injectable()
 export class PlaceService {
@@ -101,9 +101,12 @@ export class PlaceService {
     });
   }
 
-  async findLocalPlace(local: string) {
+  async findLocalPlace(query: FindLocalPlaceDto) {
+    const { pa, qa, ha, oa } = query;
+    // pa: 북, qa: 남, ha: 서, oa: 동
+
     const findManyPlace = await this.prismaService.places.findMany({
-      where: { roadAddress: { contains: local } },
+      where: { y: { gte: qa, lte: pa }, x: { gte: ha, lte: oa } },
       select: {
         id: true,
         name: true,
