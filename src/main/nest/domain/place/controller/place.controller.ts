@@ -45,10 +45,11 @@ export class PlaceController {
   }
 
   @Get('local')
+  @ApiOptionGuard()
   @ApiOperation({ summary: '주변 맛집 조회' })
   @ApiOkResponse({ type: [FindLocalPlaceResponseDto] })
-  async findLocalPlace(@Query() query: FindLocalPlaceDto) {
-    return await this.placeService.findLocalPlace(query);
+  async findLocalPlace(@Query() query: FindLocalPlaceDto, @GetUserId() userId: number) {
+    return await this.placeService.findLocalPlace(query, userId);
   }
 
   @Get(':id/details')
