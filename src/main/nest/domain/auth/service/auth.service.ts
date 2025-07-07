@@ -32,6 +32,7 @@ export class AuthService {
         if (emailCheck === null) {
           throw new ForbiddenException('이메일 인증이 완료되지 않았습니다.');
         }
+        await this.prismaService.emailVerifications.delete({ where: { email: dto.email } });
         break;
       case 'NAVER':
         // NAVER 일때
@@ -43,8 +44,6 @@ export class AuthService {
 
     const currentTime = new Date();
     const hashPassword = await bcrypt.hash(dto.password, 11);
-
-    await this.prismaService.emailVerifications.delete({ where: { email: dto.email } });
 
     return await this.prismaService.users.create({
       data: {
