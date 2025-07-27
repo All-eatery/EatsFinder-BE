@@ -60,6 +60,7 @@ export class PostService {
 
     if (!cursor) {
       posts = await this.prismaService.posts.findMany({
+        where: { deletedAt: null },
         take: LIMIT,
         skip: 1,
         orderBy: { id: 'desc' },
@@ -77,6 +78,7 @@ export class PostService {
       });
     } else {
       posts = await this.prismaService.posts.findMany({
+        where: { deletedAt: null },
         take: LIMIT,
         skip: 1,
         cursor: { id: cursor },
