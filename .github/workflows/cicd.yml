@@ -107,6 +107,8 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            set -euo pipefail
+
             cd ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_USERNAME }}
 
             # Docker Hub 로그인
@@ -115,33 +117,35 @@ jobs:
             # 이미지 풀링
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_BE }}:nestjs
 
-            # 새로운 이미지를 Green/Blue 중 하나로 태그
-            if docker ps | grep eatsfinder-nestjs-blue; then
-              NEW_DEPLOYMENT="green"
-              OLD_DEPLOYMENT="blue"
+            NET_NAME="gotiger_default"
+            SVC="eatsfinder-nestjs"
+            ACTIVE_ALIAS="${SVC}-active"
+            NGINX_CONTAINER="nginx"
+
+            # 현재 떠있는 쪽 판단
+            if docker ps --format '{{.Names}}' | grep -q "^${SVC}-blue$"; then
+              NEW="green"
+              OLD="blue"
             else
-              NEW_DEPLOYMENT="blue"
-              OLD_DEPLOYMENT="green"
+              NEW="blue"
+              OLD="green"
             fi
 
-            docker-compose up -d eatsfinder-nestjs-$NEW_DEPLOYMENT
+            docker-compose up -d "${SVC}-${NEW}"
 
-            # 새 컨테이너가 시작될 시간을 기다림
-            sleep 10
+            # 새 컨테이너에 active alias 부여 (기존 alias와 공존 가능)
+            docker network connect --alias "${ACTIVE_ALIAS}" "${NET_NAME}" "${SVC}-${NEW}" 2>/dev/null || true
 
-            # Nginx 설정 변경
-            if [ "$NEW_DEPLOYMENT" == "green" ]; then
-              sed -i "s/proxy_pass http:\/\/eatsfinder-nestjs-$OLD_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/proxy_pass http:\/\/eatsfinder-nestjs-$NEW_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/eatsfinder.conf
-            else
-              sed -i "s/proxy_pass http:\/\/eatsfinder-nestjs-$OLD_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/proxy_pass http:\/\/eatsfinder-nestjs-$NEW_DEPLOYMENT:${{ secrets.ENV_NESTJS_PORT }};/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/eatsfinder.conf
-            fi
+            # nginx DNS 캐시 즉시 갱신
+            docker exec nginx nginx -s reload || true
 
-            # Nginx 재시작
-            docker-compose -f ${{ secrets.SERVER_PATH }}/docker-compose-multi.yml up -d --force-recreate --no-deps nginx
+            # 이전 컨테이너에서 active alias 제거: disconnect → 다시 connect(별칭 없이)
+            docker network disconnect "${NET_NAME}" "${SVC}-${OLD}" 2>/dev/null || true
+            docker network connect    "${NET_NAME}" "${SVC}-${OLD}" 2>/dev/null || true
 
-            # 이전 버전의 컨테이너 중지 및 제거
-            docker-compose stop eatsfinder-nestjs-$OLD_DEPLOYMENT
-            docker-compose rm -f eatsfinder-nestjs-$OLD_DEPLOYMENT
+            # 이전 컨테이너 정리
+            docker compose stop "${SVC}-${OLD}"
+            docker compose rm -f "${SVC}-${OLD}"
 
   kotlin-build:
     runs-on: ubuntu-latest
@@ -202,6 +206,8 @@ jobs:
           password: ${{ secrets.SSH_PASSWORD }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            set -euo pipefail
+
             cd ${{ secrets.SERVER_PATH }}/site/${{ secrets.DOCKER_HUB_USERNAME }}
 
             # Docker Hub 로그인
@@ -210,30 +216,32 @@ jobs:
             # 이미지 풀링
             docker pull ${{ secrets.DOCKER_HUB_USERNAME }}/${{ secrets.DOCKER_HUB_REPO_BE }}:kotlin
 
-            # 새로운 이미지를 Green/Blue 중 하나로 태그
-            if docker ps | grep eatsfinder-kotlin-blue; then
-              NEW_DEPLOYMENT="green"
-              OLD_DEPLOYMENT="blue"
+            NET_NAME="gotiger_default"
+            SVC="eatsfinder-kotlin"
+            ACTIVE_ALIAS="${SVC}-active"
+            NGINX_CONTAINER="nginx"
+
+            # 현재 떠있는 쪽 판단
+            if docker ps --format '{{.Names}}' | grep -q "^${SVC}-blue$"; then
+              NEW="green"
+              OLD="blue"
             else
-              NEW_DEPLOYMENT="blue"
-              OLD_DEPLOYMENT="green"
+              NEW="blue"
+              OLD="green"
             fi
 
-            docker-compose up -d eatsfinder-kotlin-$NEW_DEPLOYMENT
+            docker-compose up -d "${SVC}-${NEW}"
 
-            # 새 컨테이너가 시작될 시간을 기다림
-            sleep 10
+            # 새 컨테이너에 active alias 부여 (기존 alias와 공존 가능)
+            docker network connect --alias "${ACTIVE_ALIAS}" "${NET_NAME}" "${SVC}-${NEW}" 2>/dev/null || true
 
-            # Nginx 설정 변경
-            if [ "$NEW_DEPLOYMENT" == "green" ]; then
-              sed -i "s/proxy_pass http:\/\/eatsfinder-kotlin-$OLD_DEPLOYMENT:8080;/proxy_pass http:\/\/eatsfinder-kotlin-$NEW_DEPLOYMENT:8080;/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/eatsfinder.conf
-            else
-              sed -i "s/proxy_pass http:\/\/eatsfinder-kotlin-$OLD_DEPLOYMENT:8080;/proxy_pass http:\/\/eatsfinder-kotlin-$NEW_DEPLOYMENT:8080;/" ${{ secrets.SERVER_PATH }}/nginx/conf.d/eatsfinder.conf
-            fi
+            # nginx DNS 캐시 즉시 갱신
+            docker exec nginx nginx -s reload || true
 
-            # Nginx 재시작
-            docker-compose -f ${{ secrets.SERVER_PATH }}/docker-compose-multi.yml up -d --force-recreate --no-deps nginx
+            # 이전 컨테이너에서 active alias 제거: disconnect → 다시 connect(별칭 없이)
+            docker network disconnect "${NET_NAME}" "${SVC}-${OLD}" 2>/dev/null || true
+            docker network connect    "${NET_NAME}" "${SVC}-${OLD}" 2>/dev/null || true
 
-            # 이전 버전의 컨테이너 중지 및 제거
-            docker-compose stop eatsfinder-kotlin-$OLD_DEPLOYMENT
-            docker-compose rm -f eatsfinder-kotlin-$OLD_DEPLOYMENT
+            # 이전 컨테이너 정리
+            docker compose stop "${SVC}-${OLD}"
+            docker compose rm -f "${SVC}-${OLD}"
