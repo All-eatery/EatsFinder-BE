@@ -157,7 +157,7 @@ class SearchServiceImpl(
             else -> postLikeList.last().id
         }
 
-        val totalCount = postLikeRepository.countByUserId(user)
+        val totalCount = postLikeRepository.countLikesExcludingReportedPosts(user)
         val pagination = PaginationItemsResponse(
             totalItems = totalCount,
             itemsPerPage = pageSize,

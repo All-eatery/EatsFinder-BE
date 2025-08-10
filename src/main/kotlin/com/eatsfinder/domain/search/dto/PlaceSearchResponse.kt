@@ -13,7 +13,7 @@ data class PlaceSearchResponse(
     val starRating: Int,
     val category: String,
     val isBookmark: Boolean,
-    val updatedAt: LocalDateTime,
+    val updatedAt: LocalDateTime ? = null,
     val likeCount: Int
 ) {
     companion object {

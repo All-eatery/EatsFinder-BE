@@ -12,7 +12,7 @@ data class PostSearchResponse(
     val postLikeCount: Int,
     val profileImage: String?,
     val nickname: String,
-    val updatedAt: LocalDateTime
+    val updatedAt: LocalDateTime ? = null
 ) {
     companion object {
         fun from(post: Post, isPostLike: Boolean): PostSearchResponse {
