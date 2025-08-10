@@ -3,12 +3,16 @@ package com.eatsfinder.domain.follow.service
 import com.eatsfinder.domain.follow.dto.*
 import com.eatsfinder.domain.follow.model.Follow
 import com.eatsfinder.domain.follow.repository.FollowRepository
+import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.domain.user.repository.UserRepository
 import com.eatsfinder.global.exception.InvalidInputException
 import com.eatsfinder.global.exception.ModelNotFoundException
 import com.eatsfinder.global.exception.like.DefaultZeroException
 import com.eatsfinder.global.pagination.PaginationItemsResponse
+import com.eatsfinder.global.security.jwt.UserPrincipal
 import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -106,36 +110,47 @@ class FollowServiceImpl(
         pageSize: Int,
         userId: Long
     ): PaginationFollowingResponse {
-        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
-            "user",
-            "이 프로필(id:${userId})는 존재하지 않습니다."
-        )
+        val targetUser = userRepository.findByIdAndDeletedAt(userId, null)
+            ?: throw ModelNotFoundException("user", "이 프로필(id:$userId)는 존재하지 않습니다.")
 
-        val pageable = PageRequest.of(0, pageSize + 1)
+        val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
+        val currentUser = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
+
+        val pageable: Pageable = PageRequest.of(0, pageSize + 1)
 
         val follows = if (cursorId == null) {
-            followRepository.findByFollowedUserId(user)
+            followRepository.findAllByFollowedUserIdOrderByIdAsc(targetUser, pageable)
         } else {
-            followRepository.findAllByFollowedUserIdAndFollowedUserIdDeletedAtIsNull(user, cursorId, pageable)
+            followRepository.findAllByFollowedUserIdAndIdGreaterThanOrderByIdAsc(targetUser, cursorId, pageable)
         }
 
         val followList: List<FollowerListResponse> = follows.map { follow ->
+            val isFollow = currentUser?.let {
+                followRepository.existsByFollowedUserIdAndFollowingUserId(
+                    followedUserId = it.id,
+                    followingUserId = follow.followingUserId.id!!
+                )
+            } ?: false
+
             FollowerListResponse(
                 followerUserId = follow.followingUserId.id!!,
                 followerUserNickname = follow.followingUserId.nickname,
-                imageUrl = follow.followingUserId.profileImage
+                imageUrl = follow.followingUserId.profileImage,
+                isFollow = isFollow
             )
         }
+
         val isLastPage = followList.size <= pageSize
-        val nextCursorId = if (followList.size <= pageSize) followList.last().followerUserId else null
+        val nextCursorId = if (!isLastPage) followList.last().followerUserId else null
 
-        val totalCount = followRepository.countByFollowedUserId(user)
+        val totalCount = followRepository.countByFollowedUserId(targetUser)
 
+        val totalPage = (totalCount / pageSize) + if (totalCount % pageSize > 0) 1 else 0
 
         val pagination = PaginationItemsResponse(
             totalItems = totalCount,
             itemsPerPage = pageSize,
-            totalPage = (follows.size / pageSize).toLong() + if (follows.size % pageSize > 0) 1 else 0,
+            totalPage = totalPage,
             currentPage = 1,
             isLastPage = isLastPage
         )
@@ -147,42 +162,57 @@ class FollowServiceImpl(
         )
     }
 
+
     @Transactional(readOnly = true)
-    override fun findFollowerListCursorBased(cursorId: Long?, pageSize: Int, userId: Long): PaginationFollowerResponse {
-        val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
-            "user",
-            "이 프로필(id:${userId})는 존재하지 않습니다."
-        )
+    override fun findFollowerListCursorBased(
+        cursorId: Long?,
+        pageSize: Int,
+        userId: Long?
+    ): PaginationFollowerResponse {
+        val targetUser = userRepository.findByIdAndDeletedAt(userId!!, null)
+            ?: throw ModelNotFoundException("user", "이 프로필(id:$userId)는 존재하지 않습니다.")
+
+        val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
+
+        val currentUser = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
+
 
         val pageable = PageRequest.of(0, pageSize + 1)
 
         val follows = if (cursorId == null) {
-            followRepository.findByFollowingUserId(user)
+            followRepository.findByFollowingUserIdOrderByIdAsc(targetUser, pageable)
         } else {
-            followRepository.findAllByFollowedUserIdAndFollowingUserIdDeletedAtIsNull(user, cursorId, pageable)
+            followRepository.findAllByFollowingUserIdAndIdGreaterThanOrderByIdAsc(targetUser, cursorId, pageable)
         }
 
+
         val followList: List<FollowingListResponse> = follows.map { follow ->
+            val isFollow = currentUser?.let {
+                followRepository.existsByFollowedUserIdAndFollowingUserId(
+                    followedUserId = it.id,
+                    followingUserId = follow.followedUserId.id!!
+                )
+            } ?: false
+
             FollowingListResponse(
                 followingUserId = follow.followedUserId.id!!,
                 followingUserNickname = follow.followedUserId.nickname,
-                imageUrl = follow.followedUserId.profileImage
+                imageUrl = follow.followedUserId.profileImage,
+                isFollow = isFollow
             )
         }
 
         val isLastPage = followList.size <= pageSize
-        val nextCursorId = when {
-            followList.isEmpty() -> null
-            followList.size > pageSize -> followList[pageSize - 1].followingUserId
-            else -> followList.last().followingUserId
-        }
+        val nextCursorId = if (!isLastPage) followList[pageSize - 1].followingUserId else null
 
-        val totalCount = followRepository.countByFollowingUserId(user)
+        val totalCount = followRepository.countByFollowingUserId(targetUser)
+
+        val totalPage = (totalCount / pageSize) + if (totalCount % pageSize > 0) 1 else 0
 
         val pagination = PaginationItemsResponse(
             totalItems = totalCount,
             itemsPerPage = pageSize,
-            totalPage = (follows.size / pageSize).toLong() + if (follows.size % pageSize > 0) 1 else 0,
+            totalPage = totalPage,
             currentPage = 1,
             isLastPage = isLastPage
         )

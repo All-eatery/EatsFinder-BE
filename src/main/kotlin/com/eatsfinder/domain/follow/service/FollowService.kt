@@ -15,7 +15,7 @@ interface FollowService {
 
     fun deleteUserFollow(userId: Long, followUserId: Long)
 
-    fun findFollowingListCursorBased(cursorId: Long?, pageSize: Int, userId: Long): PaginationFollowingResponse
+    fun findFollowingListCursorBased(cursorId: Long?, pageSize: Int,  userId: Long): PaginationFollowingResponse
 
-    fun findFollowerListCursorBased(cursorId: Long?, pageSize: Int, userId: Long): PaginationFollowerResponse
+    fun findFollowerListCursorBased(cursorId: Long?, pageSize: Int, userId: Long?): PaginationFollowerResponse
 }
