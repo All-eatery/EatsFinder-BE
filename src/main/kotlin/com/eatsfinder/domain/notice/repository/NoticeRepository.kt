@@ -8,5 +8,5 @@ interface NoticeRepository : JpaRepository<Notice, Long> {
 
     fun findByIdAndDeletedAt(id: Long, deletedAt: LocalDateTime?): Notice?
 
-    fun findAllByDeletedAt( deletedAt: LocalDateTime?): List<Notice>?
+    fun findAllByDeletedAt(deletedAt: LocalDateTime?): List<Notice>?
 }

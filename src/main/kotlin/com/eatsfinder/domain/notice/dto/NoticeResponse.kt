@@ -4,11 +4,11 @@ import com.eatsfinder.domain.notice.model.Notice
 import java.time.LocalDateTime
 
 data class NoticeResponse(
-    val id : Long?,
+    val id: Long?,
     val title: String,
     val content: String,
     val createdAt: LocalDateTime
-){
+) {
     companion object {
         fun from(notice: Notice): NoticeResponse {
             return NoticeResponse(

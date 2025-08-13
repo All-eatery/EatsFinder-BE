@@ -14,10 +14,10 @@ import org.springframework.transaction.annotation.Transactional
 class NoticeServiceImpl(
     private val noticeRepository: NoticeRepository,
     private val userRepository: UserRepository
-): NoticeService {
+) : NoticeService {
     override fun getNoticeList(userId: Long): List<NoticeResponse> {
-      val notice = noticeRepository.findAllByDeletedAt(null)
-        return  notice!!.map { NoticeResponse.from(it) }
+        val notice = noticeRepository.findAllByDeletedAt(null)
+        return notice!!.map { NoticeResponse.from(it) }
     }
 
     override fun getNotice(noticeId: Long, userId: Long): NoticeResponse {
@@ -31,12 +31,13 @@ class NoticeServiceImpl(
             "이 계정(id: ${noticeId})은 존재하지 않습니다."
         )
 
-        if (user.role.name != "USER" && user.role.name != "OWNER" && user.role.name != "ADMIN" ){
+        if (user.role.name != "USER" && user.role.name != "OWNER" && user.role.name != "ADMIN") {
             throw ImmutableUserOrUnauthorizedUserException("이 공지사항을 조회할 권한이 없습니다.")
         }
 
         return NoticeResponse.from(notice)
     }
+
     @Transactional
     override fun createNotice(req: NoticeRequest, userId: Long): String {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
@@ -44,7 +45,7 @@ class NoticeServiceImpl(
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
 
-        if (user.role.name != "ADMIN"){
+        if (user.role.name != "ADMIN") {
             throw ImmutableUserOrUnauthorizedUserException("이 공지사항을 작성할 권한이 없습니다.")
         }
 
@@ -88,13 +89,13 @@ class NoticeServiceImpl(
         return "공지사항이 삭제되었습니다."
     }
 
-    private fun checkingUser(userId: Long, msg: String){
+    private fun checkingUser(userId: Long, msg: String) {
         val user = userRepository.findByIdAndDeletedAt(userId, null) ?: throw ModelNotFoundException(
             "user",
             "이 유저 아이디(${userId})는 존재하지 않습니다."
         )
 
-        if (user.role.name != "ADMIN"){
+        if (user.role.name != "ADMIN") {
             throw ImmutableUserOrUnauthorizedUserException(msg)
         }
     }

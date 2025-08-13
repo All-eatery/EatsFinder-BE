@@ -9,9 +9,9 @@ import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
+
 @RestController
 class NoticeController(
     private val noticeService: NoticeService
@@ -37,7 +37,7 @@ class NoticeController(
     }
 
     @Operation(summary = "공지사항 작성")
-    @ApiResponse(responseCode = "403", description = "이 댓글을 수정할 권한이 없습니다.")
+    @ApiResponse(responseCode = "403", description = "이 댓글을 작성할 권한이 없습니다.")
     @PostMapping("/notices")
     fun createNotice(
         @RequestBody req: NoticeRequest,
