@@ -46,7 +46,8 @@ class SecurityConfig(
                     "/replies/**",
                     "/reports/**",
                     "/keyword",
-                    "/places/**"
+                    "/places/**",
+                    "/notices/**"
                 ).permitAll().anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
