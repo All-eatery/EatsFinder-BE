@@ -3,8 +3,10 @@ package com.eatsfinder.domain.notice.model
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
+import org.hibernate.annotations.SQLDelete
 
 @Entity
+@SQLDelete(sql = "UPDATE notices SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?")
 @Table(name = "notices")
 class Notice(
 
