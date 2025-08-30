@@ -112,7 +112,7 @@ export class PostService {
 
   async findOnePost(id: number, userId: number) {
     const postData = await this.prismaService.posts.findFirst({
-      where: { id, deletedAt: null },
+      where: { id },
       select: {
         id: true,
         content: true,
@@ -123,6 +123,7 @@ export class PostService {
         likeCount: true,
         viewCount: true,
         createdAt: true,
+        deletedAt: true,
         users: {
           select: {
             id: true,
@@ -148,10 +149,16 @@ export class PostService {
       },
     });
 
-    const likeStatus = postData.postLikes.length > 0;
     if (!postData) {
       throw new NotFoundException('해당 게시물은 존재하지 않습니다.');
-    } else delete postData.postLikes;
+    }
+
+    if (postData.deletedAt) {
+      throw new UnauthorizedException('게시물이 삭제되었습니다.');
+    }
+
+    const likeStatus = postData.postLikes.length > 0;
+    delete postData.postLikes;
 
     const menuTagIds = postData.menuTag.split(',').map(Number);
     const menus = (
@@ -167,8 +174,10 @@ export class PostService {
       })
     ).map((menu) => menu.menu);
 
+    const { deletedAt, ...resultPostData } = postData;
+
     const result = {
-      ...postData,
+      ...resultPostData,
       menuTag: menus,
       starRatings: postData.starRatings.star,
       likeStatus,

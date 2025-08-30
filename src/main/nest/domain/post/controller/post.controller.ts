@@ -69,6 +69,7 @@ export class PostController {
   @ApiOperation({ summary: '유저 게시물 단건 조회' })
   @ApiOkResponse({ type: FindOnePostResponseDto })
   @ApiNotFoundResponse({ description: '해당 게시물은 존재하지 않습니다.' })
+  @ApiUnauthorizedResponse({ description: '삭제된 게시물입니다.' })
   async findOnePost(@Param('id', ParseIntPipe) id: number, @GetUserId() userId: number) {
     return await this.postService.findOnePost(id, userId);
   }
