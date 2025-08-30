@@ -47,6 +47,7 @@ interface PlaceRepository : JpaRepository<Place, Long> {
         WHERE
         p.address LIKE %:keyword% OR
         p.categoryId.name LIKE %:keyword%
+        AND p.deletedAt IS NULL
     """
     )
     fun countTotalByKeyword(@Param("keyword") keyword: String): Long

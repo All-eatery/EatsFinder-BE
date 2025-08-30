@@ -1,6 +1,9 @@
 package com.eatsfinder.domain.search.controller
 
 import com.eatsfinder.domain.like.dto.PaginationPostLikeResponse
+import com.eatsfinder.domain.search.dto.NeighborSearchPaginationResponse
+import com.eatsfinder.domain.search.dto.PlaceSearchPaginationResponse
+import com.eatsfinder.domain.search.dto.PostSearchPaginationResponse
 import com.eatsfinder.domain.search.dto.SearchResponse
 import com.eatsfinder.domain.search.model.SearchFilter
 import com.eatsfinder.domain.search.service.SearchService
@@ -29,6 +32,36 @@ class SearchController(
         @RequestParam(defaultValue = "10") pageSize: Int
     ): ResponseEntity<SearchResponse> {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.getSearchKeyword(keyword, filter, postCursorId, placeCursorId, neighborCursorId, pageSize))
+    }
+
+    @Operation(summary = "게시물 검색하기")
+    @PostMapping("/search/posts")
+    fun getPostSearchKeyword(
+        @RequestParam keyword: String,
+        @RequestParam postCursorId: Long?,
+        @RequestParam(defaultValue = "10") pageSize: Int
+    ): ResponseEntity<PostSearchPaginationResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.getPostSearchKeyword(keyword, postCursorId,  pageSize))
+    }
+
+    @Operation(summary = "맛집 검색하기")
+    @PostMapping("/search/places")
+    fun getPlaceSearchKeyword(
+        @RequestParam keyword: String,
+        @RequestParam placeCursorId: Long?,
+        @RequestParam(defaultValue = "10") pageSize: Int
+    ): ResponseEntity<PlaceSearchPaginationResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.getPlaceSearchKeyword(keyword,  placeCursorId, pageSize))
+    }
+
+    @Operation(summary = "이웃 검색하기")
+    @PostMapping("/search/neighbors")
+    fun getNeighborSearchKeyword(
+        @RequestParam keyword: String,
+        @RequestParam neighborCursorId: Long?,
+        @RequestParam(defaultValue = "10") pageSize: Int
+    ): ResponseEntity<NeighborSearchPaginationResponse> {
+        return ResponseEntity.status(HttpStatus.OK).body(searchService.getNeighborSearchKeyword(keyword, neighborCursorId, pageSize))
     }
 
     @Operation(summary = "좋아요한 게시물 검색하기")

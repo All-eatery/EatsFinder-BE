@@ -25,7 +25,7 @@ interface UserRepository : JpaRepository<User, Long> {
     fun findAllByNicknameContaining(nickname: String, pageable: Pageable): List<User>
     fun countByNicknameContaining(nickname: String): Long
 
-    @Query("SELECT u FROM User u WHERE (u.nickname LIKE %:keyword% OR u.email LIKE %:keyword%) AND (u.id > :neighborCursorId OR :neighborCursorId IS NULL)")
+    @Query("SELECT u FROM User u WHERE (u.nickname LIKE %:keyword% OR u.email LIKE %:keyword%) AND (u.id > :neighborCursorId OR :neighborCursorId IS NULL) AND u.deletedAt IS NULL")
     fun findAllByKeywordsAndIdGreaterThan(
         @Param("keyword") keyword: String,
         @Param("neighborCursorId") neighborCursorId: Long?,
