@@ -145,21 +145,38 @@ class SearchServiceImpl(
         return response
     }
 
-    private inline fun <reified T> cache(keyword: String): T? {
+    private inline fun <reified T> cache(
+        keyword: String,
+        supplier: () -> T
+    ): T {
         val objectMapper = ObjectMapper()
 
         // 캐시에서 가져오기
-        val RedisCache = redisTemplate.opsForValue().get("keyword::$keyword")
-        if (RedisCache != null) {
+        val redisCache = redisTemplate.opsForValue().get("keyword::$keyword")
+        if (redisCache != null) {
             try {
-                val RedisCacheRes = objectMapper.readValue(RedisCache, T::class.java)
-                println("캐시에서 조회 성공: $RedisCacheRes")
-                return RedisCacheRes
+                val cached = objectMapper.readValue(redisCache, T::class.java)
+                println("캐시에서 조회 성공: $cached")
+                return cached
             } catch (e: Exception) {
                 println("캐시 역직렬화 실패: ${e.message}")
             }
         }
-        return null
+
+        val response = supplier()
+
+        try {
+            val responseJson = objectMapper.writeValueAsString(response)
+            redisTemplate.opsForValue()
+                .set("keyword::$keyword", responseJson, Duration.ofMinutes(30))
+            println("캐시에 저장 성공: $keyword")
+        } catch (e: Exception) {
+            println("Redis 캐시 저장 실패: ${e.message}")
+        }
+
+        saveKeywordLog(keyword)
+
+        return response
     }
 
     override fun getPostSearchKeyword(
@@ -167,14 +184,15 @@ class SearchServiceImpl(
         postCursorId: Long?,
         pageSize: Int
     ): PostSearchPaginationResponse {
-        cache<PostSearchPaginationResponse>(keyword)
 
         val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
         val user = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
 
         val postLike = user?.let { postLikeRepository.findByUserId(it) } ?: emptyList()
 
-        return searchPosts(keyword, user, postLike, postCursorId, pageSize)
+        return cache<PostSearchPaginationResponse>(keyword) {
+            searchPosts(keyword, user, postLike, postCursorId, pageSize)
+        }
     }
 
     override fun getPlaceSearchKeyword(
@@ -182,7 +200,6 @@ class SearchServiceImpl(
         placeCursorId: Long?,
         pageSize: Int
     ): PlaceSearchPaginationResponse {
-        cache<PlaceSearchPaginationResponse>(keyword)
         val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
         val user = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
         val bookmark = user?.let {
@@ -191,7 +208,9 @@ class SearchServiceImpl(
             }.toSet()
         } ?: emptySet()
 
-        return searchPlaces(keyword, bookmark, placeCursorId, pageSize)
+        return cache<PlaceSearchPaginationResponse>(keyword) {
+            searchPlaces(keyword, bookmark, placeCursorId, pageSize)
+        }
     }
 
     override fun getNeighborSearchKeyword(
@@ -199,8 +218,6 @@ class SearchServiceImpl(
         neighborCursorId: Long?,
         pageSize: Int
     ): NeighborSearchPaginationResponse {
-        cache<NeighborSearchPaginationResponse>(keyword)
-
         val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
         val user = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
         val users = userRepository.findAll().filter { it.deletedAt == null }
@@ -210,7 +227,10 @@ class SearchServiceImpl(
             user?.let { followRepository.findByFollowedUserId(it).mapNotNull { it.followingUserId.id }.toSet() }
                 ?: emptySet()
 
-        return searchUsers(keyword, userPostCounts, follow, neighborCursorId, pageSize)
+        return cache<NeighborSearchPaginationResponse>(keyword) {
+            searchUsers(keyword, userPostCounts, follow, neighborCursorId, pageSize)
+        }
+
     }
 
     override fun getLikePostSearchKeyword(
