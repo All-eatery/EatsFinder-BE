@@ -376,6 +376,7 @@ class SearchServiceImpl(
         }
 
         val filteredPlaces = paginationPlace.filter { place ->
+            place.deletedAt == null &&
             place.name.contains(keyword, ignoreCase = true) ||
                     placeMenusRepository.findByPlaceIdAndMenu(place, keyword)?.menu?.contains(
                         keyword,
@@ -444,7 +445,8 @@ class SearchServiceImpl(
         }
 
         val filteredPosts = paginationPost.filter { post ->
-            !reportPostRepository.existsByPostIdAndUserId(post, user) &&
+            post.deletedAt == null &&
+                    !reportPostRepository.existsByPostIdAndUserId(post, user) &&
                     post.placeId.name.contains(keyword, ignoreCase = true) ||
                     placeMenusRepository.findByPlaceIdAndMenu(post.placeId, keyword)?.menu?.contains(
                         keyword,
@@ -510,6 +512,7 @@ class SearchServiceImpl(
         }
 
         val filteredUsers = paginationUser.filter { user ->
+            user.deletedAt == null &&
             user.nickname.contains(keyword, ignoreCase = true)
         }.map { user ->
             val isFollow = follow.contains(user.id)

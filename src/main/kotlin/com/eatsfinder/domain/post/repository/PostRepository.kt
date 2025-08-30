@@ -69,6 +69,7 @@ interface PostRepository : JpaRepository<Post, Long>, IPostRepository {
         SELECT 1 FROM PlaceMenus pm 
         WHERE pm.placeId = p.placeId AND pm.menu LIKE %:keyword%
     ))
+    AND p.deletedAt IS NULL
 """
     )
     fun countTotalByKeyword(@Param("keyword") keyword: String): Long
