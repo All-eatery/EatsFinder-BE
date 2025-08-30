@@ -22,7 +22,7 @@ class SearchController(
     private val searchService: SearchService
 ) {
     @Operation(summary = "검색하기")
-    @PostMapping("/search")
+    @PostMapping("/searches")
     fun getSearchKeyword(
         @RequestParam keyword: String,
         @RequestParam filter: SearchFilter?,
@@ -35,7 +35,7 @@ class SearchController(
     }
 
     @Operation(summary = "게시물 검색하기")
-    @PostMapping("/search/posts")
+    @PostMapping("/searches/posts")
     fun getPostSearchKeyword(
         @RequestParam keyword: String,
         @RequestParam postCursorId: Long?,
@@ -45,7 +45,7 @@ class SearchController(
     }
 
     @Operation(summary = "맛집 검색하기")
-    @PostMapping("/search/places")
+    @PostMapping("/searches/places")
     fun getPlaceSearchKeyword(
         @RequestParam keyword: String,
         @RequestParam placeCursorId: Long?,
@@ -55,7 +55,7 @@ class SearchController(
     }
 
     @Operation(summary = "이웃 검색하기")
-    @PostMapping("/search/neighbors")
+    @PostMapping("/searches/neighbors")
     fun getNeighborSearchKeyword(
         @RequestParam keyword: String,
         @RequestParam neighborCursorId: Long?,
@@ -65,7 +65,7 @@ class SearchController(
     }
 
     @Operation(summary = "좋아요한 게시물 검색하기")
-    @GetMapping("/search/liked-posts")
+    @GetMapping("/searches/liked-posts")
     fun getLikePostSearchKeyword(
         @RequestParam keyword: String,
         @AuthenticationPrincipal userPrincipal: UserPrincipal,
@@ -77,7 +77,7 @@ class SearchController(
     }
 
     @Operation(summary = "급상승 키워드")
-    @GetMapping("/keyword")
+    @GetMapping("/keywords")
     fun findKeyword(
     ): ResponseEntity<List<String>> {
         return ResponseEntity.status(HttpStatus.OK).body(searchService.findKeywordLog())

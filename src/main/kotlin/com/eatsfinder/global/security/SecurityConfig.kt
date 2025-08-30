@@ -42,10 +42,10 @@ class SecurityConfig(
                     "/follows",
                     "/follower",
                     "/following",
-                    "/search/**",
+                    "/searches/**",
                     "/replies/**",
                     "/reports/**",
-                    "/keyword",
+                    "/keywords",
                     "/places/**",
                     "/notices/**"
                 ).permitAll().anyRequest().authenticated()
