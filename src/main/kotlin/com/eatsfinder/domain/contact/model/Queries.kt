@@ -1,6 +1,5 @@
 package com.eatsfinder.domain.contact.model
 
-import com.eatsfinder.domain.reply.model.Reply
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
