@@ -58,10 +58,11 @@ export class PostController {
   @Get()
   @ApiOptionGuard()
   @ApiQuery({ name: 'cursor', required: false })
+  @ApiQuery({ name: 'size', required: false })
   @ApiOperation({ summary: '유저 게시물 전체 조회' })
   @ApiOkResponse({ type: FindAllPostResponseDto })
   async findPost(@GetUserId() userId: number, @Query() query: FindAllPostsDto) {
-    return await this.postService.findPost(userId, query.cursor);
+    return await this.postService.findPost(userId, query);
   }
 
   @Get(':id/details')

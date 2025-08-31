@@ -9,7 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 import { S3Service } from '../../../global/s3/s3.service';
-import { CreatePostRequestDto, UpdatePostRequestDto } from '../../../global/dto';
+import { CreatePostRequestDto, FindAllPostsDto, UpdatePostRequestDto } from '../../../global/dto';
 import * as path from 'path';
 import { PlaceService } from '../../place/service/place.service';
 
@@ -54,15 +54,15 @@ export class PostService {
     });
   }
 
-  async findPost(userId: number, cursor: number) {
-    const LIMIT = 5;
+  async findPost(userId: number, query: FindAllPostsDto) {
+    const { cursor, size } = query;
+    const take = size ?? 5;
     let posts: any;
 
     if (!cursor) {
       posts = await this.prismaService.posts.findMany({
         where: { deletedAt: null },
-        take: LIMIT,
-        skip: 1,
+        take,
         orderBy: { id: 'desc' },
         select: {
           id: true,
@@ -79,7 +79,7 @@ export class PostService {
     } else {
       posts = await this.prismaService.posts.findMany({
         where: { deletedAt: null },
-        take: LIMIT,
+        take,
         skip: 1,
         cursor: { id: cursor },
         orderBy: { id: 'desc' },
@@ -104,7 +104,7 @@ export class PostService {
     const totalItems = await this.prismaService.posts.count({ where: { deletedAt: null } });
 
     return {
-      pagination: { totalItems, itemsPerPage: LIMIT },
+      pagination: { totalItems, itemsPerPage: take },
       items: postsData,
       lastItemId: postsData.length > 0 ? postsData[postsData.length - 1].id : null,
     };

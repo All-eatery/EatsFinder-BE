@@ -8,4 +8,10 @@ export class FindAllPostsDto {
   @IsNumber()
   @Type(() => Number)
   cursor?: number;
+
+  @ApiProperty({ description: '조회할 게시물 개수', required: false, example: 5, default: 5 })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  size?: number;
 }
