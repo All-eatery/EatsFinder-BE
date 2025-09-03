@@ -58,10 +58,11 @@ export class PostController {
   @Get()
   @ApiOptionGuard()
   @ApiQuery({ name: 'cursor', required: false })
+  @ApiQuery({ name: 'size', required: false })
   @ApiOperation({ summary: '유저 게시물 전체 조회' })
   @ApiOkResponse({ type: FindAllPostResponseDto })
   async findPost(@GetUserId() userId: number, @Query() query: FindAllPostsDto) {
-    return await this.postService.findPost(userId, query.cursor);
+    return await this.postService.findPost(userId, query);
   }
 
   @Get(':id/details')
@@ -69,6 +70,7 @@ export class PostController {
   @ApiOperation({ summary: '유저 게시물 단건 조회' })
   @ApiOkResponse({ type: FindOnePostResponseDto })
   @ApiNotFoundResponse({ description: '해당 게시물은 존재하지 않습니다.' })
+  @ApiUnauthorizedResponse({ description: '삭제된 게시물입니다.' })
   async findOnePost(@Param('id', ParseIntPipe) id: number, @GetUserId() userId: number) {
     return await this.postService.findOnePost(id, userId);
   }

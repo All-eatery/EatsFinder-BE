@@ -9,7 +9,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../global/prisma/prisma.service';
 import { S3Service } from '../../../global/s3/s3.service';
-import { CreatePostRequestDto, UpdatePostRequestDto } from '../../../global/dto';
+import { CreatePostRequestDto, FindAllPostsDto, UpdatePostRequestDto } from '../../../global/dto';
 import * as path from 'path';
 import { PlaceService } from '../../place/service/place.service';
 
@@ -54,14 +54,15 @@ export class PostService {
     });
   }
 
-  async findPost(userId: number, cursor: number) {
-    const LIMIT = 5;
+  async findPost(userId: number, query: FindAllPostsDto) {
+    const { cursor, size } = query;
+    const take = size ?? 5;
     let posts: any;
 
     if (!cursor) {
       posts = await this.prismaService.posts.findMany({
         where: { deletedAt: null },
-        take: LIMIT,
+        take,
         skip: 1,
         orderBy: { id: 'desc' },
         select: {
@@ -79,7 +80,7 @@ export class PostService {
     } else {
       posts = await this.prismaService.posts.findMany({
         where: { deletedAt: null },
-        take: LIMIT,
+        take,
         skip: 1,
         cursor: { id: cursor },
         orderBy: { id: 'desc' },
@@ -104,7 +105,7 @@ export class PostService {
     const totalItems = await this.prismaService.posts.count({ where: { deletedAt: null } });
 
     return {
-      pagination: { totalItems, itemsPerPage: LIMIT },
+      pagination: { totalItems, itemsPerPage: take },
       items: postsData,
       lastItemId: postsData.length > 0 ? postsData[postsData.length - 1].id : null,
     };
@@ -112,7 +113,7 @@ export class PostService {
 
   async findOnePost(id: number, userId: number) {
     const postData = await this.prismaService.posts.findFirst({
-      where: { id, deletedAt: null },
+      where: { id },
       select: {
         id: true,
         content: true,
@@ -123,6 +124,7 @@ export class PostService {
         likeCount: true,
         viewCount: true,
         createdAt: true,
+        deletedAt: true,
         users: {
           select: {
             id: true,
@@ -148,10 +150,16 @@ export class PostService {
       },
     });
 
-    const likeStatus = postData.postLikes.length > 0;
     if (!postData) {
       throw new NotFoundException('해당 게시물은 존재하지 않습니다.');
-    } else delete postData.postLikes;
+    }
+
+    if (postData.deletedAt) {
+      throw new UnauthorizedException('게시물이 삭제되었습니다.');
+    }
+
+    const likeStatus = postData.postLikes.length > 0;
+    delete postData.postLikes;
 
     const menuTagIds = postData.menuTag.split(',').map(Number);
     const menus = (
@@ -167,8 +175,10 @@ export class PostService {
       })
     ).map((menu) => menu.menu);
 
+    const { deletedAt, ...resultPostData } = postData;
+
     const result = {
-      ...postData,
+      ...resultPostData,
       menuTag: menus,
       starRatings: postData.starRatings.star,
       likeStatus,
