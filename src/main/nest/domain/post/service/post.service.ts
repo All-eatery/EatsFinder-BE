@@ -63,6 +63,7 @@ export class PostService {
       posts = await this.prismaService.posts.findMany({
         where: { deletedAt: null },
         take,
+        skip: 1,
         orderBy: { id: 'desc' },
         select: {
           id: true,
