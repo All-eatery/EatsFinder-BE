@@ -1,5 +1,6 @@
 package com.eatsfinder.domain.contact.model
 
+import com.eatsfinder.domain.reply.model.Reply
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
@@ -25,7 +26,7 @@ class Queries(
     @JoinColumn(name = "user_id", nullable = false)
     val userId: User,
 
-    @OneToMany(mappedBy = "answerId", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
+    @OneToMany(mappedBy = "queryId", fetch = FetchType.LAZY, cascade = [CascadeType.ALL], orphanRemoval = true)
     var answers: MutableList<Answers> = mutableListOf(),
 
 

@@ -1,5 +1,6 @@
 package com.eatsfinder.domain.contact.model
 
+import com.eatsfinder.domain.comment.model.Comment
 import com.eatsfinder.domain.user.model.User
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
@@ -17,9 +18,13 @@ class Answers(
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
-    val userId: User
+    val userId: User,
 
-) : BaseTimeEntity() {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "query_id", nullable = false)
+    val queryId: Queries
+
+    ) : BaseTimeEntity() {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long? = null
