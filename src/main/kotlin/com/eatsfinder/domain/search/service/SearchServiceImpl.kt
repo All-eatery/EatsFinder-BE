@@ -28,6 +28,8 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Duration
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 @Service
 class SearchServiceImpl(
@@ -42,6 +44,7 @@ class SearchServiceImpl(
     private val bookmarkPlacesRepository: BookmarkPlacesRepository,
     private val redisTemplate: RedisTemplate<String, String>,
     private val keywordRepository: KeywordRepository,
+    private val objectMapper: ObjectMapper
 ) : SearchService {
 
     @Transactional
@@ -53,23 +56,27 @@ class SearchServiceImpl(
         neighborCursorId: Long?,
         pageSize: Int
     ): SearchResponse {
-        val objectMapper = ObjectMapper()
+
+        val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
+        val user = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
+        val users = userRepository.findAll().filter { it.deletedAt == null }
+
+        val userId = user?.id ?: "guest"
+
+        val time = LocalDateTime.now()
 
         // 캐시에서 가져오기
-        val RedisCache = redisTemplate.opsForValue().get("keyword::$keyword")
-        if (RedisCache != null) {
+        val redisCache = redisTemplate.opsForValue().get("keyword::$keyword,user:$userId,time:$time")
+        if (redisCache != null) {
             try {
-                val RedisCacheRes = objectMapper.readValue(RedisCache, SearchResponse::class.java)
-                println("캐시에서 조회 성공: $RedisCacheRes")
-                return RedisCacheRes
+                val redisCacheRes = objectMapper.readValue(redisCache, SearchResponse::class.java)
+                println("캐시에서 조회 성공: $redisCacheRes")
+                return redisCacheRes
             } catch (e: Exception) {
                 println("캐시 역직렬화 실패: ${e.message}")
             }
         }
 
-        val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
-        val user = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
-        val users = userRepository.findAll().filter { it.deletedAt == null }
 
         val postLike = user?.let { postLikeRepository.findByUserId(it) } ?: emptyList()
         val userPostCounts = users.associateWith { postRepository.findByUserId(it)?.size ?: 0 }
@@ -149,10 +156,16 @@ class SearchServiceImpl(
         keyword: String,
         supplier: () -> T
     ): T {
-        val objectMapper = ObjectMapper()
+
+        val userPrincipal = SecurityContextHolder.getContext().authentication?.principal as? UserPrincipal
+        val user = userPrincipal?.let { userRepository.findByIdAndDeletedAt(it.id, null) }
+
+        val userId = user?.id ?: "guest"
+
+        val time = LocalDateTime.now()
 
         // 캐시에서 가져오기
-        val redisCache = redisTemplate.opsForValue().get("keyword::$keyword")
+        val redisCache = redisTemplate.opsForValue().get("keyword::$keyword,user::$userId,time::$time")
         if (redisCache != null) {
             try {
                 val cached = objectMapper.readValue(redisCache, T::class.java)
@@ -375,16 +388,7 @@ class SearchServiceImpl(
             )
         }
 
-        val filteredPlaces = paginationPlace.filter { place ->
-            place.deletedAt == null &&
-            place.name.contains(keyword, ignoreCase = true) ||
-                    placeMenusRepository.findByPlaceIdAndMenu(place, keyword)?.menu?.contains(
-                        keyword,
-                        ignoreCase = true
-                    ) == true ||
-                    place.address.contains(keyword, ignoreCase = true) ||
-                    place.categoryId.name.contains(keyword, ignoreCase = true)
-        }.map { place ->
+        val filteredPlaces = paginationPlace.map { place ->
             val posts = postRepository.findByPlaceId(place)
             val stars = starRatingRepository.findByPlaceId(place)
             val isBookmark = bookmark.contains(place.id)
@@ -444,19 +448,7 @@ class SearchServiceImpl(
             )
         }
 
-        val filteredPosts = paginationPost.filter { post ->
-            post.deletedAt == null &&
-                    !reportPostRepository.existsByPostIdAndUserId(post, user) &&
-                    post.placeId.name.contains(keyword, ignoreCase = true) ||
-                    placeMenusRepository.findByPlaceIdAndMenu(post.placeId, keyword)?.menu?.contains(
-                        keyword,
-                        ignoreCase = true
-                    ) == true ||
-                    post.placeId.address.contains(keyword, ignoreCase = true) ||
-                    post.userId.nickname.contains(keyword, ignoreCase = true) ||
-                    (post.content?.let { it.contains(keyword, ignoreCase = true) } == true) ||
-                    post.placeId.categoryId.name.contains(keyword, ignoreCase = true)
-        }.map { post ->
+        val filteredPosts = paginationPost.map { post ->
             PostSearchResponse.from(
                 post,
                 isPostLike = postLike.any { like -> like.postId.id == post.id && like.userId.id == user?.id }
@@ -513,7 +505,7 @@ class SearchServiceImpl(
 
         val filteredUsers = paginationUser.filter { user ->
             user.deletedAt == null &&
-            user.nickname.contains(keyword, ignoreCase = true)
+                    user.nickname.contains(keyword, ignoreCase = true)
         }.map { user ->
             val isFollow = follow.contains(user.id)
             val postCount = userPostCounts[user] ?: 0
@@ -552,6 +544,10 @@ class SearchServiceImpl(
     }
 
     private fun saveKeywordLog(keyword: String): List<String> {
+
+        val key = "ranking" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"))
+
         // DB 업데이트
         keywordRepository.findByKeyword(keyword)?.let {
             it.count += 1
@@ -565,7 +561,8 @@ class SearchServiceImpl(
 
         try {
             // Redis에 키워드 문자열만 저장
-            redisTemplate.opsForZSet().incrementScore("ranking", keyword, 1.0)
+            redisTemplate.opsForZSet().incrementScore(key, keyword, 1.0)
+            redisTemplate.expire(key, Duration.ofHours(2))
         } catch (e: Exception) {
             println("Redis ZSet 저장 오류: ${e.message}")
         }
@@ -574,8 +571,11 @@ class SearchServiceImpl(
     }
 
     override fun findKeywordLog(): List<String> {
+        val key = "ranking" +
+                LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHH"))
+
         val zSet = redisTemplate.opsForZSet()
 
-        return zSet.reverseRange("ranking", 0, 6)?.toList() ?: emptyList()
+        return zSet.reverseRange(key, 0, 6)?.toList() ?: emptyList()
     }
 }
