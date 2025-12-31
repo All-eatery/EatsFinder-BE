@@ -1,6 +1,7 @@
 package com.eatsfinder.domain.place.model
 
 import com.eatsfinder.domain.category.model.Category
+import com.eatsfinder.domain.post.model.Post
 import com.eatsfinder.global.entity.BaseTimeEntity
 import jakarta.persistence.*
 
@@ -38,6 +39,11 @@ class Place(
     @Column(name = "depth_4", nullable = true, length = 10)
     var depth4: String,
 
+    @OneToMany(mappedBy = "placeId", fetch = FetchType.LAZY)
+    val posts: List<Post> = mutableListOf(),
+
+    @OneToMany(mappedBy = "placeId", fetch = FetchType.LAZY)
+    val placeMenus: List<PlaceMenus> = mutableListOf(),
 
     @ManyToOne
     @JoinColumn(name = "category_id", nullable = false)
