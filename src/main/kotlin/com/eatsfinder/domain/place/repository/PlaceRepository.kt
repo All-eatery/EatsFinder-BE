@@ -18,20 +18,40 @@ interface PlaceRepository : JpaRepository<Place, Long> {
 
     @Query(
         """
-        SELECT p FROM Place p 
-        WHERE 
-        p.address LIKE %:keyword% OR
-        p.categoryId.name LIKE %:keyword%
-    """
-    )
+    SELECT DISTINCT p
+    FROM Place p
+    LEFT JOIN p.placeMenus pm
+    LEFT JOIN p.posts po
+    LEFT JOIN po.userId u
+    WHERE p.deletedAt IS NULL
+      AND (
+           LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(pm.menu) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(u.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(po.content) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(p.address) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(p.categoryId.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+      )
+      ORDER BY p.id ASC
+    """)
     fun findAllByKeywords(@Param("keyword") keyword: String, pageable: Pageable): List<Place>
 
     @Query(
         """
-    SELECT p FROM Place p 
-    WHERE 
-    (p.address LIKE %:keyword% OR
-    p.categoryId.name LIKE %:keyword%)
+    SELECT DISTINCT p
+    FROM Place p
+    LEFT JOIN p.placeMenus pm
+    LEFT JOIN p.posts po
+    LEFT JOIN po.userId u
+    WHERE p.deletedAt IS NULL
+      AND (
+           LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(pm.menu) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(u.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(po.content) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(p.address) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(p.categoryId.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        )
     AND p.id > :placeCursorId
 """
     )
@@ -43,11 +63,20 @@ interface PlaceRepository : JpaRepository<Place, Long> {
 
     @Query(
         """
-        SELECT COUNT(p) FROM Place p
-        WHERE
-        p.address LIKE %:keyword% OR
-        p.categoryId.name LIKE %:keyword%
-        AND p.deletedAt IS NULL
+    SELECT COUNT(p) 
+    FROM Place p
+    LEFT JOIN p.placeMenus pm
+    LEFT JOIN p.posts po
+    LEFT JOIN po.userId u
+    WHERE p.deletedAt IS NULL
+      AND (
+           LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(pm.menu) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(u.nickname) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(po.content) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(p.address) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        OR LOWER(p.categoryId.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        )
     """
     )
     fun countTotalByKeyword(@Param("keyword") keyword: String): Long
