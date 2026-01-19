@@ -8,7 +8,7 @@ import jakarta.persistence.*
 class StarRating(
 
     @Column(name = "star", nullable = false, columnDefinition = "TINYINT")
-    val star: Int,
+    val star: Float,
 
     @ManyToOne
     @JoinColumn(name = "place_id", nullable = false)
